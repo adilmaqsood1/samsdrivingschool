@@ -1,0 +1,496 @@
+{% extends "index.html" %}
+<!DOCTYPE html>
+<!-- language -->
+<html lang="zxx">
+
+<head>
+    <!-- ========== Meta Tags ========== -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="layerdrops">
+    <meta name="description" content="Drivschol is a modern and versatile driving HTML template. It is specially designed for driving school, car driving, driving classes, training center, online school, education system, online courses, traffic school and all other education school and online driving courses business and websites.">
+
+    <!-- ======== Page title ============ -->
+    {% block title %}Contact to Sams driving school{% endblock %}
+
+    <!-- ========== Favicon Icon ========== -->
+    <link rel="shortcut icon" href="assets/images/favicons/apple-touch-icon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/images/favicons/site.webmanifest">
+
+
+    <!-- ===========  All Font ================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Urbanist:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ===========  All Stylesheet ================= -->
+    <!--  Bootstrap css plugins -->
+    <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
+    <!--  bootstrap-select css plugins -->
+    <link rel="stylesheet" href="assets/vendors/bootstrap-select/bootstrap-select.min.css">
+    <!--  animate css plugins -->
+    <link rel="stylesheet" href="assets/vendors/animate/animate.min.css">
+    <!--  fontawesome css plugins -->
+    <link rel="stylesheet" href="assets/vendors/fontawesome/css/all.min.css">
+    <!--  jquery-ui css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jquery-ui/jquery-ui.css">
+    <!--  jarallax css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jarallax/jarallax.css">
+    <!--  magnific-popup css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jquery-magnific-popup/jquery.magnific-popup.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.min.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.pips.css">
+    <link rel="stylesheet" href="assets/vendors/tiny-slider/tiny-slider.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/drivschol-icons/style.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.theme.default.min.css">
+
+    <!-- template styles -->
+    <link rel="stylesheet" href="assets/css/drivschol.css">
+</head>
+
+<body class="custom-cursor">
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor__cursor"></div>
+    <div class="custom-cursor__cursor-two"></div>
+
+    <!-- Preloader Start-->
+    <div class="preloader">
+        <div class="preloader__image" style="background-image: url(assets/images/loader.png);"></div>
+    </div>
+    <!-- Preloader End-->
+
+    <div class="page-wrapper">
+
+        <!-- Topbar Start-->
+        <div class="topbar-one">
+            <div class="container-fluid">
+                <div class="topbar-one__inner">
+                    <div class="topbar-one__left">
+                        <div class="topbar-one__social">
+                            <!-- social link-->
+                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+                        </div>
+                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+                    </div>
+                    <ul class="topbar-one__right">
+                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Topbar Start-->
+
+        <!-- Header Start-->
+        {% include 'header.html' %}
+        <!-- Header End-->
+        {% block content %}
+        <section class="page-header">
+            <div class="page-header__bg" style="background-image: url(assets/images/backgrounds/page-header-bg-1-1.jpg);"></div>
+            <!-- /.page-header__bg -->
+            <div class="container">
+                <h2 class="page-header__title">Contact</h2>
+                <ul class="drivschol-breadcrumb list-unstyled">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><span>Contact</span></li>
+                </ul><!-- /.thm-breadcrumb list-unstyled -->
+            </div><!-- /.container -->
+        </section><!-- /.page-header -->
+
+        <section class="contact-one">
+            <div class="container">
+                <div class="contact-one__inner">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="sec-title  text-center wow fadeInUp" data-wow-delay='300ms'>
+
+                                <h6 class="sec-title__tagline">
+                                    <i class="icon-left-arrow sec-title__img"></i>
+                                    Contact with Us
+                                    <i class="icon-right-arrow sec-title__img"></i>
+                                </h6><!-- /.sec-title__tagline -->
+
+                                <h3 class="sec-title__title">Feel Free to Write us Anytime</h3><!-- /.sec-title__title -->
+                            </div><!-- /.sec-title -->
+                        </div><!-- /.col-12 -->
+                    </div><!-- /.row -->
+
+                    <form class="contact-one__form contact-form-validated form-one" action="{% url 'lead_capture' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-one__group wow fadeInUp" data-wow-delay='300ms'>
+                            <div class="contact-one__form__control">
+                                <input type="text" name="name" placeholder="Your Name">
+                            </div><!-- /.form-one__control form-one__control__full -->
+
+                            <div class="contact-one__form__control">
+                                <input type="email" name="email" placeholder="Email Address">
+                            </div><!-- /.form-one__control form-one__control__full -->
+
+                            <div class="contact-one__form__control">
+                                <input type="text" name="phone" placeholder="Phone">
+                            </div><!-- /.form-one__control form-one__control__full -->
+
+                            <div class="contact-one__form__control">
+                                <input type="text" name="subject" placeholder="Subject">
+                            </div><!-- /.form-one__control form-one__control__full -->
+
+                            <div class="contact-one__form__control form-one__control__full">
+                                <textarea name="message" placeholder="Write A Message"></textarea><!-- /# -->
+                            </div><!-- /.form-one__control -->
+
+                            <div class="contact-one__form__control form-one__control__full text-center">
+                                <button type="submit" class="drivschol-btn drivschol-btn--base2"><span>Send a Message</span></button>
+                            </div><!-- /.form-one__control -->
+
+                        </div><!-- /.row -->
+                    </form>
+                </div><!-- /.contact-one__inner -->
+            </div><!-- /.container -->
+        </section><!-- /.contact-one -->
+
+        <section class="contact-location">
+            <div class="container">
+                <div class="contact-location__header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="sec-title  text-start wow fadeInUp" data-wow-delay='300ms'>
+
+                                <h6 class="sec-title__tagline">
+                                    <i class="icon-left-arrow sec-title__img"></i>
+                                    Location
+                                    <i class="icon-right-arrow sec-title__img"></i>
+                                </h6><!-- /.sec-title__tagline -->
+
+                                <h3 class="sec-title__title">See Driving Schools Locations <br> Near by You</h3><!-- /.sec-title__title -->
+                            </div><!-- /.sec-title -->
+                        </div><!-- /.col-12 -->
+                        <div class="col-md-6">
+                            <div class="contact-location__subheading wow fadeInUp" data-wow-delay='300ms'>
+                                <p class="contact-location__subheading__text">There are many variations of passages of Lorem Ipsum avagtilable, but the majority have suffered alteration in some form, by injected hudfdfmour, or randomised words</p><!-- /.contact-location__subheading__text -->
+                            </div><!-- / -->
+                        </div><!-- /.col-12 -->
+                    </div><!-- /.row -->
+                </div><!-- /.contact-location__header -->
+
+                <div class="contact-location__inner tabs-box wow fadeInUp" data-wow-delay='300ms'>
+                    <div class="contact-location__inner__filter">
+                        <button data-tab="#burlington" class="contact-location__inner__filter__btn drivschol-btn tab-btn active-btn">Burlington</button><!-- /.contact-location__inner__filter__btn -->
+                        <button data-tab="#milton" class="contact-location__inner__filter__btn drivschol-btn tab-btn">Milton</button><!-- /.contact-location__inner__filter__btn -->
+                        <button data-tab="#gta" class="contact-location__inner__filter__btn drivschol-btn tab-btn">GTA</button><!-- /.contact-location__inner__filter__btn -->
+                    </div><!-- /.contact-location__inner__filter -->
+                    <div class="tabs-content">
+                        <div class="contact-location__inner__item fadeInUp animated tab active-tab" id="burlington">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/buca.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:sdsburlington@gmail.com" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">sdsburlington@gmail.com</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">23-460 Brant Street, Burlington, Ontario L7R 4B6</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+
+                        <div class="contact-location__inner__item fadeInUp animated tab" id="milton">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/maca.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:sdsburlington@gmail.com" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">sdsburlington@gmail.com</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">Milton location available (by appointment)</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+
+                        <div class="contact-location__inner__item fadeInUp animated tab" id="gta">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/gta.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:sdsburlington@gmail.com" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">sdsburlington@gmail.com</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">Serving Burlington, Milton, and the GTA</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+                    </div><!-- /tabs-content -->
+                </div><!-- /.contact-location__inner -->
+            </div><!-- /.container -->
+        </section><!-- /.contact-location -->
+
+        <div class="contact-map wow fadeInUp" data-wow-delay='300ms'>
+            <div class="container-fluid">
+                <div class="google-map google-map__contact">
+                    <iframe title="template google map" src="https://www.google.com/maps?q=23-460%20Brant%20Street,%20Burlington,%20Ontario%20L7R%204B6&output=embed" class="map__contact" allowfullscreen></iframe>
+                </div>
+                <!-- /.google-map -->
+            </div><!-- /.container-fluid -->
+        </div><!-- /.contact-map -->
+        {% endblock %}
+        
+        {% include 'includes/footer.html' %}
+
+    </div><!-- /.page-wrapper -->
+
+
+
+    <div class="mobile-nav__wrapper">
+        <div class="mobile-nav__overlay mobile-nav__toggler"></div>
+        <!-- /.mobile-nav__overlay -->
+        <div class="mobile-nav__content">
+            <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
+
+            <div class="logo-box">
+                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/images/logo-light.png" width="155" alt="logo drivschol"></a>
+            </div>
+            <!-- /.logo-box -->
+            <div class="mobile-nav__container"></div>
+            <!-- /.mobile-nav__container -->
+
+            <ul class="mobile-nav__contact list-unstyled">
+                <li>
+                    <i class="fa fa-envelope"></i>
+                    <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a>
+                </li>
+                <li>
+                    <i class="fa fa-phone-alt"></i>
+                    <a href="tel:+16478891708">647-889-1708</a>
+                </li>
+            </ul><!-- /.mobile-nav__contact -->
+            <div class="mobile-nav__social">
+                <!-- social link-->
+                <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+                <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+                <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+            </div><!-- /.mobile-nav__social -->
+        </div>
+        <!-- /.mobile-nav__content -->
+    </div>
+    <!-- /.mobile-nav__wrapper -->
+    <div class="search-popup">
+        <div class="search-popup__overlay search-toggler"></div>
+        <!-- /.search-popup__overlay -->
+        <div class="search-popup__content">
+            <form role="search" method="get" class="search-popup__form" action="#">
+                <input type="text" id="search" placeholder="Search Here...">
+                <button type="submit" aria-label="search submit" class="drivschol-btn drivschol-btn--base2">
+                    <span><i class="icon-search"></i></span>
+                </button>
+            </form>
+        </div>
+        <!-- /.search-popup__content -->
+    </div>
+    <!-- /.search-popup -->
+
+    <a href="#" data-target="html" class="scroll-to-target scroll-to-top">
+        <span class="scroll-to-top__text">back top</span>
+        <span class="scroll-to-top__wrapper"><span class="scroll-to-top__inner"></span></span>
+    </a>
+
+
+
+    <!--  ALl JS Plugins =====================
+        ====================================== -->
+    <!--  jquery-3.7.0 js plugins -->
+    <script src="assets/vendors/jquery/jquery-3.7.0.min.js"></script>
+    <!--  Bootstrap js plugins -->
+    <script src="assets/vendors/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendors/bootstrap-select/bootstrap-select.min.js"></script>
+    <!--  jarallax js plugins -->
+    <script src="assets/vendors/jarallax/jarallax.min.js"></script>
+    <!--  jquery-ui js plugins -->
+    <script src="assets/vendors/jquery-ui/jquery-ui.js"></script>
+    <!--  jquery-ajaxchimp js plugins -->
+    <script src="assets/vendors/jquery-ajaxchimp/jquery.ajaxchimp.min.js"></script>
+    <!--  jquery-appear js plugins -->
+    <script src="assets/vendors/jquery-appear/jquery.appear.min.js"></script>
+    <!-- jquery-circle-progress js plugins -->
+    <script src="assets/vendors/jquery-circle-progress/jquery.circle-progress.min.js"></script>
+    <!--  magnific-popup js plugins -->
+    <script src="assets/vendors/jquery-magnific-popup/jquery.magnific-popup.min.js"></script>
+    <!--  validate js plugins -->
+    <script src="assets/vendors/jquery-validate/jquery.validate.min.js"></script>
+    <!--  nouislider js plugins -->
+    <script src="assets/vendors/nouislider/nouislider.min.js"></script>
+    <!--  tiny-slider js plugins -->
+    <script src="assets/vendors/tiny-slider/tiny-slider.js"></script>
+    <!--  wnumb js plugins -->
+    <script src="assets/vendors/wnumb/wNumb.min.js"></script>
+    <!--  owl-carousel js plugins -->
+    <script src="assets/vendors/owl-carousel/js/owl.carousel.min.js"></script>
+    <!--  Bootstrap js plugins -->
+    <script src="assets/vendors/wow/wow.js"></script>
+    <!--  wow js plugins -->
+    <script src="assets/vendors/imagesloaded/imagesloaded.min.js"></script>
+    <!--  isotope js plugins -->
+    <script src="assets/vendors/isotope/isotope.js"></script>
+    <!--  countdown js plugins -->
+    <script src="assets/vendors/countdown/countdown.min.js"></script>
+    <!--  jquery-circleType js plugins -->
+    <script src="assets/vendors/jquery-circleType/jquery.circleType.js"></script>
+    <script src="assets/vendors/jquery-lettering/jquery.lettering.min.js"></script>
+
+    <!-- template js -->
+    <script src="assets/js/drivschol.js"></script>
+</body>
+
+</html>

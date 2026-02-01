@@ -1,0 +1,302 @@
+﻿Sams Driving Project 
+
+
+Current Website : Samsdriving.ca 
+
+
+Inspirational Website: https://topchoicedriving.ca 
+
+
+Actual Pricing 
+* For full cource including 10 hours incar 30 hours online with insurance certificate including tax is $650 
+* For full G $60 for 1 hour 
+* For G2 $55 for 1 hour 
+* Mini package for G2 includes 2 lesson and car for road test $210 
+* Mini package for full G including 2 lessons and car for  road test in $230
+
+
+
+
+
+
+1. Context & Requirements (derived)
+
+
+From your website:
+•        SAMS offers a beginner driver education (BDE) program: 20 hours theory (in-class or online), 10 hours homework, 10 hours in-car driving. 
+•        Multiple locations (Burlington, Milton)
+•        They handle both online/e-learning registrations and in-class registration & lesson scheduling. 
+•        Payment plans offered. (Square Payment System Currrent) Okay with Stripe 
+•        
+Key functional demands you must handle:
+•        Lead capture / prospect funnel
+•        Student registration
+•        Course scheduling (Lessons, driving lessons)
+•        Instructor assignment & scheduling
+•        Payment, invoices, payment plans
+•        Communications / reminders / alerts (email)
+•        Reporting and dashboards (utilization, revenue, conversion)
+
+
+⸻
+
+
+2. High-Level Architecture & Module Breakdown
+
+
+Below is a modular breakdown of the CRM, and integration points.
+
+
+Module
+	Purpose
+	Key Entities / Data Objects
+	Integrations / External Systems
+	Lead & Prospect Management
+	Capture inquiries, follow up, convert to registrations
+	Lead (name, contact, source, interest), Lead Status, Notes, Tasks
+	Web forms, landing pages
+	Student / Client Management
+	Full lifecycle of a student
+	Student record, contact, address, license status, course history, certifications
+	Identity verification, document upload
+	Course 
+	Manage types of courses offered
+	Course types (BDE, defensive, test-prep), sessions, curriculum modules
+	Website CMS to display courses
+	Registration & Enrollment
+	Convert leads to registered students in specific sessions
+	Enrollment record, status (pending, paid, active, completed, dropped)
+	Payment gateway, internal approvals
+	Scheduling & Resource Management
+	Allocate instructors, vehicles, time slots
+	Lessons (time slot, instructor, car, student), classrooms, vehicles, instructor availability
+	Calendar (Google or Outlook integration), resource conflict detection
+	
+
+	
+
+	
+
+	
+
+	Payments & Billing
+	Invoicing, payment capture, payment plan tracking
+	Invoice, payment, payment schedule, balance, refunds
+	Payment gateways (Stripe, PayPal, local methods), accounting / ERP system
+	Certification & Reporting
+	Track student completion and regulatory compliance
+	Certification record, status, submission to MTO, transcripts
+	Integration/API to Ministry or regulatory body, PDF generation
+	Communication & Engagement
+	Automated reminders,, email
+	Templates, triggers, logs
+	Email server 
+	Dashboard & Analytics
+	KPIs, reporting, trend analysis
+	Reports (student pipeline, revenue, Lessons this week), , next week etc, dashboards
+	Export to CSV
+	Admin / Security / Permissions
+	Control user roles and access
+	User roles (admin, manager, instructor,), permissions, audit logs
+	
+
+	
+
+
+
+4. Workflow / Process Flows
+
+
+4.1 Lead → Enrollment
+1.        Lead arrives (via website form, phone, ad).
+2.        Automatically logged as a Lead in CRM. ( Admin should also be able to add new students manually) 
+3.        Assign to sales rep. Add follow-up task.
+4.        Email / SMS drip nurturing: send brochure, course info.
+5.        When lead indicates intent, quote is sent, or instant enrollment link.
+6.        Lead converted to Student by triggering Registration.
+
+
+4.2 Registration & Payment
+1.        Student selects a CourseSession (date, location, in-class or online).
+2.        Offer payment options: full, installment plan.
+3.        Create Invoice(s) and payment schedule.
+4.        Capture payment via gateway.
+5.        Confirm registration, send welcome package / pre-class info.
+
+
+4.3 Scheduling Driving Lessons & Theory Sessions
+1.        For theory: schedule classroom / online sessions. Track attendance.
+2.        For driving lessons: allocate Instructor + Vehicle + Time slot via scheduling engine.
+3.        If student must be picked up, include pick/drop logic.
+4.        Send reminders before each lesson.
+5.        During lesson: instructor logs notes, performance, issues.
+
+
+4.4 Homework / Theory Progress Tracking
+•        Link to LMS (or built-in module).
+•        Students complete quizzes, homework, mark modules done.
+•        System tracks progress, flags delays, sends reminders.
+
+
+4.5 Certification & Ministry Submission
+•        Once all components (theory, homework, driving hours) are completed:
+•        Mark Enrollment → Completed.
+•        Generate Certificate (PDF or system record).
+•        Submit completion to Ministry via API or data file.
+•        Mark student eligible for test (G2 / next step).
+•        Track whether student availed vehicle for test, etc.
+
+
+4.6 Ongoing Engagement & Upsell
+•        After course, send offers: defensive driving, refresher courses.
+•        Collect reviews, referrals.
+•        Monitor alumni for renewals, retests, etc.
+
+
+
+
+
+
+⸻
+
+
+5. Integration Considerations
+•        Website / Lead Capture: embed forms connecting to CRM API.
+•        Payment Gateway: support credit cards, local payment methods.
+•         Email  transactional & marketing communications.
+        
+⸻
+
+
+   6. Technology Stack Recommendations (Options)
+•        Use a robust CRM with customization:
+•        Use or build a scheduling engine integration with google calendar api showing in admin canvas
+•        Payment stripe integration
+         email  stmp server with scheduler
+		 django-jet + django-jet-dashboard
+
+
+
+About - us 
+
+WHAT WE DO
+We pride ourselves on delivering a high standard of customer service, all the while remaining focused on maintaining a very high first time pass rate. Established in 2005, we specialise in all aspects of driving training. Over the past 11 years, we have grown to be one of the most popular and successful driving schools GTA, and envied by all of our competitors. Since our establishment we have delivered over 10,000 passes locally.
+
+Our Experience and Success
+All of our instructors are fully-qualified and very experienced, and will carefully guide you through the learning process so that on the day of your driving test you can be certain that you will possess all of the skill and knowledge you need to successfully pass your test. At Sam’s Driving School, all of our lessons are conducted to a very high standard. By placing your driving ambitions in our hands, you are ensuring the best chance of early success and a high degree of driving skill, which will help to secure many years of safe driving. All of our lessons are conducted on Dual Break Control Vehicle.
+
+Some simple reason to choose us
+Sam’s Driving School opened our very first office in Scarborough in 2005 Having spent 5 successful years in Scarborough we then open another branch in Whitby, Port Hope and NOW in Burlington Ontario. In Sam’s Driving School we pride ourselves on offering high quality driving training at affordable prices. We understand that driving lessons are not cheap and therefore we try to offer the most competitive prices. So if you are looking for a driving school in Burlington then choose the one that has the best reputation and the most experience, that’s Sam’s Driving School!!.
+
+
+
+Courses:
+
+Senior Driver Training 
+Senior Drivers have come under scrutiny these last few weeks in the local papers and newscasts because of a number of incidents that have occurred when they have been behind the wheel. I personally witnessed a senior driver back out of a grocery store parking lot, hit two vehicles and drive over a curb. The driver left with no knowledge of the havoc left behind. If it wasn't for witnesses the driver would have gotten off to do it again. Maybe, the next time it would not have been a vehicle but a person this driver would have injured.
+Today a senior driver can keep their licence to drive, past the age of eighty, as long as they can pass a written and vision test every two years. The Ministry of Transportation runs a Driver Refresher Course lasting about 2 hours prior to the written exam. It covers the basic rules of the road, and how a senior driver can compensate for changes in reflexes and eyesight.
+Many seniors pass this written test with flying colours however, some of them show signs of poor cognitive skills when it comes to certain tasks behind the wheel. Many seniors consider themselves good drivers because they have been driving for over fifty years without incident. With age comes physical and mental changes.
+Certain prescriptions can affect motor skills, especially if they are mixed with other drugs. A medical doctor is under obligation to notify the Ministry of Transportation if they have a patient that is a threat to themselves and the public. Some seniors get upset when they learn that their licence has been suspended, and that they now have to take a battery of tests by specialists and evaluators etc. to try to regain that licence and their independence.
+It is important to remember that driving is not a right of passage, but a privilege and each driver needs to understand the implications of what is at stake. As it stands now
+Any driver over the age of 72 who accumulates points for any infraction of the Ontario Highway Traffic Act, or is involved in an "At Fault" collision, will have to undergo a driving test - free of charge. A senior driver can attempt this test countless times, but after the first failure their licence is reduced to a G1. They have to wait ten days between each test until they accomplish the "G" license.
+Currently G1 License Restrictions are:
+Must be accompanied by a licensed G Driver in good standing for 4 years
+Cannot drive from 12 Midnight to 5:00 am
+Cannot drive on any highway with a posted speed limit of 80 or higher
+Zero percent blood alcohol concentration
+No more passengers than working seatbelts
+The Ministry of Transportation is currently considering implementing the time of day and roadway restrictions for seniors, called a "degraded licence", which is embraced by many other provinces. They have not ruled out mandatory road tests for anyone over the age of 80. Studies are being conducted by the Ontario Government at this time, and the results will be available in the next few years.
+Many seniors recognize their own limitations and have changed when and where they drive, but this has not solved the problem of drivers having limited physical and cognitive abilities.
+Annette, who is a senior herself has evaluated countless senior drivers over the years and understands the situation and what is involved. There are many options available at SAM’S DRIVING SCHOOL, depending on each situation for the senior driver.
+There is a group program for 10 or more, called "55 ALIVE" which includes 5 hours in class instruction which can be taught in one day splitting the time with a lunch hour and breaks, or two mornings or evenings whichever is more convenient. Also included is an evaluation for each participant in their own vehicle. This is an ideal program for senior clubs and groups as it is more economical for each participant. Work books and a power point show make it entertaining and educational, and on completion of this course includes a certificate that some insurance companies would recognize for insurance purposes.
+The other option is that an individual senior can make arrangements to come into the office to go over the Ontario Highway Traffic Laws and then make an appointment for an instructor to take them out in their vehicle and evaluate their driving by putting them through several manoeuvres. This also can be certified.
+Program Includes
+
+One hour training as per MTO requirement including all Parallel parking, Revurse parking and HWY driving if required to pass Ministry Road Test
+
+Choose a Classroom Schedule
+
+ONLINE COURSE
+DATESTIMESSIGNUP NOW
+
+Fees
+Regular Fees: 50$ +HST
+Promotion Fees: Save 0$ +HST
+Pay Only Fees:50$ +HST
+Prices subject to change without notice.
+
+Course Fee: 50$ +HST
+One Time Offer Savings ,
+Certification Fee:0$
+Subtotal : $50 .00
+HST (13%) : $6.5
+Total Fees : $56.5
+Balance Due : $56.5
+
+
+
+MTO Approved Beginner Driving online course:
+This is Ministry Approved Online BDE course consist of 2 Components.
+1. 30 hours online course.
+2. 10 hours one on one in-car training by Qualified Driving Instructor.
+During your 10 hours in-car training you will be taught defensive driving, Collision avoidance, Parking maneuvers, and HIGHWAY driving. Last session of in-car your mock road test will be conducted on the same Exam sheet (which is used by an examiner) for better idea of exam marking.
+Upon successful completion of this program students will be certified online with MTO.
+BDE Graduates with Driver Licence History may be eligible for an insurance discount.
+Note: No refund will be made after the first in car session or student start online homework portion. (Whichever comes first)
+
+Program Includes
+
+ 30 hours of ONLINE learning
+
+ 10 hours one on one in-car training
+
+ Each in-car session 60 minutes
+
+ Certified online for MTO Road test and Insurance Discount.
+
+ Free pickup and drop off from home, work or School locally (Only for in car training within 10km radius of Sams driving school)
+
+Choose a Classroom Schedule
+
+ONLINE COURSE   DATESTIMESSIGNUP NOW  Vovember 3012:00 AM to 12:00 AM  book now button
+
+Fees
+
+Regular Fees: 675$ +HST
+Promotion Fees: Save 100$ +HST
+Pay Only Fees:575$ +HST
+Prices subject to change without notice.
+
+Course Fee: 575$ +HST
+One Time Offer Savings ,
+Certification Fee:0$
+
+
+
+
+FAQ's
+
+What is the driver's license history? 
+ The Driver's License History provides proof of successful completion of and graduation from a BDE course and is widely recognized by the insurance industry as proof of course completion. BDE Graduates with a Driver's License History may be eligible for an insurance discount.
+
+Can I take my G2 road test in 8 months? 
+ Yes, if you successfully complete a Driver Beginner Education course.
+ 
+Can I start my driver training course immediately? 
+ Yes, you may even start driving on the roads before the in-class sessions with your G1
+
+Can I start the course without a G1 license yet? 
+ Yes, we will prepare you to pass the knowledge/written test for the Driver’s Examination Centre.
+
+Can I drive with my G2 on the highway? 
+ Yes, anytime, anywhere.
+
+
+
+
+
+adrees and phone :
+
+23-460 Brant street Burlington Ontario, L7R 4B6
+647-889-1708
+sdsburlington@gmail.com

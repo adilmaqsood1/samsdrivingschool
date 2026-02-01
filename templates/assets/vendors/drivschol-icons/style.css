@@ -1,0 +1,192 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?27kd39');
+  src:  url('fonts/icomoon.eot?27kd39#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?27kd39') format('truetype'),
+    url('fonts/icomoon.woff?27kd39') format('woff'),
+    url('fonts/icomoon.svg?27kd39#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-right-arrow:before {
+  content: "\e935";
+}
+.icon-left-arrow:before {
+  content: "\e936";
+}
+.icon-pluse:before {
+  content: "\e934";
+}
+.icon-arrow-left:before {
+  content: "\e933";
+}
+.icon-chat2:before {
+  content: "\e932";
+}
+.icon-trophy:before {
+  content: "\e931";
+}
+.icon-quite:before {
+  content: "\e930";
+}
+.icon-shield:before {
+  content: "\e92e";
+}
+.icon-vector:before {
+  content: "\e92f";
+}
+.icon-education_2:before {
+  content: "\e92c";
+}
+.icon-video-lesson:before {
+  content: "\e92d";
+}
+.icon-driving-license:before {
+  content: "\e92a";
+}
+.icon-success:before {
+  content: "\e92b";
+}
+.icon-Group:before {
+  content: "\e922";
+}
+.icon-check-1:before {
+  content: "\e923";
+}
+.icon-Call:before {
+  content: "\e924";
+}
+.icon-chat-1:before {
+  content: "\e925";
+}
+.icon-down-arrow-1:before {
+  content: "\e926";
+}
+.icon-clock-1-outline:before {
+  content: "\e927";
+}
+.icon-bubble-chat-1:before {
+  content: "\e928";
+}
+.icon-user_8912571:before {
+  content: "\e929";
+}
+.icon-video:before {
+  content: "\e920";
+}
+.icon-arrow:before {
+  content: "\e921";
+}
+.icon-search:before {
+  content: "\e905";
+}
+.icon-trolley-cart:before {
+  content: "\e91f";
+}
+.icon-envelope:before {
+  content: "\e900";
+}
+.icon-map-pin:before {
+  content: "\e901";
+}
+.icon-certificate-1:before {
+  content: "\e902";
+}
+.icon-driving-license-1:before {
+  content: "\e903";
+}
+.icon-Expert:before {
+  content: "\e904";
+}
+.icon-Instagram:before {
+  content: "\e906";
+}
+.icon-instructor-1-1:before {
+  content: "\e907";
+}
+.icon-instructor-1:before {
+  content: "\e908";
+}
+.icon-Instructor:before {
+  content: "\e909";
+}
+.icon-interest-rate-1:before {
+  content: "\e90a";
+}
+.icon-qoute:before {
+  content: "\e90b";
+}
+.icon-license-1:before {
+  content: "\e90c";
+}
+.icon-online-course-1:before {
+  content: "\e90d";
+}
+.icon-online-learning-1-1:before {
+  content: "\e90e";
+}
+.icon-online-learning:before {
+  content: "\e90f";
+}
+.icon-car-1:before {
+  content: "\e910";
+}
+.icon-pinterest:before {
+  content: "\e911";
+}
+.icon-rating-1:before {
+  content: "\e912";
+}
+.icon-route:before {
+  content: "\e913";
+}
+.icon-safety:before {
+  content: "\e914";
+}
+.icon-seminar-1:before {
+  content: "\e915";
+}
+.icon-share-1:before {
+  content: "\e916";
+}
+.icon-steering-wheel-1:before {
+  content: "\e917";
+}
+.icon-Student:before {
+  content: "\e918";
+}
+.icon-technical-support-1:before {
+  content: "\e919";
+}
+.icon-telephone-call-1:before {
+  content: "\e91a";
+}
+.icon-training:before {
+  content: "\e91b";
+}
+.icon-trophy-2:before {
+  content: "\e91c";
+}
+.icon-trust-1:before {
+  content: "\e91d";
+}
+.icon-twitter:before {
+  content: "\e91e";
+}

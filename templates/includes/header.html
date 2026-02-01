@@ -1,0 +1,51 @@
+        <header class="main-header sticky-header sticky-header--normal">
+            <div class="container-fluid">
+                <div class="main-header__inner">
+                    <div class="main-header__logo">
+                        <a href="{% url 'index_page' %}">
+                            <img src="assets/samslogo.png" alt="Sams Driving School" width="49">
+                        </a>
+                    </div><!-- /.main-header__logo -->
+                    <nav class="main-header__nav main-menu">
+                        <ul class="main-menu__list">
+
+                            <li><a href="{% url 'index_page' %}">Home</a></li>
+                            <li> <a href="{% url 'about_page' %}">About</a> </li>
+                            <li ><a href="{% url 'course_page' %}">Courses</a></li>
+                            <li><a href="{% url 'faq_page' %}">FAQ</a></li>
+                            <li><a href="{% url 'blog_page' %}">Blog</a></li>
+                            <li><a href="{% url 'contact_page' %}">Contact</a></li>
+                        </ul>
+                    </nav><!-- /.main-header__nav -->
+                    <div class="main-header__right">
+                        <div class="info-item">
+                            <a href="tel:+16478891708" class="info-item__btn d-flex align-items-center">
+                                <div class="icon">
+                                    <i class="icon-Call"></i>
+                                </div>
+                                <div class="content">
+                                    <span class="content__text">Call to Questions</span>
+                                    <h6 class="content__call">647-889-1708</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="info-item">
+                            <a href="#" class="search-toggler info-item__btn">
+                                <i class="icon-search"></i><span class="sr-only">Search</span>
+                            </a>
+                        </div>
+                        <div class="info-item">
+                            <a href="{% url 'login_page' %}" class="info-item__btn">Login</a>
+                        </div>
+                        <div class="item-shape">
+                            <img src="assets/images/shapes/shape.svg" alt="Drivschol">
+                        </div>
+                    </div><!-- /.main-header__right -->
+                    <div class="mobile-nav__btn mobile-nav__toggler">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div><!-- /.mobile-nav__toggler -->
+                </div><!-- /.main-header__inner -->
+            </div><!-- /.container-fluid -->
+        </header><!-- /.main-header -->

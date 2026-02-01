@@ -1,0 +1,317 @@
+{% extends "index.html" %}
+{% load static %}
+<!DOCTYPE html>
+<!-- language -->
+<html lang="zxx">
+
+<head>
+    <!-- ========== Meta Tags ========== -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="layerdrops">
+    <meta name="description" content="Drivschol is a modern and versatile driving HTML template. It is specially designed for driving school, car driving, driving classes, training center, online school, education system, online courses, traffic school and all other education school and online driving courses business and websites.">
+
+    <!-- ======== Page title ============ -->
+    {% block title %}Sams Driving School | Blog Details{% endblock %}
+
+    <!-- ========== Favicon Icon ========== -->
+    <link rel="shortcut icon" href="assets/images/favicons/apple-touch-icon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/images/favicons/site.webmanifest">
+
+
+    <!-- ===========  All Font ================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Urbanist:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ===========  All Stylesheet ================= -->
+    <!--  Bootstrap css plugins -->
+    <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
+    <!--  bootstrap-select css plugins -->
+    <link rel="stylesheet" href="assets/vendors/bootstrap-select/bootstrap-select.min.css">
+    <!--  animate css plugins -->
+    <link rel="stylesheet" href="assets/vendors/animate/animate.min.css">
+    <!--  fontawesome css plugins -->
+    <link rel="stylesheet" href="assets/vendors/fontawesome/css/all.min.css">
+    <!--  jquery-ui css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jquery-ui/jquery-ui.css">
+    <!--  jarallax css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jarallax/jarallax.css">
+    <!--  magnific-popup css plugins -->
+    <link rel="stylesheet" href="assets/vendors/jquery-magnific-popup/jquery.magnific-popup.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.min.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.pips.css">
+    <link rel="stylesheet" href="assets/vendors/tiny-slider/tiny-slider.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/drivschol-icons/style.css">
+    <!--  nouislider css plugins -->
+    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.theme.default.min.css">
+
+    <!-- template styles -->
+    <link rel="stylesheet" href="assets/css/drivschol.css">
+</head>
+
+<body class="custom-cursor">
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor__cursor"></div>
+    <div class="custom-cursor__cursor-two"></div>
+
+    <!-- Preloader Start-->
+    <div class="preloader">
+        <div class="preloader__image" style="background-image: url(assets/images/loader.png);"></div>
+    </div>
+    <!-- Preloader End-->
+
+    <div class="page-wrapper">
+
+        <!-- Topbar Start-->
+        <div class="topbar-one">
+            <div class="container-fluid">
+                <div class="topbar-one__inner">
+                    <div class="topbar-one__left">
+                        <div class="topbar-one__social">
+                            <!-- social link-->
+                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+                        </div>
+                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+                    </div>
+                    <ul class="topbar-one__right">
+                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com"> sdsburlington@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Topbar Start-->
+
+        <!-- Header Start-->
+        {% include 'header.html' %}
+        <!-- Header End-->
+        {% block content %}
+        <section class="page-header">
+            <div class="page-header__bg" style="background-image: url({% static 'assets/images/backgrounds/page-header-bg-1-1.jpg' %});"></div>
+            <!-- /.page-header__bg -->
+            <div class="container">
+                <h2 class="page-header__title">{{ blog.title }}</h2>
+                <ul class="drivschol-breadcrumb list-unstyled">
+                    <li><a href="{% url 'index_page' %}">Home</a></li>
+                    <li><a href="{% url 'blog_page' %}">Blog</a></li>
+                    <li><span>{{ blog.title }}</span></li>
+                </ul><!-- /.thm-breadcrumb list-unstyled -->
+            </div><!-- /.container -->
+        </section><!-- /.page-header -->
+
+        <section class="blog-one blog-one--page">
+            <div class="container">
+                <div class="row gutter-y-60">
+                    <div class="col-lg-8">
+                        <div class="blog-details">
+                            <div class="blog-card blog-card-two">
+
+                                <div class="blog-card__image">
+                                    <div class="blog-card__image-item2">
+                                        {% if blog.cover_image %}
+                                        <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/blog/blog-l-1-4.jpg' %}" alt="{{ blog.title }}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="blog-card__date">
+                                        <h2 class="blog-card__date__month">{{ blog.published_at|date:"d" }}</h2>
+                                        <span class="blog-card__date__year">{{ blog.published_at|date:"F Y" }}</span>
+                                        <img class="date__shape" src="{% static 'assets/images/shapes/date.png' %}" alt>
+                                    </div>
+                                </div><!-- /.blog-card__image -->
+
+                                <div class="blog-card-content2">
+                                    <ul class="list-unstyled blog-card__meta2">
+                                        <li class=" blog-card__meta2__item"><a href="#"> <i class="icon-user_8912571"></i>by {{ blog.author_name|default:"Drivschol Team" }}</a></li>
+                                    </ul>
+
+                                    <h3 class="blog-card__title">{{ blog.title }}</h3>
+                                    <p class="blog-card-two__text">{{ blog.content }}</p>
+                                </div><!-- /.blog-card-two__content -->
+
+                            </div><!-- /.blog-card -->
+
+                            <div class="blog-details__meta">
+                                <div class="blog-details__tags">
+                                    <h4 class="blog-details__tags__title">Post In: </h4><!-- /.blog-details__tags__title -->
+                                    <div class="sidebar__tags">
+                                        <a href="#">Driving</a>
+                                        <a href="#">Development</a>
+                                    </div><!-- /.sidebar__projects -->
+                                </div><!-- /.blog-details__tags -->
+
+                                <div class="blog-details__tags">
+                                    <h4 class="blog-details__tags__title">Tags: </h4><!-- /.blog-details__tags__title -->
+                                    <div class="sidebar__tags2">
+                                        <a href="#">Safty</a> <span> , </span> <a href="#">Learning</a>
+                                    </div><!-- /.sidebar__projects -->
+                                </div><!-- /.blog-details__tags -->
+                            </div><!-- /.blog-details__meta -->
+
+                        </div><!-- /.blog-details -->
+
+                        <div class="comments-one">
+                            <h3 class="comments-one__title">2 comments</h3><!-- /.comments-one__title -->
+                            <ul class="list-unstyled comments-one__list">
+                                <li class="comments-one__card">
+                                    <div class="comments-one__card__image">
+                                        <img src="assets/images/blog/blog-comment-1-1.jpg" alt="">
+                                    </div><!-- /.comments-one__card__image -->
+                                    <div class="comments-one__card__content">
+                                        <h3 class="comments-one__card__title">David Shon</h3><!-- /.comments-one__card__title -->
+                                        <p class="comments-one__card__text">Nam vel lacus eu nisl bibendum accumsan vitae vitae nibh. Nam nec eros id magna hendrerit sagittis. Nullam sed mi non odio feugiat volutpat sit amet nec elit.
+                                        </p><!-- /.comments-one__card__text -->
+                                        <div class="comments-one__card__btn">
+                                            <a href="#" class="drivschol-btn comments-one__card__reply"><span>Reply</span></a>
+                                        </div><!-- /.comments-one__card__btn -->
+                                    </div><!-- /.comments-one__card__content -->
+                                </li><!-- /.comments-one__card -->
+                                <li class="comments-one__card">
+                                    <div class="comments-one__card__image">
+                                        <img src="assets/images/blog/blog-comment-1-2.jpg" alt="">
+                                    </div><!-- /.comments-one__card__image -->
+                                    <div class="comments-one__card__content">
+                                        <h3 class="comments-one__card__title">Jhon Watchson</h3><!-- /.comments-one__card__title -->
+                                        <p class="comments-one__card__text">Nam vel lacus eu nisl bibendum accumsan vitae vitae nibh. Nam nec eros id magna hendrerit sagittis. Nullam sed mi non odio feugiat volutpat sit amet nec elit.
+                                        </p><!-- /.comments-one__card__text -->
+                                        <div class="comments-one__card__btn">
+                                            <a href="#" class="drivschol-btn comments-one__card__reply"><span>Reply</span></a>
+                                        </div><!-- /.comments-one__card__btn -->
+                                    </div><!-- /.comments-one__card__content -->
+                                </li><!-- /.comments-one__card -->
+                            </ul><!-- /.list-unstyled comments-one__list -->
+                        </div><!-- /.comments-one -->
+
+                        <div class="comments-form">
+                            <h3 class="comments-form__title">Leave A Comments</h3><!-- /.comments-form__title -->
+                            <form class="comments-form__form contact-form-validated form-one">
+                                <div class="form-one__group">
+                                    <div class="form-one__control">
+                                        <input type="text" name="name" placeholder="Your name">
+                                    </div><!-- /.form-one__control -->
+                                    <div class="form-one__control">
+                                        <input type="email" name="email" placeholder="Email address">
+                                    </div><!-- /.form-one__control -->
+                                    <div class="form-one__control form-one__control__full">
+                                        <textarea name="message" placeholder="Write  a message"></textarea><!-- /# -->
+                                    </div><!-- /.form-one__control -->
+                                    <div class="form-one__control form-one__control__full">
+                                        <button type="submit" class="drivschol-btn drivschol-btn--base2"><span>Submit A Comments</span></button>
+                                    </div><!-- /.form-one__control -->
+                                </div><!-- /.form-one__group -->
+                            </form>
+                            <div class="result"></div>
+                        </div><!-- /.comments-form -->
+                    </div><!-- /.col-lg-8 -->
+                    <div class="col-lg-4">
+                        <div class="sidebar">
+                            <aside class="widget-area">
+
+                                <div class="sidebar__single--search wow fadeInUp" data-wow-delay='300ms'>
+                                    <form action="#" class="sidebar__search">
+                                        <button type="submit" aria-label="search submit">
+                                            <span><i class="icon-search"></i></span>
+                                        </button>
+                                        <input type="text" placeholder="Type Here">
+                                    </form><!-- /.sidebar__search -->
+                                </div><!-- /.sidebar__single -->
+
+                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
+                                    <h4 class="sidebar__title">Latest Post</h4>
+                                    <ul class="sidebar__posts list-unstyled">
+                                        {% for post in latest_blogs %}
+                                        <li class="sidebar__posts__item">
+                                            <div class="sidebar__posts__image">
+                                                {% if post.cover_image %}
+                                                <img src="{{ post.cover_image.url }}" alt="{{ post.title }}">
+                                                {% else %}
+                                                <img src="{% static 'assets/images/blog/lp-1-1.jpg' %}" alt="{{ post.title }}">
+                                                {% endif %}
+                                            </div>
+                                            <div class="sidebar__posts__content">
+                                                <p class="sidebar__posts__meta"><a href="{% url 'blog_details' slug=post.slug %}"><i class="icon-clock-1-outline"></i>{{ post.published_at|date:"d M, Y" }}</a></p>
+                                                <h4 class="sidebar__posts__title"><a href="{% url 'blog_details' slug=post.slug %}">{{ post.title }}</a></h4>
+                                            </div>
+                                        </li>
+                                        {% empty %}
+                                        <li class="sidebar__posts__item">
+                                            <div class="sidebar__posts__content">
+                                                <p class="sidebar__posts__meta">No posts yet.</p>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul><!-- /.sidebar__posts list-unstyled -->
+                                </div><!-- /.sidebar__single -->
+
+                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
+                                    <h4 class="sidebar__title">Categories</h4><!-- /.sidebar__title -->
+                                    <ul class="sidebar__categories list-unstyled">
+                                        <li class="sidebar__categories__item"><a href="#">Web Development</a></li>
+                                        <li class="sidebar__categories__item"><a href="#">Social Marketing</a></li>
+                                        <li class="sidebar__categories__item"><a href="#">Technology</a></li>
+                                        <li class="sidebar__categories__item"><a href="#">Business & Finance</a></li>
+                                        <li class="sidebar__categories__item"><a href="#">Digital Solution</a></li>
+                                    </ul><!-- /.sidebar__categories list-unstyled -->
+                                </div><!-- /.sidebar__single -->
+
+                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
+                                    <h4 class="sidebar__title">Tags</h4><!-- /.sidebar__title -->
+                                    <div class="sidebar__tags">
+                                        <a class="sidebar__tag__item" href="#">Marketing</a>
+                                        <a class="sidebar__tag__item" href="#">Development</a>
+                                        <a class="sidebar__tag__item" href="#">Digital</a>
+                                        <a class="sidebar__tag__item" href="#">Design</a>
+                                    </div><!-- /.sidebar__tags -->
+                                </div><!-- /.sidebar__single -->
+
+                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
+                                    <h4 class="sidebar__title">Comments</h4><!-- /.sidebar__title -->
+                                    <ul class="sidebar__comments list-unstyled">
+                                        <li class="sidebar__comments__item">
+                                            <div class="sidebar__comments__icon">
+                                                <i class="icon-chat-1"></i>
+                                            </div><!-- /.sidebar__comments__icon -->
+                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
+                                        </li>
+                                        <li class="sidebar__comments__item">
+                                            <div class="sidebar__comments__icon">
+                                                <i class="icon-chat-1"></i>
+                                            </div><!-- /.sidebar__comments__icon -->
+                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
+                                        </li>
+                                        <li class="sidebar__comments__item">
+                                            <div class="sidebar__comments__icon">
+                                                <i class="icon-chat-1"></i>
+                                            </div><!-- /.sidebar__comments__icon -->
+                                            <h6 class="sidebar__comments__title"><a href="#">Watson Doe on Template: variations of Lorem available, but</a></h6><!-- /.sidebar__comments__title -->
+                                        </li>
+                                        <li class="sidebar__comments__item">
+                                            <div class="sidebar__comments__icon">
+                                                <i class="icon-chat-1"></i>
+                                            </div><!-- /.sidebar__comments__icon -->
+                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
+                                        </li>
+                                    </ul><!-- /.sidebar__comments list-unstyled -->
+                                </div><!-- /.sidebar__single -->
+
+                            </aside><!-- /.widget-area -->
+                        </div><!-- /.sidebar -->
+                    </div><!-- /.col-lg-4 -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+        </section><!-- /.blog-one blog-one-->
+        {% endblock %}

@@ -1,0 +1,380 @@
+{% load i18n %}
+
+{{ chart_labels|json_script:labels_script_id }}
+{{ chart_values|json_script:values_script_id }}
+
+<style>
+  body.drivschol-dashboard-theme {
+    background: radial-gradient(1200px 600px at 20% 0%, rgba(111, 190, 68, 0.16), rgba(255, 255, 255, 0)) , #f7f8fb;
+  }
+
+  body.drivschol-dashboard-theme #content {
+    background: transparent;
+  }
+
+  .drivschol-chart-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(109, 112, 118, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(17, 17, 23, 0.08);
+    padding: 12px;
+  }
+
+  .drivschol-chart-subtitle {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-size: 12px;
+    line-height: 1.2;
+    color: var(--drivschol-heading-text, #111117);
+    opacity: 0.72;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(109, 112, 118, 0.16);
+    border-radius: 999px;
+    padding: 6px 10px;
+    backdrop-filter: blur(6px);
+    z-index: 2;
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drivschol-chart-controls {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .drivschol-chart-total {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    z-index: 2;
+    font-size: 12px;
+    line-height: 1.2;
+    color: var(--drivschol-heading-text, #111117);
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(109, 112, 118, 0.16);
+    border-radius: 999px;
+    padding: 6px 10px;
+    backdrop-filter: blur(6px);
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drivschol-chart-canvas-wrap {
+    height: 100%;
+  }
+</style>
+
+<div id="{{ root_id }}" class="drivschol-chart-card" style="height: {{ min_height }}px; position: relative;">
+  {% if chart_subtitle %}
+    <div class="drivschol-chart-subtitle">
+      {{ chart_subtitle }}
+    </div>
+  {% endif %}
+  <div class="drivschol-chart-canvas-wrap">
+    <canvas id="{{ canvas_id }}" style="width: 100%; height: 100%;"></canvas>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById("{{ root_id|escapejs }}");
+    if (!root || root.dataset.initialized === "1") return;
+    root.dataset.initialized = "1";
+    if (document.body && document.body.classList && !document.body.classList.contains("drivschol-dashboard-theme")) {
+      document.body.classList.add("drivschol-dashboard-theme");
+    }
+
+    function parseJsonScript(id) {
+      var el = document.getElementById(id);
+      if (!el) return [];
+      try {
+        return JSON.parse(el.textContent);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function ensureChartJs(callback) {
+      if (window.Chart) {
+        callback();
+        return;
+      }
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+
+    ensureChartJs(function () {
+      var primary = getComputedStyle(document.documentElement).getPropertyValue("--drivschol-primary").trim() || "#6fbe44";
+      var gray = "rgba(109, 112, 118, 0.35)";
+      var text = getComputedStyle(document.documentElement).getPropertyValue("--drivschol-heading-text").trim() || "#111117";
+
+      var chartTitle = "{{ chart_title|escapejs }}";
+      var chartType = "{{ chart_type|escapejs }}";
+      var datasetLabel = "{{ dataset_label|escapejs }}";
+      var xTitle = "{{ x_title|escapejs }}";
+      var yTitle = "{{ y_title|escapejs }}";
+      var chartLabels = parseJsonScript("{{ labels_script_id|escapejs }}");
+      var chartValues = parseJsonScript("{{ values_script_id|escapejs }}");
+
+      function hexToRgb(hex) {
+        var cleaned = (hex || "").trim().replace("#", "");
+        if (cleaned.length === 3) {
+          cleaned = cleaned[0] + cleaned[0] + cleaned[1] + cleaned[1] + cleaned[2] + cleaned[2];
+        }
+        if (cleaned.length !== 6) return null;
+        var num = parseInt(cleaned, 16);
+        if (!isFinite(num)) return null;
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+      }
+
+      function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        var h = 0;
+        var s = 0;
+        var l = (max + min) / 2;
+        if (max !== min) {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return { h: h, s: s, l: l };
+      }
+
+      function hslToCss(h, s, l, a) {
+        var hh = Math.round(h * 360);
+        var ss = Math.round(s * 100);
+        var ll = Math.round(l * 100);
+        var aa = typeof a === "number" ? a : 1;
+        return "hsla(" + hh + ", " + ss + "%, " + ll + "%, " + aa + ")";
+      }
+
+      function paletteFromPrimary(n) {
+        var rgb = hexToRgb(primary) || hexToRgb("#6fbe44") || { r: 111, g: 190, b: 68 };
+        var base = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        var colors = [];
+        var count = Math.max(1, n || 1);
+        for (var i = 0; i < count; i++) {
+          var t = count === 1 ? 0 : i / count;
+          var hue = (base.h + 0.12 + t * 0.75) % 1;
+          var sat = Math.min(0.78, Math.max(0.45, base.s || 0.62));
+          var lit = Math.min(0.62, Math.max(0.38, base.l || 0.5));
+          colors.push(hslToCss(hue, sat, lit, 1));
+        }
+        colors[0] = primary;
+        return colors;
+      }
+
+      function formatNumber(value) {
+        var n = Number(value);
+        if (!isFinite(n)) return String(value);
+        return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
+      }
+
+      function formatCurrency(value) {
+        var n = Number(value);
+        if (!isFinite(n)) return String(value);
+        return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+      }
+
+      function isMoneyChart() {
+        var hay = (chartTitle + " " + datasetLabel + " " + yTitle).toLowerCase();
+        return hay.indexOf("revenue") !== -1 || hay.indexOf("amount") !== -1 || hay.indexOf("invoice") !== -1;
+      }
+
+      if (chartType !== "radar" && chartValues && chartValues.length) {
+        var total = 0;
+        for (var ti = 0; ti < chartValues.length; ti++) total += Number(chartValues[ti]) || 0;
+        var totalEl = document.createElement("div");
+        totalEl.className = "drivschol-chart-total";
+        totalEl.textContent = "Total: " + (isMoneyChart() ? formatCurrency(total) : formatNumber(total));
+        root.appendChild(totalEl);
+      }
+
+      var commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        devicePixelRatio: window.devicePixelRatio || 1,
+        interaction: { mode: "index", intersect: false },
+        animation: { duration: 650, easing: "easeOutQuart" },
+        layout: { padding: { top: 4, right: 8, bottom: 6, left: 6 } },
+        plugins: {
+          legend: {
+            labels: { color: text, usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14 },
+          },
+          tooltip: {
+            enabled: true,
+            backgroundColor: "rgba(17, 17, 23, 0.92)",
+            titleColor: "#ffffff",
+            bodyColor: "#ffffff",
+            padding: 10,
+            displayColors: true,
+            callbacks: {
+              label: function (ctx) {
+                var label = ctx.dataset && ctx.dataset.label ? ctx.dataset.label + ": " : "";
+                var v = ctx.parsed;
+                var value = typeof v === "object" && v !== null ? (v.y != null ? v.y : v.r) : v;
+                return label + (isMoneyChart() ? formatCurrency(value) : formatNumber(value));
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: text, maxRotation: 0, autoSkip: true, padding: 6 },
+            grid: { color: "rgba(109, 112, 118, 0.18)" },
+            border: { color: "rgba(109, 112, 118, 0.25)" },
+            title: { display: !!xTitle, text: xTitle, color: text },
+          },
+          y: {
+            ticks: {
+              color: text,
+              padding: 6,
+              callback: function (value) {
+                return isMoneyChart() ? formatCurrency(value) : formatNumber(value);
+              },
+            },
+            grid: { color: "rgba(109, 112, 118, 0.18)" },
+            border: { color: "rgba(109, 112, 118, 0.25)" },
+            beginAtZero: true,
+            title: { display: !!yTitle, text: yTitle, color: text },
+          },
+        },
+      };
+
+      var canvas = document.getElementById("{{ canvas_id|escapejs }}");
+      if (!canvas) return;
+
+      var ctx = canvas.getContext("2d");
+      var dataset = {
+        label: datasetLabel || chartTitle,
+        data: chartValues,
+        borderColor: primary,
+        backgroundColor: chartType === "line" ? "rgba(111, 190, 68, 0.15)" : primary,
+      };
+
+      if (chartType === "doughnut" || chartType === "pie") {
+        dataset.backgroundColor = paletteFromPrimary(chartLabels.length || 5);
+        dataset.borderColor = "rgba(255,255,255,0.95)";
+        dataset.borderWidth = 2;
+        dataset.hoverOffset = 8;
+      }
+
+      var options = commonOptions;
+      if (chartType === "doughnut" || chartType === "pie") {
+        options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          devicePixelRatio: window.devicePixelRatio || 1,
+          animation: { duration: 650, easing: "easeOutQuart" },
+          layout: { padding: { top: 4, right: 8, bottom: 0, left: 8 } },
+          plugins: {
+            legend: { position: "bottom", labels: { color: text, usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14 } },
+            tooltip: commonOptions.plugins.tooltip,
+          },
+        };
+        if (chartType === "doughnut") {
+          options.cutout = "66%";
+        }
+      } else if (chartType === "radar") {
+        options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          devicePixelRatio: window.devicePixelRatio || 1,
+          animation: { duration: 650, easing: "easeOutQuart" },
+          plugins: {
+            legend: { position: "bottom", labels: { color: text } },
+            tooltip: commonOptions.plugins.tooltip,
+          },
+          scales: {
+            r: {
+              angleLines: { color: gray },
+              grid: { color: gray },
+              pointLabels: { color: text },
+              ticks: { color: text, backdropColor: "rgba(0,0,0,0)" },
+              beginAtZero: true,
+              title: { display: !!yTitle, text: yTitle, color: text },
+            },
+          },
+        };
+        dataset.backgroundColor = "rgba(111, 190, 68, 0.18)";
+        dataset.pointBackgroundColor = primary;
+        dataset.borderWidth = 2;
+      } else if (chartType === "line") {
+        dataset.tension = 0.35;
+        dataset.fill = true;
+        dataset.borderWidth = 2.5;
+        dataset.pointRadius = 3;
+        dataset.pointHoverRadius = 6;
+        if (ctx) {
+          var grad = ctx.createLinearGradient(0, 0, 0, canvas.height || 240);
+          grad.addColorStop(0, "rgba(111, 190, 68, 0.26)");
+          grad.addColorStop(1, "rgba(111, 190, 68, 0.02)");
+          dataset.backgroundColor = grad;
+        }
+      } else if (chartType === "bar") {
+        dataset.borderRadius = 10;
+        dataset.borderSkipped = false;
+        dataset.maxBarThickness = 46;
+        if (ctx) {
+          var barGrad = ctx.createLinearGradient(0, 0, 0, canvas.height || 240);
+          barGrad.addColorStop(0, "rgba(111, 190, 68, 0.95)");
+          barGrad.addColorStop(1, "rgba(111, 190, 68, 0.55)");
+          dataset.backgroundColor = barGrad;
+        }
+      }
+
+      var plugins = [];
+      if (chartType === "doughnut") {
+        plugins.push({
+          id: "centerText",
+          beforeDraw: function (chart) {
+            var meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data.length) return;
+            var total = 0;
+            var data = chart.data && chart.data.datasets && chart.data.datasets[0] && chart.data.datasets[0].data;
+            if (data && data.length) {
+              for (var i = 0; i < data.length; i++) total += Number(data[i]) || 0;
+            }
+            var textValue = isMoneyChart() ? formatCurrency(total) : formatNumber(total);
+            var ctx2 = chart.ctx;
+            var center = meta.data[0].getCenterPoint();
+            ctx2.save();
+            ctx2.font = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+            ctx2.fillStyle = text;
+            ctx2.textAlign = "center";
+            ctx2.textBaseline = "middle";
+            ctx2.fillText(textValue, center.x, center.y);
+            ctx2.restore();
+          },
+        });
+      }
+
+      new Chart(canvas, {
+        type: chartType,
+        data: { labels: chartLabels, datasets: [dataset] },
+        options: options,
+        plugins: plugins,
+      });
+    });
+  })();
+</script>

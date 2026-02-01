@@ -1,0 +1,1308 @@
+	{% load static %}
+	<!DOCTYPE html>
+	<!-- language -->
+	<html lang="zxx">
+
+	<head>
+	    <!-- ========== Meta Tags ========== -->
+	    <meta charset="UTF-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <base href="/">
+	    <meta name="author" content="layerdrops">
+	    <meta name="description" content="Drivschol is a modern and versatile driving HTML template. It is specially designed for driving school, car driving, driving classes, training center, online school, education system, online courses, traffic school and all other education school and online driving courses business and websites.">
+
+	    <!-- ======== Page title ============ -->
+	    <title>{% block title %}Sams Driving School{% endblock %}</title>
+
+	    <!-- ========== Favicon Icon ========== -->
+	    <link rel="shortcut icon" href="assets/samslogo.png" type="image/x-icon">
+	    <link rel="apple-touch-icon" sizes="180x180" href="assets/samslogo.png">
+	    <link rel="icon" type="image/png" sizes="32x32" href="assets/samslogo.png">
+	    <link rel="icon" type="image/png" sizes="16x16" href="assets/samslogo.png">
+	    <link rel="manifest" href="assets/samslogo.png">
+
+
+	    <!-- ===========  All Font ================= -->
+	    <link rel="preconnect" href="https://fonts.googleapis.com">
+	    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Urbanist:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+	    <!-- ===========  All Stylesheet ================= -->
+	    <!--  Bootstrap css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
+	    <!--  bootstrap-select css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/bootstrap-select/bootstrap-select.min.css">
+	    <!--  animate css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/animate/animate.min.css">
+	    <!--  fontawesome css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/fontawesome/css/all.min.css">
+	    <!--  jquery-ui css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/jquery-ui/jquery-ui.css">
+	    <!--  jarallax css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/jarallax/jarallax.css">
+	    <!--  magnific-popup css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/jquery-magnific-popup/jquery.magnific-popup.css">
+	    <!--  nouislider css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.min.css">
+	    <!--  nouislider css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/nouislider/nouislider.pips.css">
+	    <link rel="stylesheet" href="assets/vendors/tiny-slider/tiny-slider.css">
+	    <!--  nouislider css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/drivschol-icons/style.css">
+	    <!--  nouislider css plugins -->
+	    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.carousel.min.css">
+	    <link rel="stylesheet" href="assets/vendors/owl-carousel/css/owl.theme.default.min.css">
+
+	    <!-- template styles -->
+	    <link rel="stylesheet" href="assets/css/drivschol.css">
+	</head>
+
+	<body class="custom-cursor">
+
+	    <!-- Custom Cursor -->
+	    <div class="custom-cursor__cursor"></div>
+	    <div class="custom-cursor__cursor-two"></div>
+
+	    <!-- Preloader Start-->
+	    <div class="preloader">
+	        <div class="preloader__image" style="background-image: url(assets/samslogo.png);"></div>
+	    </div>
+	    <!-- Preloader End-->
+
+	    <div class="page-wrapper">
+
+
+	        <!-- Topbar Start-->
+	        <div class="topbar-one">
+	            <div class="container-fluid">
+	                <div class="topbar-one__inner">
+	                    <div class="topbar-one__left">
+	                        <div class="topbar-one__social">
+	                            <!-- social link-->
+	                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+	                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+	                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+	                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+	                        </div>
+	                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+	                    </div>
+	                    <ul class="topbar-one__right">
+	                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
+	                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a></li>
+	                    </ul>
+	                </div>
+	            </div>
+	        </div>
+	        <!-- Topbar Start-->
+
+	        <!-- Header Start-->
+	        {% include 'includes/header.html' %}
+	        <!-- Header End-->
+
+	        {% block content %}
+	        <section class="main-slider-one">
+	            <div class="main-slider-one__carousel drivschol-owl__carousel owl-carousel" data-owl-options='{
+			"loop": true,
+			"animateOut": "fadeOut",
+			"animateIn": "fadeInRightBig",
+			"items": 1,
+			"autoplay": true,
+			"autoplayTimeout": 7000,
+			"smartSpeed": 1000,
+			"nav": false,
+			"navText": ["<span class=\"icon-left-arrow\"></span>","<span class=\"icon-right-arrow\"></span>"],
+			"dots": true,
+			"dotsData": true,
+			"margin": 0
+			}'>
+	                <div class="item" data-dot="<button>01</button>">
+	                    <div class="main-slider-one__item">
+	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
+	                        <div class="main-slider-one__shape-one">
+	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-two">
+	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-border">
+	                            <span class="main-slider-one__shape-border__one"></span>
+	                            <span class="main-slider-one__shape-border__two"></span>
+	                        </div>
+	                        <div class="container">
+	                            <div class="main-slider-one__content">
+	                                <h2 class="main-slider-one__title">
+	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
+	                                    <span class="main-slider-one__title__anim">to learn</span>
+	                                    <span class="main-slider-one__title__anim">Driving?</span>
+	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
+	                                </h2><!-- slider-title -->
+	                                <div class="main-slider-one__btn">
+	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
+	                                </div><!-- slider-btn -->
+	                            </div>
+	                        </div>
+	                        <div class="main-slider-one__layer">
+	                            <img src="assets/images/backgrounds/slider-1-layer-1.png" alt="drivschol">
+	                        </div>
+	                    </div>
+	                </div>
+	                <div class="item" data-dot="<button>02</button>">
+	                    <div class="main-slider-one__item">
+	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
+	                        <div class="main-slider-one__shape-one">
+	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-two">
+	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-border">
+	                            <span class="main-slider-one__shape-border__one"></span>
+	                            <span class="main-slider-one__shape-border__two"></span>
+	                        </div>
+	                        <div class="container">
+	                            <div class="main-slider-one__content">
+	                                <h2 class="main-slider-one__title">
+	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
+	                                    <span class="main-slider-one__title__anim">for a Car for the</span>
+	                                    <span class="main-slider-one__title__anim">Driving Test?</span>
+	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
+	                                </h2><!-- slider-title -->
+	                                <div class="main-slider-one__btn">
+	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
+	                                </div><!-- slider-btn -->
+	                            </div>
+	                        </div>
+	                        <div class="main-slider-one__layer">
+	                            <img src="assets/images/backgrounds/slider-1-layer-2.png" alt="drivschol">
+	                        </div>
+	                    </div>
+	                </div>
+	                <div class="item" data-dot="<button>03</button>">
+	                    <div class="main-slider-one__item">
+	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
+	                        <div class="main-slider-one__shape-one">
+	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-two">
+	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
+	                        </div>
+	                        <div class="main-slider-one__shape-border">
+	                            <span class="main-slider-one__shape-border__one"></span>
+	                            <span class="main-slider-one__shape-border__two"></span>
+	                        </div>
+	                        <div class="container">
+	                            <div class="main-slider-one__content">
+	                                <h2 class="main-slider-one__title">
+	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
+	                                    <span class="main-slider-one__title__anim">to master</span>
+	                                    <span class="main-slider-one__title__anim">Driving?</span>
+	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
+	                                </h2><!-- slider-title -->
+	                                <div class="main-slider-one__btn">
+	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
+	                                </div><!-- slider-btn -->
+	                            </div>
+	                        </div>
+	                        <div class="main-slider-one__layer">
+	                            <img src="assets/images/backgrounds/slider-1-layer-3.png" alt="drivschol">
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <a href="#services" class="main-slider-one__trigger"><span class="icon-video"></span></a>
+	        </section>
+
+	        <section class="about-one">
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-lg-5">
+	                        <div class="about-one__item">
+	                            <div class="about-one__item__left">
+	                                <div class="about-one__item__left__img  wow fadeInUp" data-wow-delay="500ms">
+	                                    <img src="assets/getto.png" alt>
+	                                    <div class="about-one__item__left__img__sub_img">
+	                                        <img src="assets/badge.png" alt>
+	                                        <svg viewBox="0 0 208 169" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                                            <path d="M1 169V1H208" stroke="#6fbe44" stroke-width="2" />
+	                                            <path d="M17 169V17H208" stroke="#6fbe44" stroke-width="2" />
+	                                        </svg>
+	                                    </div>
+	                                </div>
+
+	                                <div class="about-one__item__left__contact wow fadeInLeft" data-wow-delay="500ms">
+	                                    <a class="about-one__item__left__contact__link" href="tel:+16478891708">
+	                                        <div class="about-one__item__left__contact__link__icon">
+	                                            <i class="icon-chat2"></i>
+	                                        </div>
+	                                        <div class="about-one__item__left__contact__link__call">
+	                                            <span class="about-one__item__left__contact__link__subtext">Call to Questions</span>
+	                                            <h6 class="about-one__item__left__contact__link__text">647-889-1708</h6>
+	                                        </div>
+	                                    </a>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div><!-- /.col-lg-6 -->
+	                    <div class="col-lg-7 wow fadeInRight" data-wow-delay="300ms">
+	                        <div class="about-one__item about-one__item__one">
+
+	                            <div class="about-one__item__head">
+	                                <div class="sec-title  text-start wow fadeInUp" data-wow-duration='300ms'>
+
+	                                    <h6 class="sec-title__tagline">
+	                                        <i class="icon-left-arrow sec-title__img"></i>
+	                                        Get to Know Us
+	                                        <i class="icon-right-arrow sec-title__img"></i>
+	                                    </h6><!-- /.sec-title__tagline -->
+
+	                                    <h3 class="sec-title__title">Professional Driving Lessons in the GTA Since 2005</h3><!-- /.sec-title__title -->
+	                                </div><!-- /.sec-title -->
+	                                <p class="about-one__item__text  wow fadeInUp" data-wow-delay='500ms'>We pride ourselves on delivering a high standard of customer service while maintaining a very high first-time pass rate. Established in 2005, we’ve helped thousands of students build confidence and pass safely with fully-qualified, experienced instructors and dual brake control vehicles.</p><!-- /.about-one__item__text -->
+	                            </div><!-- /.about-one__item__head -->
+
+	                            <div class="about-one__item__block-contents wow fadeInUp" data-wow-delay="500ms">
+	                                <h3 class="about-one__item__block-contents__text">MTO-approved programs, flexible scheduling, and pickup/drop-off for in-car training within 10km.</h3>
+	                            </div>
+
+	                            <div class="about-one__item__elememt">
+	                                <div class="row">
+	                                    <div class="col-md-6">
+	                                        <div class="about-one__item__elememt__single wow fadeInUp" data-wow-delay="500ms">
+	                                            <div class="about-one__item__elememt__single__icon">
+	                                                <div class="icon">
+	                                                    <i class="icon-steering-wheel-1"></i>
+	                                                </div>
+	                                            </div>
+	                                            <h3 class="about-one__item__elememt__single__text">MTO Approved Beginner Driving Online Course</h3>
+	                                        </div>
+	                                    </div>
+
+	                                    <div class="col-md-6">
+	                                        <div class="about-one__item__elememt__single wow fadeInUp" data-wow-delay="700ms">
+	                                            <div class="about-one__item__elememt__single__icon">
+	                                                <div class="icon">
+	                                                    <i class="icon-Instructor"></i>
+	                                                </div>
+	                                            </div>
+	                                            <h3 class="about-one__item__elememt__single__text">Experienced Instructors</h3>
+	                                        </div>
+	                                    </div>
+
+	                                </div>
+	                            </div>
+
+	                            <!-- /.why-choose-two__text -->
+	                            <div class="about-one__progress  wow fadeInUp" data-wow-delay='500ms'>
+	                                <h4 class="about-one__progress__title">Driving Skill</h4>
+	                                <div class="about-one__progress__bar">
+	                                    <div class="about-one__progress__inner count-bar" data-percent="80%">
+	                                        <div class="about-one__progress__number count-text">80%</div>
+	                                    </div>
+	                                </div>
+	                            </div><!-- /.skills-item -->
+	                            <a href="{% url 'about_page' %}" class="drivschol-btn drivschol-btn--black  wow fadeInUp" data-wow-delay='500ms'><span>Discover More</span></a>
+	                        </div>
+	                    </div><!-- /.col-lg-6 -->
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	            <div class="about-one__element">
+	                <img src="assets/images/shapes/about-cercle-1-5.png" alt>
+	            </div>
+	        </section><!-- /.about-one -->
+
+	        <section class="service-one service-one__home" id="services">
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-md-12">
+	                        <div class="sec-title  text-center wow fadeInUp" data-wow-duration='300ms'>
+
+	                            <h6 class="sec-title__tagline">
+	                                <i class="icon-left-arrow sec-title__img"></i>
+	                                Our Service
+	                                <i class="icon-right-arrow sec-title__img"></i>
+	                            </h6><!-- /.sec-title__tagline -->
+
+	                            <h3 class="sec-title__title">We’re Offering the Best <br> Services to You</h3><!-- /.sec-title__title -->
+	                        </div><!-- /.sec-title -->
+	                        <!-- section-title -->
+	                    </div>
+	                </div>
+	                <div class="row gutter-y-30">
+	                    <div class="col-md-6 col-lg-4">
+	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='000ms'>
+
+	                            <div class="service-card__image">
+	                                <img src="assets/cousre.png" alt="Instructor Training">
+	                            </div><!-- /.blog-card__image -->
+
+	                            <div class="service-card__content">
+	                                <h3 class="service-card__title"><a href="{% url 'course_page' %}">MTO Approved Beginner Driving Online Course</a></h3>
+	                                <p class="service-card__text">30 hours online learning plus 10 hours one-on-one in-car training with an insurance certificate.</p><!-- /.blog-card-two__text -->
+	                            </div><!-- /.blog-card__content -->
+
+	                            <div class="service-card__bth">
+	                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
+	                            </div>
+
+	                        </div><!-- /.blog-card -->
+	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                    <div class="col-md-6 col-lg-4">
+	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='400ms'>
+
+	                            <div class="service-card__image">
+	                                <img src="assets/senior.png" alt="Driving License">
+	                            </div><!-- /.blog-card__image -->
+
+	                            <div class="service-card__content">
+	                                <h3 class="service-card__title"><a href="{% url 'course_page' %}">Senior Driver Training</a></h3>
+	                                <p class="service-card__text">Refresher courses and evaluations to build confidence and stay safe on Ontario roads.</p><!-- /.blog-card-two__text -->
+	                            </div><!-- /.blog-card__content -->
+
+	                            <div class="service-card__bth">
+	                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
+	                            </div>
+
+	                        </div><!-- /.blog-card -->
+	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	        </section><!-- /.service-one -->
+
+	        {% comment %} <section class="course-one">
+	            <div class="container-fluid">
+	                <div class="row">
+	                    <div class="col-12">
+	                        <div class="sec-title  text-center wow fadeInUp" data-wow-duration='300ms'>
+
+	                            <h6 class="sec-title__tagline">
+	                                <i class="icon-left-arrow sec-title__img"></i>
+	                                See Our Course
+	                                <i class="icon-right-arrow sec-title__img"></i>
+	                            </h6><!-- /.sec-title__tagline -->
+
+	                            <h3 class="sec-title__title">Develop Your Driving Skill <br> to Join the Course</h3><!-- /.sec-title__title -->
+	                        </div><!-- /.sec-title -->
+	                    </div><!-- /.col-12 -->
+	                </div><!-- /.row -->
+	                <div class="row gutter-x-60">
+	                    <div class="col-lg-6 ps-lg-3">
+	                        <div class="course-one__item  wow fadeInUp" data-wow-delay='500ms'>
+	                            <div class="course-one__item__left">
+	                                <div class="course-one__item__left__price">
+	                                    <div class="price__box">
+	                                        <span class="course-one__item__left__price__top">575 <sub>$</sub></span>
+	                                        <p class="course-one__item__left__price__text">Per Person</p>
+	                                    </div><!-- /.price__box -->
+	                                </div><!-- /.course-one__item__left__price__content -->
+	                            <h3 class="course-one__item__left__title"><a href="{% url 'course_details_page' %}">MTO Approved Beginner Driving Online Course</a></h3><!-- /.course-one__item__left__title -->
+	                            <p class="course-one__item__left__text">Full course includes 30 hours online learning and 10 hours one-on-one in-car training with an insurance certificate.</p><!-- /.course-one__item__left__text -->
+	                                <div class="course-one__item__left__link">
+	                                <a class="course-one__item__left__link__btn" href="{% url 'course_details_page' %}"> <i class="icon-arrow"></i></a>
+	                                </div><!-- /.course-one__item__right__link -->
+	                            </div><!-- /.course-one__item__left -->
+	                            <div class="course-one__item__right">
+	                                <div class="course-one__item__session">
+	                                    <div class="course-one__item__session__shape">
+	                                        <svg xmlns="http://www.w3.org/2000/svg" width="113" height="21" viewBox="0 0 113 21" fill="none">
+	                                            <path d="M9.42657 0L9.46074 20.4271H0.999014L0.964844 0H9.42657Z" fill="#6fbe44" />
+	                                            <path d="M24.243 0L24.268 20.4271H15.8154L15.7812 0H24.243Z" fill="#6fbe44" />
+	                                            <path d="M39.0502 0L39.0844 20.4271H30.6227L30.5977 0H39.0502Z" fill="#6fbe44" />
+	                                            <path d="M53.866 0L53.9002 20.4271H45.4385L45.4043 0H53.866Z" fill="#6fbe44" />
+	                                            <path d="M68.6805 0L68.7055 20.4271H60.2529L60.2188 0H68.6805Z" fill="#6fbe44" />
+	                                            <path d="M83.4897 0L83.5239 20.4271H75.0621L75.0371 0H83.4897Z" fill="#6fbe44" />
+	                                            <path d="M98.3055 0L98.3396 20.4271H89.8779L89.8438 0H98.3055Z" fill="#6fbe44" />
+	                                            <path d="M112.305 0L112.34 20.4271H103.878L103.844 0H112.305Z" fill="#6fbe44" />
+	                                        </svg>
+	                                    </div><!-- /.course-one__item__session__shape -->
+	                                <p class="course-one__item__session__icon"><i class="icon-seminar-1"></i> 30 Hours Online + 10 Hours In-Car</p><!-- /.course-one__item__session__icon -->
+	                                </div><!-- /.course-one__item__session -->
+	                            <a href="{% url 'course_details_page' %}" class="course-one__item__img">
+	                                    <img src="assets/images/course/course-c-2-1.jpg" alt="course-one__item__img">
+	                                </a><!-- /.course-one__item__img -->
+
+	                            </div><!-- /.course-one__item__left -->
+	                        </div><!-- /.course-one__item -->
+	                    </div><!-- /.col-lg-6 -->
+	                    <div class="col-lg-6 pe-lg-3 ">
+	                        <div class="course-one__item  wow fadeInUp" data-wow-delay='700ms'>
+	                            <div class="course-one__item__left">
+	                                <div class="course-one__item__left__price">
+	                                    <div class="price__box">
+	                                        <span class="course-one__item__left__price__top">50 <sub>$</sub></span>
+	                                        <p class="course-one__item__left__price__text">Per Person</p>
+	                                    </div><!-- /.price__box -->
+	                                </div><!-- /.course-one__item__left__price__content -->
+	                                <h3 class="course-one__item__left__title"><a href="{% url 'course_details_page' %}">Senior Driver Training</a></h3><!-- /.course-one__item__left__title -->
+	                                <p class="course-one__item__left__text">Refresher options including the 55 Alive group program and individual in-vehicle evaluations for seniors.</p><!-- /.course-one__item__left__text -->
+	                                <div class="course-one__item__left__link">
+	                                    <a class="course-one__item__left__link__btn" href="{% url 'course_details_page' %}"> <i class="icon-arrow"></i></a>
+	                                </div><!-- /.course-one__item__right__link -->
+	                            </div><!-- /.course-one__item__left -->
+	                            <div class="course-one__item__right">
+	                                <div class="course-one__item__session">
+	                                    <div class="course-one__item__session__shape">
+	                                        <svg xmlns="http://www.w3.org/2000/svg" width="113" height="21" viewBox="0 0 113 21" fill="none">
+	                                            <path d="M9.42657 0L9.46074 20.4271H0.999014L0.964844 0H9.42657Z" fill="#6fbe44" />
+	                                            <path d="M24.243 0L24.268 20.4271H15.8154L15.7812 0H24.243Z" fill="#6fbe44" />
+	                                            <path d="M39.0502 0L39.0844 20.4271H30.6227L30.5977 0H39.0502Z" fill="#6fbe44" />
+	                                            <path d="M53.866 0L53.9002 20.4271H45.4385L45.4043 0H53.866Z" fill="#6fbe44" />
+	                                            <path d="M68.6805 0L68.7055 20.4271H60.2529L60.2188 0H68.6805Z" fill="#6fbe44" />
+	                                            <path d="M83.4897 0L83.5239 20.4271H75.0621L75.0371 0H83.4897Z" fill="#6fbe44" />
+	                                            <path d="M98.3055 0L98.3396 20.4271H89.8779L89.8438 0H98.3055Z" fill="#6fbe44" />	
+	                                            <path d="M112.305 0L112.34 20.4271H103.878L103.844 0H112.305Z" fill="#6fbe44" />
+	                                        </svg>
+	                                    </div><!-- /.course-one__item__session__shape -->
+	                                    <p class="course-one__item__session__icon"><i class="icon-seminar-1"></i> 55 Alive + In-Vehicle Evaluation</p><!-- /.course-one__item__session__icon -->
+	                                </div><!-- /.course-one__item__session -->
+	                                <a href="{% url 'course_details_page' %}" class="course-one__item__img">
+	                                    <img src="assets/images/course/course-c-2-2.jpg" alt="course-one__item__img">
+	                                </a><!-- /.course-one__item__img -->
+
+	                            </div><!-- /.course-one__item__left -->
+	                        </div><!-- /.course-one__item -->
+	                    </div><!-- /.col-lg-6 -->
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	            <div class="course-one__element">
+	                <img src="assets/images/shapes/course__shape-1-1.png" alt>
+	            </div><!-- /.course-one__element -->
+	        </section><!-- /.course-one --> {% endcomment %}
+
+	        <div class="cta-three">
+	            <div class="cta-three__bg jarallax" data-jarallax data-speed="0.3" data-imgPosition="50% -100%" style="background-image: url(assets/images/shapes/Samabout.png);"></div><!-- /.cta-three__bg -->
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-12">
+	                        <div class="client-carousel ">
+	                            <div class="container">
+	                                <div class="client-carousel__one drivschol-owl__carousel owl-theme owl-carousel" data-owl-options='{
+            "items": 5,
+            "margin": 65,
+            "smartSpeed": 700,
+            "loop":true,
+            "autoplay": 6000,
+            "nav":false,
+            "dots":false,
+            "navText": ["<span class=\"fa fa-angle-left\"></span>","<span class=\"fa fa-angle-right\"></span>"],
+            "responsive":{
+                "0":{
+                    "items":1,
+                    "margin": 0
+                },
+                "360":{
+                    "items":2,
+                    "margin": 30
+                },
+                "575":{
+                    "items":3,
+                    "margin": 30
+                },
+                "768":{
+                    "items":3,
+                    "margin": 50
+                },
+                "992":{
+                    "items": 4,
+                    "margin": 100
+                },
+                "1200":{
+                    "items": 5,
+                    "margin": 160
+                }
+            }
+            }'>
+	                                    {% comment %} <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item-->
+	                                    <div class="client-carousel__one__item">
+	                                        <img src="assets/images/resources/brand-1-1.png" alt="drivschol">
+	                                    </div><!-- /.owl-slide-item--> {% endcomment %}
+	                                </div><!-- /.thm-owl__slider -->
+	                            </div><!-- /.container -->
+	                        </div><!-- /.client-carousel -->
+	                    </div><!-- /.col-12 -->
+	                </div><!-- /.row -->
+	                <div class="cta-three__inner">
+	                    <div class="row align-items-center">
+	                        <div class="col-md-8">
+	                            <div class="cta-three__inner__content  wow fadeInUp" data-wow-delay='500ms'>
+	                                <h3 class="cta-three__inner__content__text">Our Students Pass the Driving Test on the First Try. Start Learning Now</h3><!-- /.cta-three__content__text -->
+	                            </div>
+	                        </div><!-- /.col-md-7 -->
+	                        <div class="col-md-4">
+	                            <div class="cta-three__inner__link text-start text-md-end  wow fadeInUp" data-wow-delay='500ms'>
+	                                <a class="cta-three__inner__link__btn drivschol-btn  drivschol-btn--base2" href="{% url 'contact_page' %}">Start Learning</a>
+	                            </div><!-- /.cta-three__link -->
+	                        </div><!-- /.col-md-5 -->
+	                    </div><!-- /.row -->
+	                </div><!-- /.cta-three__ -->
+
+	            </div><!-- /.container -->
+	        </div><!-- /.cta-three -->
+
+	        {% if testimonials %}
+	        <section class="testimonials-two">
+	            <div class="funfact">
+	                <div class="container">
+	                    <div class="row">
+	                        <div class="col-lg-3 col-md-6 col-sm-6">
+	                            <div class="funfact__item count-box  wow fadeInUp" data-wow-delay='500ms'>
+	                                <div class="funfact__item__icon">
+	                                    <i class="funfact__item__icon__item icon-Student"></i>
+	                                </div><!-- /.funfact__item__icon -->
+	                                <div class="funfact__item__content">
+	                                    <h3 class="funfact__item__content__number funfact-one__count">
+	                                        <span class="count-text" data-stop="30.3" data-speed="1500"></span>
+	                                        <span>k</span>
+	                                    </h3><!-- /.funfact__item__content__number -->
+	                                    <p class="funfact__item__content__text">Student <br> Enrolled</p><!-- /.funfact__item__content__text -->
+	                                </div><!-- /.funfact__item__content -->
+	                            </div><!-- /.funfact__item -->
+	                        </div><!-- /.col-md-3 col-sm-6 -->
+
+	                        <div class="col-lg-3 col-md-6 col-sm-6">
+	                            <div class="funfact__item count-box  wow fadeInUp" data-wow-delay='700ms'>
+	                                <div class="funfact__item__icon">
+	                                    <i class="funfact__item__icon__item icon-online-learning"></i>
+	                                </div><!-- /.funfact__item__icon -->
+	                                <div class="funfact__item__content">
+	                                    <h3 class="funfact__item__content__number funfact-one__count">
+	                                        <span class="count-text" data-stop="40.5" data-speed="1500"></span>
+	                                        <span>k</span>
+	                                    </h3><!-- /.funfact__item__content__number -->
+	                                    <p class="funfact__item__content__text">Class <br>Completed</p><!-- /.funfact__item__content__text -->
+	                                </div><!-- /.funfact__item__content -->
+	                            </div><!-- /.funfact__item -->
+	                        </div><!-- /.col-md-3 col-sm-6 -->
+
+	                        <div class="col-lg-3 col-md-6 col-sm-6">
+	                            <div class="funfact__item count-box  wow fadeInUp" data-wow-delay='900ms'>
+	                                <div class="funfact__item__icon">
+	                                    <i class="funfact__item__icon__item icon-rating-1"></i>
+	                                </div><!-- /.funfact__item__icon -->
+	                                <div class="funfact__item__content">
+	                                    <h3 class="funfact__item__content__number funfact-one__count">
+	                                        <span class="count-text" data-stop="88.9" data-speed="1500"></span>
+	                                        <span>%</span>
+	                                    </h3><!-- /.funfact__item__content__number -->
+	                                    <p class="funfact__item__content__text">Satisfaction <br>Rate</p><!-- /.funfact__item__content__text -->
+	                                </div><!-- /.funfact__item__content -->
+	                            </div><!-- /.funfact__item -->
+	                        </div><!-- /.col-md-3 col-sm-6 -->
+
+	                        <div class="col-lg-3 col-md-6 col-sm-6">
+	                            <div class="funfact__item count-box  wow fadeInUp" data-wow-delay='1100ms'>
+	                                <div class="funfact__item__icon">
+	                                    <i class="funfact__item__icon__item icon-instructor-1"></i>
+	                                </div><!-- /.funfact__item__icon -->
+	                                <div class="funfact__item__content">
+	                                    <h3 class="funfact__item__content__number funfact-one__count">
+	                                        <span class="count-text" data-stop="6.30" data-speed="1500"></span>
+	                                        <span>+</span>
+	                                    </h3><!-- /.funfact__item__content__number -->
+	                                    <p class="funfact__item__content__text">Top <br>Instructors</p><!-- /.funfact__item__content__text -->
+	                                </div><!-- /.funfact__item__content -->
+	                            </div><!-- /.funfact__item -->
+	                        </div><!-- /.col-md-3 col-sm-6 -->
+
+	                    </div><!-- /.row -->
+	                </div><!-- /.container -->
+	            </div><!-- /.funfact -->
+	            <div class="testimonials-two__inner">
+	                <div class="container">
+	                    <div class="row">
+	                        <div class="col-12">
+	                            <div class="testimonials-two__inner__head">
+	                                <div class="sec-title  text-start wow fadeInUp" data-wow-duration='300ms'>
+
+	                                    <h6 class="sec-title__tagline">
+	                                        <i class="icon-left-arrow sec-title__img"></i>
+	                                        Our Testimonial
+	                                        <i class="icon-right-arrow sec-title__img"></i>
+	                                    </h6><!-- /.sec-title__tagline -->
+
+	                                    <h3 class="sec-title__title">What Our Student are Saying?</h3><!-- /.sec-title__title -->
+	                                </div><!-- /.sec-title -->
+	                            </div><!-- /.testimonials-two__inner__head -->
+	                        </div><!-- /.col-12 -->
+	                    </div><!-- /.row -->
+
+	                    <div class="testimonials-two__carousel drivschol-owl__carousel drivschol-owl__carousel--with-shadow drivschol-owl__carousel--basic-nav owl-carousel owl-theme" data-owl-options='{
+						"items": 1,
+						"margin": 0,
+						"smartSpeed": 700,
+						"loop":true,
+						"autoplay": true,
+						"nav":true,
+						"URLhashListener":true,
+						"dots":false,
+						"navText": ["<span class=\"icon-arrow-left\"></span>","<span class=\"icon-arrow\"></span>"],
+						"responsive": {
+							"0": {
+								"items": 1
+							},
+							"500": {
+								"items": 1
+							}
+						}
+					}'>
+	                        {% for testimonial in testimonials %}
+	                        <div class="testimonials-two__carousel__item" data-hash="item{{ forloop.counter }}">
+	                            <div class="testimonials-two__carousel__item__image">
+	                                {% if testimonial.photo %}
+	                                <img src="{{ testimonial.photo.url }}" alt="{{ testimonial.name }}">
+	                                {% else %}
+	                                <img src="assets/images/team/testimonial-1-1.png" alt="{{ testimonial.name }}">
+	                                {% endif %}
+	                                <div class="quite">
+	                                    <i class="icon-quite"></i>
+	                                </div><!-- /.quite -->
+	                            </div><!-- /.testimonials-two__inner__carousel__item__image -->
+	                            <div class="testimonials-two__carousel__item__content">
+	                                <div class="testimonials-two__carousel__item__content__ratings">
+	                                    <span class="fa fa-star"></span>
+	                                    <span class="fa fa-star"></span>
+	                                    <span class="fa fa-star"></span>
+	                                    <span class="fa fa-star"></span>
+	                                    <span class="fa fa-star"></span>
+	                                </div>
+	                                <p class="testimonials-two__carousel__item__content__text">{{ testimonial.quote }}</p><!-- /.testimonials-two__inner__carousel__item__content__text -->
+	                                <div class="testimonials-two__carousel__item__content__author">
+	                                    <span class="testimonials-two__carousel__item__content__author__name">{{ testimonial.name }}</span><!-- /.testimonials-two__inner__carousel__author__name -->
+	                                    <p class="testimonials-two__carousel__item__content__author__deganation">{{ testimonial.role }}</p>
+	                                </div><!-- /.testimonials-two__inner__carousel__author -->
+	                            </div><!-- /.testimonials-two__inner__carousel__item__content -->
+	                        </div><!-- /.testimonials-two__inner__carousel__item -->
+	                        {% endfor %}
+
+	                    </div><!-- /.testimonials-two__inner__carousel -->
+
+	                    <div class="carousel-thumb__two">
+	                        <!-- Testimonial Thumb -->
+	                        <div class="testimonials-two__carousel-thumb drivschol-owl__carousel owl-theme owl-carousel" data-owl-options='{
+						"items": 3,
+						"margin": 1,
+						"smartSpeed": 700,
+						"loop":true,
+						"autoplay": true,
+						"URLhashListener":true,
+						"center": true,
+						"dots":false,
+						"navText": ["<span class=\"icon-arrow-left\"></span>","<span class=\"icon-arrow\"></span>"],
+						"responsive": {
+							"0": {
+								"items": 3
+							},
+							"500": {
+								"items": 3
+							}
+						}
+						}'>
+	                            {% for testimonial in testimonials %}
+	                            <a href="#item{{ forloop.counter }}" class="item" data-hash="item{{ forloop.counter }}">
+	                                <span class="testimonials-two__meta-thumb">
+	                                    {% if testimonial.photo %}
+	                                    <img src="{{ testimonial.photo.url }}" alt="{{ testimonial.name }}">
+	                                    {% else %}
+	                                    <img src="assets/images/resources/testi-1-4.jpg" alt="{{ testimonial.name }}">
+	                                    {% endif %}
+	                                </span>
+	                            </a><!-- testimonial-author -->
+	                            {% endfor %}
+	                        </div>
+	                        <!-- Testimonial Thumb -->
+	                    </div><!-- / -->
+	                </div><!-- /.container -->
+
+	            </div><!-- /.testimonials-two__inner -->
+	            <div class="testimonials-two__element_one">
+	                <img src="assets/images/shapes/testimonial-1-1.png" alt>
+	            </div><!-- /.testimonials-two__element_one -->
+	            <div class="testimonials-two__element_two">
+	                <img src="assets/images/shapes/testimonial-1-2.png" alt>
+	            </div><!-- /.testimonials-two__element_one -->
+	        </section><!-- /.testimonials-two -->
+	        {% endif %}
+
+	        <section class="experience-one">
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-lg-6">
+	                        <div class="experience-one__left">
+	                            <div class="sec-title  text-start wow fadeInUp" data-wow-duration='300ms'>
+
+	                                <h6 class="sec-title__tagline">
+	                                    <i class="icon-left-arrow sec-title__img"></i>
+	                                    We’re Experienced
+	                                    <i class="icon-right-arrow sec-title__img"></i>
+	                                </h6><!-- /.sec-title__tagline -->
+
+	                                <h3 class="sec-title__title">Have Questions in Your Mind? <br> Get the Answers Now</h3><!-- /.sec-title__title -->
+	                            </div><!-- /.sec-title -->
+	                            <div class="experience-one__left__content  count-box">
+	                                <div class="row">
+	                                    <div class="col-sm-6">
+	                                        <div class="experience-one__left__content__item  wow fadeInUp" data-wow-delay='500ms' style="background-image: url(assets/images/resources/exprince-1-1.jpg);">
+	                                            <div class="funfact-one__content">
+	                                                <h3 class="funfact-one__count">
+	                                                    <span class="count-text" data-stop="40" data-speed="2500"></span>
+	                                                    <span class="funfact-one__count__pluse">+</span>
+	                                                </h3>
+	                                                <span class="funfact-one__content__text">Year <br>
+	                                                    Expertise</span>
+	                                            </div><!-- /.funfact-one__content -->
+	                                        </div><!-- /.experience-one__left__content__item -->
+	                                    </div><!-- /.col-sm-6 -->
+	                                    <div class="col-sm-6">
+	                                        <div class="experience-one__left__content__item  wow fadeInUp" data-wow-delay='700ms' style="background-image: url(assets/images/resources/exprince-1-2.jpg);">
+	                                            <div class="experience-one__left__content__item__icon">
+	                                                <img src="assets/samslogo.png" alt="experience-one__left__content__item__icon">
+	                                            </div><!-- /.experience-one__left__content__item__icon -->
+	                                        </div><!-- /.experience-one__left__content__item -->
+	                                    </div><!-- /.col-sm-6 -->
+	                                </div><!-- /.row -->
+	                            </div><!-- /.experience-one__left__content -->
+	                        </div><!-- /.experience-one__left -->
+	                    </div><!-- /.col-12 -->
+	                    <div class="col-lg-6">
+	                        <div class="faq-page__accordion drivschol-accrodion  wow fadeInUp" data-wow-delay='500ms' data-grp-name="drivschol-accrodion">
+	                            <div class="accrodion">
+	                                <div class="accrodion-title">
+	                                    <h4 class="accrodion-title__text">What is the Driver’s License History?<span class="accrodion-title__icon"></span></h4>
+	                                </div><!-- /.accordian-title -->
+	                                <div class="accrodion-content">
+	                                    <div class="inner">
+	                                        <p class="accrodion-content__text">The Driver’s License History provides proof of successful completion and graduation from a BDE course and is widely recognized by the insurance industry as proof of course completion. BDE graduates with a Driver’s License History may be eligible for an insurance discount.</p>
+	                                    </div><!-- /.accordian-content -->
+	                                </div>
+	                            </div><!-- /.accordian-item -->
+	
+	                            <div class="accrodion active">
+	                                <div class="accrodion-title">
+	                                    <h4 class="accrodion-title__text">Can I take my G2 road test in 8 months?<span class="accrodion-title__icon"></span><!-- /.accrodion-title__icon --></h4>
+	                                </div><!-- /.accordian-title -->
+	                                <div class="accrodion-content">
+	                                    <div class="inner">
+	                                        <p class="accrodion-content__text">Yes. If you successfully complete a Driver Beginner Education (BDE) course, you may be eligible to take your G2 road test sooner.</p>
+	                                    </div><!-- /.accordian-content -->
+	                                </div>
+	                            </div><!-- /.accordian-item -->
+	
+	                            <div class="accrodion">
+	                                <div class="accrodion-title">
+	                                    <h4 class="accrodion-title__text">Can I start my driver training course immediately?<span class="accrodion-title__icon"></span><!-- /.accrodion-title__icon --></h4>
+	                                </div><!-- /.accordian-title -->
+	                                <div class="accrodion-content">
+	                                    <div class="inner">
+	                                        <p class="accrodion-content__text">Yes. You can start right away, and you may even begin in-car lessons (with your G1) before completing the in-class sessions.</p>
+	                                    </div><!-- /.accordian-content -->
+	                                </div>
+	                            </div><!-- /.accordian-item -->
+	
+	                            <div class="accrodion">
+	                                <div class="accrodion-title">
+	                                    <h4 class="accrodion-title__text">Can I start the course without a G1 license yet?<span class="accrodion-title__icon"></span><!-- /.accrodion-title__icon --></h4>
+	                                </div><!-- /.accordian-title -->
+	                                <div class="accrodion-content">
+	                                    <div class="inner">
+	                                        <p class="accrodion-content__text">Yes. We can help you prepare to pass the knowledge/written test for the Driver’s Examination Centre.</p>
+	                                    </div><!-- /.accordian-content -->
+	                                </div>
+	                            </div><!-- /.accordian-item -->
+	
+	                            <div class="accrodion">
+	                                <div class="accrodion-title">
+	                                    <h4 class="accrodion-title__text">Can I drive with my G2 on the highway?<span class="accrodion-title__icon"></span><!-- /.accrodion-title__icon --></h4>
+	                                </div><!-- /.accordian-title -->
+	                                <div class="accrodion-content">
+	                                    <div class="inner">
+	                                        <p class="accrodion-content__text">Yes. You can drive on the highway anytime, anywhere, as long as you follow the rules and restrictions that apply to your licence.</p>
+	                                    </div><!-- /.accordian-content -->
+	                                </div>
+	                            </div><!-- /.accordian-item -->
+	
+	                        </div>
+	                    </div><!-- /.col-lg-6 -->
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	        </section><!-- /.experience-one -->
+
+	        {% comment %} <section class="team-one team-one--page pt-0">
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-md-12">
+	                        <div class="sec-title  text-center wow fadeInUp" data-wow-duration='300ms'>
+
+	                            <h6 class="sec-title__tagline">
+	                                <i class="icon-left-arrow sec-title__img"></i>
+	                                Our Instructors
+	                                <i class="icon-right-arrow sec-title__img"></i>
+	                            </h6><!-- /.sec-title__tagline -->
+
+	                            <h3 class="sec-title__title">Meet Our Professional and <br> Experience Instructors</h3><!-- /.sec-title__title -->
+	                        </div><!-- /.sec-title -->
+	                        <!-- section-title -->
+	                    </div>
+	                </div>
+	                <div class="row gutter-y-30">
+	                    <div class="col-md-6 col-lg-4">
+	                        <div class="team-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='000ms'>
+	                            <div class="team-card__image">
+	                                <img src="assets/images/team/team-1-1.jpg" alt="Alvert Tine">
+	                            </div><!-- /.team-card__image -->
+	                            <div class="team-card__content">
+	                                <div class="team-card__hover">
+	                                    <div class="team-card__content-share-icon">
+	                                        <i class="fa fa-share-alt"></i>
+	                                    </div>
+
+	                                    <div class="team-card__social">
+	                                        <div class="team-card__social__list">
+	                                            <!-- social link-->
+	                                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+	                                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+	                                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+	                                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+	                                        </div><!-- /.team-card__social__list -->
+	                                    </div><!-- /.team-card__social -->
+
+	                                </div><!-- /.team-card__hover -->
+	                                <h3 class="team-card__title"><a href="{% url 'team_details_page' %}">Alvert Tine</a></h3><!-- /.team-card__title -->
+	                                <h6 class="team-card__designation">Instructor</h6><!-- /.team-card__designation -->
+	                                <div class="team-card__content-shape">
+	                                    <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                                        <path d="M63 0L0 90H63V0Z" fill="" />
+	                                    </svg>
+	                                </div>
+	                            </div><!-- /.team-card__content -->
+	                        </div><!-- /.team-card -->
+	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                    <div class="col-md-6 col-lg-4">
+	                        <div class="team-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='300ms'>
+	                            <div class="team-card__image">
+	                                <img src="assets/images/team/team-1-2.jpg" alt="Sara Liner">
+	                            </div><!-- /.team-card__image -->
+	                            <div class="team-card__content">
+	                                <div class="team-card__hover">
+	                                    <div class="team-card__content-share-icon">
+	                                        <i class="fa fa-share-alt"></i>
+	                                    </div>
+
+	                                    <div class="team-card__social">
+	                                        <div class="team-card__social__list">
+	                                            <!-- social link-->
+	                                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+	                                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+	                                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+	                                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+	                                        </div><!-- /.team-card__social__list -->
+	                                    </div><!-- /.team-card__social -->
+
+	                                </div><!-- /.team-card__hover -->
+	                                <h3 class="team-card__title"><a href="{% url 'team_details_page' %}">Sara Liner</a></h3><!-- /.team-card__title -->
+	                                <h6 class="team-card__designation">Instructor</h6><!-- /.team-card__designation -->
+	                                <div class="team-card__content-shape">
+	                                    <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                                        <path d="M63 0L0 90H63V0Z" fill="" />
+	                                    </svg>
+	                                </div>
+	                            </div><!-- /.team-card__content -->
+	                        </div><!-- /.team-card -->
+	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                    <div class="col-md-6 col-lg-4">
+	                        <div class="team-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='700ms'>
+	                            <div class="team-card__image">
+	                                <img src="assets/images/team/team-1-3.jpg" alt="Mark Wood">
+	                            </div><!-- /.team-card__image -->
+	                            <div class="team-card__content">
+	                                <div class="team-card__hover">
+	                                    <div class="team-card__content-share-icon">
+	                                        <i class="fa fa-share-alt"></i>
+	                                    </div>
+
+	                                    <div class="team-card__social">
+	                                        <div class="team-card__social__list">
+	                                            <!-- social link-->
+	                                            <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+	                                            <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+	                                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+	                                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+	                                        </div><!-- /.team-card__social__list -->
+	                                    </div><!-- /.team-card__social -->
+
+	                                </div><!-- /.team-card__hover -->
+	                                <h3 class="team-card__title"><a href="{% url 'team_details_page' %}">Mark Wood</a></h3><!-- /.team-card__title -->
+	                                <h6 class="team-card__designation">Instructor</h6><!-- /.team-card__designation -->
+	                                <div class="team-card__content-shape">
+	                                    <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                                        <path d="M63 0L0 90H63V0Z" fill="" />
+	                                    </svg>
+	                                </div>
+	                            </div><!-- /.team-card__content -->
+	                        </div><!-- /.team-card -->
+	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	        </section><!-- /.team-one --> {% endcomment %}
+
+	        <section class="why-choose-one">
+	            <div class="why-choose-one__bg jarallax" data-jarallax data-speed="0.3" data-imgPosition="50% -100%" style="background-image: url(assets/cert.png);"></div><!-- /.why-choose-one__bg -->
+	            <div class="container">
+	                <div class="row align-items-center">
+	                    <div class="col-md-6">
+	                        <div class="sec-title   wow fadeInUp" data-wow-duration='300ms'>
+
+	                            <h6 class="sec-title__tagline">
+	                                <i class="icon-left-arrow sec-title__img"></i>
+	                                Why Choose Us
+	                                <i class="icon-right-arrow sec-title__img"></i>
+	                            </h6><!-- /.sec-title__tagline -->
+
+	                            <h3 class="sec-title__title">Why You Should Choose Our <br> Drivschol? </h3><!-- /.sec-title__title -->
+	                        </div><!-- /.sec-title -->
+	                    </div><!-- /.col-md-6 -->
+	                    <div class="col-md-6">
+	                        <p class="why-choose-one__head__text  wow fadeInUp" data-wow-delay='700ms'>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteradution in some form by injected humour, some form </p><!-- /.why-choose-one__head__text -->
+	                    </div><!-- /.col-md-6 -->
+	                </div><!-- /.row -->
+	                <div class="why-choose-one__inner">
+	                    <div class="row">
+	                        <div class="col-lg-3 col-md-6">
+	                            <div class="why-choose-one__single__item  wow fadeInUp" data-wow-delay='500ms'>
+	                                <div class="why-choose-one__single__item__icon">
+	                                    <i class="icon-Instructor"></i>
+	                                </div><!-- /.why-choose-one__single__item__icon -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'course_page' %}">Quality Service</a></h3><!-- /.why-choose-one__single__item__text -->
+	                            </div><!-- /.why-choose-one__single__item -->
+	                        </div><!-- /.col-md-3 -->
+	                        <div class="col-lg-3 col-md-6">
+	                            <div class="why-choose-one__single__item  wow fadeInUp" data-wow-delay='600ms'>
+	                                <div class="why-choose-one__single__item__icon">
+	                                    <i class="icon-Student"></i>
+	                                </div><!-- /.why-choose-one__single__item__icon -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}"> Experience Teacher</a></h3><!-- /.why-choose-one__single__item__text -->
+	                            </div><!-- /.why-choose-one__single__item -->
+	                        </div><!-- /.col-md-3 -->
+	                        <div class="col-lg-3 col-md-6">
+	                            <div class="why-choose-one__single__item  wow fadeInUp" data-wow-delay='700ms'>
+	                                <div class="why-choose-one__single__item__icon">
+	                                    <i class="icon-trust-1"></i>
+	                                </div><!-- /.why-choose-one__single__item__icon -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Trusted Platform</a></h3><!-- /.why-choose-one__single__item__text -->
+	                            </div><!-- /.why-choose-one__single__item -->
+	                        </div><!-- /.col-md-3 -->
+	                        <div class="col-lg-3 col-md-6">
+	                            <div class="why-choose-one__single__item  wow fadeInUp" data-wow-delay='900ms'>
+	                                <div class="why-choose-one__single__item__icon">
+	                                    <i class="icon-certificate-1"></i>
+	                                </div><!-- /.why-choose-one__single__item__icon -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Provide Certificate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                            </div><!-- /.why-choose-one__single__item -->
+	                        </div><!-- /.col-md-3 -->
+	                    </div><!-- /.row -->
+	                </div><!-- /.inner -->
+	            </div><!-- /.container -->
+	        </section><!-- /.why-choose-one -->
+
+
+	        <section class="contact-two">
+	            <div class="contact-two__bg" style="background-image: url(assets/images/team/bg-contact-team.png);"></div>
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-xl-6 col-lg-5"></div>
+	                    <div class="col-xl-6 col-lg-7 wow slideInRight">
+	                        <form class="form-one team-form-one__form contact-form-validated " action="{% url 'lead_capture' %}" method="post" novalidate="novalidate">
+	                            {% csrf_token %}
+	                            <div class="sec-title   wow fadeInUp" data-wow-duration='300ms'>
+
+	                                <h6 class="sec-title__tagline">
+	                                    <i class="icon-left-arrow sec-title__img"></i>
+	                                    Contact with Us
+	                                    <i class="icon-right-arrow sec-title__img"></i>
+	                                </h6><!-- /.sec-title__tagline -->
+
+	                                <h3 class="sec-title__title">Feel Free to Write us</h3><!-- /.sec-title__title -->
+	                            </div><!-- /.sec-title -->
+	                            <div class="form-one__group  wow fadeInUp" data-wow-delay='500ms'>
+	                                <div class="form-one__control ">
+	                                    <input type="text" name="name" placeholder="Your name">
+	                                </div><!-- /.form-one__control  -->
+	                                <div class="form-one__control">
+	                                    <input type="email" name="email" placeholder="Email address">
+	                                </div><!-- /.form-one__control -->
+	                                <div class="form-one__control ">
+	                                    <input type="text" name="phone" placeholder="Phone">
+	                                </div><!-- /.form-one__control  -->
+	                                <div class="form-one__control">
+	                                    <input type="text" name="subject" placeholder="Subject">
+	                                </div><!-- /.form-one__control -->
+	                                <div class="form-one__control form-one__control__full">
+	                                    <textarea name="message" placeholder="Write A Message"></textarea><!-- /# -->
+	                                </div><!-- /.form-one__control -->
+	                                <div class="form-one__control form-one__control__full text-start">
+	                                    <button type="submit" class="drivschol-btn drivschol-btn--base2"><span>Send a message</span></button>
+	                                </div><!-- /.form-one__control -->
+	                            </div><!-- /.form-one__group -->
+	                        </form>
+	                    </div>
+	                </div>
+	            </div><!-- /.container -->
+	            <div class="contact-two__left__image  wow fadeInUp" data-wow-delay='500ms'>
+	                <img src="assets/contact.png" alt="contact-two__left__image">
+	            </div>
+	            <div class="contact-two__left__shape  wow fadeInUp" data-wow-delay='500ms'>
+	                <img src="../assets/images/shapes/contact-shape-1.png" alt="contact-two__left__image">
+	            </div>
+	        </section><!-- /.contact -->
+
+	        <section class="blog-one blog-one__home">
+	            <div class="container">
+	                <div class="sec-title  text-center wow fadeInUp" data-wow-duration='300ms'>
+
+	                    <h6 class="sec-title__tagline">
+	                        <i class="icon-left-arrow sec-title__img"></i>
+	                        Articles
+	                        <i class="icon-right-arrow sec-title__img"></i>
+	                    </h6><!-- /.sec-title__tagline -->
+
+	                    <h3 class="sec-title__title">Latest News & Articles from <br> the Blog Posts</h3><!-- /.sec-title__title -->
+	                </div><!-- /.sec-title -->
+	                <div class="blog-one__carousel drivschol-owl__carousel drivschol-owl__carousel--with-shadow drivschol-owl__carousel--basic-nav owl-carousel owl-theme" data-owl-options='{
+				"items": 1,
+				"margin": 0,
+				"loop": false,
+				"smartSpeed": 700,
+				"nav": true,
+				"navText": ["<i class=\"fa fa-angle-left\"></i>" , "<i class=\"fa fa-angle-right\"></i>"],
+				"dots": false,
+				"autoplay": false,
+				"responsive": {
+					"0": {
+						"items": 1
+					},
+					"775": {
+						"items": 2,
+						"margin": 30
+					},
+					"992": {
+						"items": 3,
+						"margin": 30
+					}
+				}
+			}'>
+	                    {% for blog in home_blogs %}
+	                    <div class="item">
+	                        <div class="blog-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
+	                            <div class="blog-card__image">
+	                                <div class="blog-card__image-item">
+	                                    {% if blog.cover_image %}
+	                                    <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}">
+	                                    {% else %}
+	                                    <img src="{% static 'assets/images/blog/blog-1-1.png' %}" alt="{{ blog.title }}">
+	                                    {% endif %}
+	                                </div>
+	                                <a href="{% url 'blog_details' slug=blog.slug %}" class="blog-card__image-link"><span class="sr-only">{{ blog.title }}</span></a>
+	                                <div class="blog-card__date">
+	                                    <h2 class="blog-card__date__month">{{ blog.published_at|date:"d" }}</h2>
+	                                    <span class="blog-card__date__year">{{ blog.published_at|date:"F Y" }}</span>
+	                                    <img class="date__shape" src="{% static 'assets/images/shapes/date.png' %}" alt>
+	                                </div>
+	                            </div><!-- /.blog-card__image -->
+
+	                            <div class="blog-card__content">
+	                                <a href="{% url 'blog_details' slug=blog.slug %}" class="blog-card__meta">
+	                                    <div class="blog-card__content-thumb">
+	                                        <div class="author-img">
+	                                            {% if blog.author_image %}
+	                                            <img src="{{ blog.author_image.url }}" alt>
+	                                            {% else %}
+	                                            <img src="{% static 'assets/images/blog/blog-author-1-1.png' %}" alt>
+	                                            {% endif %}
+	                                        </div>
+	                                    </div>
+	                                    <div class="blog-card__content-author">
+	                                        <h6 class="author-name">{{ blog.author_name|default:"Drivschol Team" }}</h6>
+	                                        <span class="author-title">{{ blog.author_title|default:"Instructor" }}</span>
+	                                    </div>
+	                                </a>
+	                                <h3 class="blog-card__title"><a href="{% url 'blog_details' slug=blog.slug %}">{{ blog.title }}</a></h3>
+	                                <a href="{% url 'blog_details' slug=blog.slug %}" class="blog-card__link"> Read more</a>
+	                            </div><!-- /.blog-card__content -->
+	                        </div><!-- /.blog-card -->
+	                    </div><!-- /.item -->
+	                    {% empty %}
+	                    <div class="item">
+	                        <div class="blog-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
+	                            <div class="blog-card__content">
+	                                <h3 class="blog-card__title">No blog posts yet.</h3>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    {% endfor %}
+
+	                </div><!-- /.row -->
+	            </div><!-- /.container -->
+	        </section><!-- /.blog-one blog-one-->
+
+	        <section class="cta-one">
+	            <div class="cta-one__wrapper">
+	                <div class="container">
+	                    <div class="row align-items-center">
+	                        <div class="col-md-7">
+	                            <div class="cta-one__content wow fadeInUp" data-wow-delay='200ms'>
+	                                <h3 class="cta-one__title">Book Your First Driving Lesson Today</h3>
+	                                <a href="{% url 'contact_page' %}" class="drivschol-btn"><span>Book Now</span></a>
+	                            </div>
+	                        </div>
+	                        <div class="col-md-5">
+	                            <div class="cta-one__thumb">
+	                                <div class="cta-one__thumb__one wow fadeInUp" data-wow-delay="300ms">
+	                                    <div class="cta-one__thumb__one__thumb">
+	                                        <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+											<dotlottie-wc src="https://lottie.host/1fe59df5-8aee-4d95-873c-d683766c9ad9/7K65qIFFVE.lottie" style="width: 300px;height: 300px" autoplay loop></dotlottie-wc>
+	                                    </div>
+	                                </div><!-- /.cta-thumb-one -->
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div><!-- /.container -->
+	                <div class="cta-one__element">
+	                    <img src="assets/images/backgrounds/cta-bg-1-1.png" alt>
+	                </div><!-- /.cta-one__element -->
+	            </div>
+	        </section><!-- /.cta-one -->
+
+	        {% endblock %}
+	        {% include "includes/footer.html" %}
+
+	    </div><!-- /.page-wrapper -->
+
+
+
+	    <div class="mobile-nav__wrapper">
+	        <div class="mobile-nav__overlay mobile-nav__toggler"></div>
+	        <!-- /.mobile-nav__overlay -->
+	        <div class="mobile-nav__content">
+	            <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
+
+	            <div class="logo-box">
+	                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/images/logo-light.png" width="155" alt="logo drivschol"></a>
+	            </div>
+	            <!-- /.logo-box -->
+	            <div class="mobile-nav__container"></div>
+	            <!-- /.mobile-nav__container -->
+
+	            <ul class="mobile-nav__contact list-unstyled">
+	                <li>
+	                    <i class="fa fa-envelope"></i>
+	                    <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a>
+	                </li>
+	                <li>
+	                    <i class="fa fa-phone-alt"></i>
+	                    <a href="tel:+16478891708">647-889-1708</a>
+	                </li>
+	            </ul><!-- /.mobile-nav__contact -->
+	            <div class="mobile-nav__social">
+	                <!-- social link-->
+	                <a href="https://facebook.com"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+	                <a href="https://twitter.com"><i class="icon-twitter" aria-hidden="true"></i></a>
+	                <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
+	                <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
+	            </div><!-- /.mobile-nav__social -->
+	        </div>
+	        <!-- /.mobile-nav__content -->
+	    </div>
+	    <!-- /.mobile-nav__wrapper -->
+	    <div class="search-popup">
+	        <div class="search-popup__overlay search-toggler"></div>
+	        <!-- /.search-popup__overlay -->
+	        <div class="search-popup__content">
+	            <form role="search" method="get" class="search-popup__form" action="#">
+	                <input type="text" id="search" placeholder="Search Here...">
+	                <button type="submit" aria-label="search submit" class="drivschol-btn drivschol-btn--base2">
+	                    <span><i class="icon-search"></i></span>
+	                </button>
+	            </form>
+	        </div>
+	        <!-- /.search-popup__content -->
+	    </div>
+	    <!-- /.search-popup -->
+
+	    <a href="#" data-target="html" class="scroll-to-target scroll-to-top">
+	        <span class="scroll-to-top__text">back top</span>
+	        <span class="scroll-to-top__wrapper"><span class="scroll-to-top__inner"></span></span>
+	    </a>
+
+
+
+	    <!--  ALl JS Plugins =====================
+        ====================================== -->
+	    <!--  jquery-3.7.0 js plugins -->
+	    <script src="assets/vendors/jquery/jquery-3.7.0.min.js"></script>
+	    <!--  Bootstrap js plugins -->
+	    <script src="assets/vendors/bootstrap/js/bootstrap.bundle.min.js"></script>
+	    <script src="assets/vendors/bootstrap-select/bootstrap-select.min.js"></script>
+	    <!--  jarallax js plugins -->
+	    <script src="assets/vendors/jarallax/jarallax.min.js"></script>
+	    <!--  jquery-ui js plugins -->
+	    <script src="assets/vendors/jquery-ui/jquery-ui.js"></script>
+	    <!--  jquery-ajaxchimp js plugins -->
+	    <script src="assets/vendors/jquery-ajaxchimp/jquery.ajaxchimp.min.js"></script>
+	    <!--  jquery-appear js plugins -->
+	    <script src="assets/vendors/jquery-appear/jquery.appear.min.js"></script>
+	    <!-- jquery-circle-progress js plugins -->
+	    <script src="assets/vendors/jquery-circle-progress/jquery.circle-progress.min.js"></script>
+	    <!--  magnific-popup js plugins -->
+	    <script src="assets/vendors/jquery-magnific-popup/jquery.magnific-popup.min.js"></script>
+	    <!--  validate js plugins -->
+	    <script src="assets/vendors/jquery-validate/jquery.validate.min.js"></script>
+	    <!--  nouislider js plugins -->
+	    <script src="assets/vendors/nouislider/nouislider.min.js"></script>
+	    <!--  tiny-slider js plugins -->
+	    <script src="assets/vendors/tiny-slider/tiny-slider.js"></script>
+	    <!--  wnumb js plugins -->
+	    <script src="assets/vendors/wnumb/wNumb.min.js"></script>
+	    <!--  owl-carousel js plugins -->
+	    <script src="assets/vendors/owl-carousel/js/owl.carousel.min.js"></script>
+	    <!--  Bootstrap js plugins -->
+	    <script src="assets/vendors/wow/wow.js"></script>
+	    <!--  wow js plugins -->
+	    <script src="assets/vendors/imagesloaded/imagesloaded.min.js"></script>
+	    <!--  isotope js plugins -->
+	    <script src="assets/vendors/isotope/isotope.js"></script>
+	    <!--  countdown js plugins -->
+	    <script src="assets/vendors/countdown/countdown.min.js"></script>
+	    <!--  jquery-circleType js plugins -->
+	    <script src="assets/vendors/jquery-circleType/jquery.circleType.js"></script>
+	    <script src="assets/vendors/jquery-lettering/jquery.lettering.min.js"></script>
+
+	    <!-- template js -->
+	    <script src="assets/js/drivschol.js"></script>
+	</body>
+
+	</html>
