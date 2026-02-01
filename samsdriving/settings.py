@@ -107,7 +107,7 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.example.com")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", default=True)
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@samsdriving.ca")
 ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", "")
 
