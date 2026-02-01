@@ -1,0 +1,220 @@
+:root {
+  --drivschol-white: #111117;
+  --drivschol-white-rgb: toRGB(#111117);
+  --drivschol-heading-text: #fff;
+  --drivschol-heading-text-rgb: toRGB(#fff);
+  --drivschol-black2: #fff;
+  --drivschol-black2-rgb: toRGB(#fff);
+  --drivschol-black3: #6D7076;
+}
+
+.cta-one .drivschol-btn::before,
+.cta-one .drivschol-btn,
+.cta-one__wrapper,
+.blog-card__date,
+.why-choose-one,
+.cta-three,
+.course-one__item__session,
+.main-slider-one__carousel .owl-dots,
+.main-header .info-item__btn .icon {
+  background-color: var(--drivschol-white);
+}
+
+.search-popup__form .drivschol-btn:hover span,
+.footer-widget__update,
+.footer-widget__newsletter button[type=submit],
+.footer-widget__info li:hover a:hover,
+.footer-widget__links li:hover a:hover,
+.main-footer__inner-social a,
+.cta-one__title,
+.blog-card__link:hover::after,
+.blog-card__link:hover,
+.blog-card__date__year,
+.blog-card__date__month,
+.testimonials-two .funfact__item:hover .funfact__item__icon i,
+.package-card.active a,
+.package-card a:hover,
+.package-card__head__item__price,
+.why-choose-one__single__item:hover .why-choose-one__single__item__icon i,
+.why-choose-one__single__item__text,
+.why-choose-one .sec-title__title,
+.why-choose-one .sec-title__tagline,
+.team-card__content-share-icon,
+.experience-one__left__content__item .funfact-one__content .funfact-one__content__text,
+.testimonials-two__carousel__item__image .quite i,
+.cta-three__inner__content__text,
+.course-one__item__left__link__btn,
+.course-one__item__session__icon,
+.service-card__bth .drivschol-btn,
+.about-one__item__elememt__single__icon .icon i,
+.about-one__item__left__contact__link__text,
+.main-slider-one__trigger,
+.main-header .info-item__btn .content__call,
+.main-header .info-item__btn:hover i,
+.topbar-one__right-text,
+.topbar-one__text,
+.drivschol-btn {
+  color: var(--drivschol-heading-text);
+}
+
+.testimonials-two .center .testimonials-two__meta-thumb {
+  border-color: var(--drivschol-heading-text) !important;
+}
+
+.package-card__head__item__name,
+.about-one__item__elememt__single__icon .icon i,
+.drivschol-btn span {
+  transition: all 300ms ease;
+}
+
+.package-card .drivschol-btn,
+.team-card__social__list a,
+.cta-three__inner__link__btn:hover,
+.course-one__item__left__link__btn:hover,
+.service-card__bth .drivschol-btn:hover,
+.about-one__item__elememt__single:hover .icon i,
+.drivschol-btn:hover span {
+  color: var(--drivschol-white);
+}
+
+.blog-card__image-link::before,
+.blog-card__image-link::after,
+.package-card .drivschol-btn::before,
+.package-card .drivschol-btn,
+.team-card__social__list::after,
+.team-card__social__list,
+.faq-page__accordion .active .accrodion-title__icon::after,
+.faq-page__accordion .active .accrodion-title__icon::before,
+.faq-page__accordion .accrodion-title__icon::after,
+.faq-page__accordion .accrodion-title__icon::before,
+.testimonials-two .owl-nav button.owl-prev,
+.testimonials-two .owl-nav button.owl-next,
+.drivschol-btn::after {
+  background-color: var(--drivschol-heading-text);
+}
+
+.drivschol-btn::before,
+.drivschol-btn {
+  background-color: var(--drivschol-primary);
+}
+
+.contact-two .form-one textarea,
+.blog-card__link,
+.contact-two .form-one .bootstrap-select > .dropdown-toggle,
+.contact-two .form-one input[type=text],
+.contact-two .form-one input[type=email] {
+  background-color: var(--drivschol-black2) !important;
+}
+
+.blog-card__link,
+.contact-two .form-one textarea,
+.contact-two .form-one .bootstrap-select > .dropdown-toggle,
+.contact-two .form-one input[type=text],
+.contact-two .form-one input[type=email],
+.contact-two,
+.package-card__head__shape,
+.team-card__content,
+.faq-page__accordion .accrodion-title__icon,
+.testimonials-two .owl-nav button.owl-prev:hover,
+.testimonials-two .owl-nav button.owl-prev:active,
+.testimonials-two .owl-nav button.owl-next:hover,
+.testimonials-two .owl-nav button.owl-next:active,
+.course-one__item__session__shape,
+.course-one__item__left__price .price__box,
+.course-one,
+.service-card__bth::before,
+.about-one__progress__bar,
+.about-one__item__block-contents,
+.about-one__item__left__contact__link,
+.about-one::after,
+.main-slider-one__shape-border__one,
+.main-slider-one__shape-border__two,
+.main-header__logo::before,
+.main-header__logo::after,
+.main-header__logo,
+.main-header__right::after {
+  background-color: var(--drivschol-black3);
+}
+
+.course-one {
+  background-color: var(--drivschol-black3);
+}
+.course-one .sec-title__tagline {
+  color: var(--drivschol-black2);
+}
+
+.about-one__item__left__contact__link__subtext {
+  color: var(--drivschol-black2);
+}
+
+.testimonials-two .owl-nav button.owl-prev:hover,
+.testimonials-two .owl-nav button.owl-prev:active,
+.testimonials-two .owl-nav button.owl-next:hover,
+.testimonials-two .owl-nav button.owl-next:active {
+  background-color: var(--drivschol-black2);
+}
+
+.package-card__body__title,
+.package-card__body__list__item,
+.faq-page__accordion .accrodion {
+  border-color: var(--drivschol-black3);
+}
+
+.service-card {
+  box-shadow: 4px 4px 40px 0px rgba(0, 0, 0, 0.8);
+}
+
+.team-card__content {
+  box-shadow: 6px 6px 30px 0px rgba(0, 0, 0, 0.6);
+}
+
+.testimonials-two {
+  background: linear-gradient(180deg, #111117 50.83%, #1C1C29 135.55%);
+}
+
+.team-card__content::before {
+  background-image: url(../images/shapes/team-line-dark.png);
+}
+
+.team-card__content-shape svg {
+  fill: var(--drivschol-white);
+}
+
+.team-card:hover .team-card__content-shape svg {
+  fill: var(--drivschol-primary);
+}
+
+.package-card {
+  box-shadow: 0px 6px 30px 0px rgba(0, 0, 0, 0.6);
+}
+
+.blog-card__link::after,
+.package-card:hover .package-card__head .package-card__head__item__name,
+.package-card.active .package-card__head .package-card__head__item__name {
+  color: var(--drivschol-text);
+}
+
+.package-card:hover .package-card__head .package-card__head__item__shape__two svg,
+.package-card.active .package-card__head .package-card__head__item__shape__two svg,
+.package-card:hover .package-card__head .package-card__head__item__shape__one svg,
+.package-card.active .package-card__head .package-card__head__item__shape__one svg {
+  fill: var(--drivschol-black3);
+}
+
+.testimonials-two .funfact__item__content {
+  filter: drop-shadow(0px 8px 30px rgba(0, 0, 0, 0.5));
+}
+
+.blog-card {
+  box-shadow: 0px 6px 30px 0px rgba(0, 0, 0, 0.6);
+}
+
+.main-footer {
+  background-color: #18181E;
+}
+
+.testimonials-two .owl-nav button.owl-prev, .testimonials-two .owl-nav button.owl-next {
+  color: var(--drivschol-primary);
+  background-color: var(--drivschol-black3);
+}
+/*# sourceMappingURL=drivschol-dark.css.map */

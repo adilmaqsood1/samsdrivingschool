@@ -1,0 +1,65 @@
+body {
+  overflow-x: hidden;
+  direction: rtl;
+}
+
+.owl-carousel {
+  direction: ltr;
+}
+
+.owl-carousel .owl-nav,
+.owl-carousel .owl-dots,
+.owl-carousel .owl-item {
+  direction: rtl;
+}
+
+.contact__input-box .bootstrap-select .dropdown-menu,
+.bootstrap-select .dropdown-toggle .filter-option {
+  text-align: right;
+}
+
+.list-unstyled {
+  padding-right: 0;
+}
+
+.cta-one::after,
+.cta-one::before,
+.main-header__logo::after,
+.topbar-one__social::after {
+  transform: rotate(180deg);
+}
+
+.main-header__right::after {
+  transform: rotate(180deg);
+}
+
+.main-header__right::before {
+  transform: rotate(90deg);
+  height: 56%;
+}
+
+.blog-card__link::after,
+.package-card__head__flag,
+.team-card__content-shape {
+  transform: scaleX(-1);
+}
+
+.package-card__head::after {
+  transform: rotate(88deg);
+}
+
+.package-card__two .package-card__head::after {
+  transform: rotate(-90deg);
+}
+
+.contact-two__left__image img {
+  transform: scaleX(-1);
+}
+
+@media (min-width: 1200px) {
+  .offset-xl-1 {
+    margin-right: 8.33333333%;
+    margin-left: 0;
+  }
+}
+/*# sourceMappingURL=drivschol-custom-rtl.css.map */
