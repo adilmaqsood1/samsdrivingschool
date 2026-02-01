@@ -1,5 +1,9 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-python3 -m pip install -r requirements.txt
-python3 manage.py collectstatic --noinput --clear
+python3 -m venv .venv
+. .venv/bin/activate
+
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python manage.py collectstatic --noinput --clear
