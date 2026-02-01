@@ -6,4 +6,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "samsdriving.settings")
 
 application = get_wsgi_application()
 
+
+#add for vercel
 app = application
