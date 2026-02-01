@@ -16,27 +16,12 @@ def _env_bool(name: str, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-DEBUG = _env_bool("DJANGO_DEBUG", default=not IS_VERCEL)
+DEBUG = False
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-if not SECRET_KEY:
-    if DEBUG:
-        SECRET_KEY = "django-insecure-REDACTED"
-    else:
-        raise ValueError("DJANGO_SECRET_KEY is required when DEBUG is False")
+SECRET_KEY = "django-insecure-REDACTED"
 
-ALLOWED_HOSTS = []
-_allowed_hosts_env = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
-if _allowed_hosts_env.strip():
-    ALLOWED_HOSTS.extend([h.strip() for h in _allowed_hosts_env.split(",") if h.strip()])
+ALLOWED_HOSTS = ["*"]
 
-VERCEL_URL = os.environ.get("VERCEL_URL")
-if VERCEL_URL:
-    ALLOWED_HOSTS.append(VERCEL_URL)
-    ALLOWED_HOSTS.append(".vercel.app")
-
-if DEBUG and not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
 INSTALLED_APPS = [
     "jet",
