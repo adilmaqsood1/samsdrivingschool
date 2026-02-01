@@ -1,20 +1,9 @@
 import os
 from pathlib import Path
-
 import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-IS_VERCEL = bool(os.environ.get("VERCEL"))
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    value = os.environ.get(name)
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "y", "on"}
-
 
 DEBUG = False
 
@@ -125,12 +114,8 @@ ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", 
 SMS_WEBHOOK_URL = os.environ.get("SMS_WEBHOOK_URL", "")
 SMS_WEBHOOK_TOKEN = os.environ.get("SMS_WEBHOOK_TOKEN", "")
 
-CSRF_TRUSTED_ORIGINS = []
-_csrf_trusted_env = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "")
-if _csrf_trusted_env.strip():
-    CSRF_TRUSTED_ORIGINS.extend([o.strip() for o in _csrf_trusted_env.split(",") if o.strip()])
-if VERCEL_URL:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{VERCEL_URL}")
+CSRF_TRUSTED_ORIGINS = ["*"]
+
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
@@ -141,7 +126,6 @@ SECURE_HSTS_SECONDS = 0 if DEBUG else 3600
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_HSTS_PRELOAD = not DEBUG
 
-SITE_URL = os.environ.get("SITE_URL") or (f"https://{VERCEL_URL}" if VERCEL_URL else "http://localhost:8000")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
