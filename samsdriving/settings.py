@@ -5,7 +5,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
+DEBUG = True
 
 SECRET_KEY = "django-insecure-REDACTED"
 
@@ -114,7 +114,25 @@ ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", 
 SMS_WEBHOOK_URL = os.environ.get("SMS_WEBHOOK_URL", "")
 SMS_WEBHOOK_TOKEN = os.environ.get("SMS_WEBHOOK_TOKEN", "")
 
-CSRF_TRUSTED_ORIGINS = ["*"]
+_csrf_trusted_origins_raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+_csrf_trusted_origins = []
+for _origin in _csrf_trusted_origins_raw.split(","):
+    _origin = _origin.strip()
+    if not _origin:
+        continue
+    if "://" not in _origin:
+        _origin = f"https://{_origin.lstrip('/')}"
+    _csrf_trusted_origins.append(_origin)
+
+CSRF_TRUSTED_ORIGINS = _csrf_trusted_origins or [
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://0.0.0.0",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://samsdriving.ca",
+    "https://*.samsdriving.ca",
+]
 
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

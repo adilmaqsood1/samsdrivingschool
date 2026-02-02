@@ -130,14 +130,10 @@
                                 </div>
                                 <div class="course-details-one__inner__top__right">
                                     <div class="course-details-one__inner__top__right__bye">
-                                        <div class="course-details-one__inner__top__right__bye__price"> <span>$575.00</span> Per Person</div><!-- /.course-details-one__inner__top__right__bye__price -->
+                                        <div class="course-details-one__inner__top__right__bye__price"> <span>${{ course.price_display }}</span> {{ course.price_label }}</div><!-- /.course-details-one__inner__top__right__bye__price -->
                                     </div><!-- /.course-details-one__inner__top__right__price -->
                                     <div class="course-details-one__inner__top__right__link">
-                                        <form action="{% url 'enroll_request' %}" method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="package" value="MTO Approved Beginner Driving Online Course">
-                                            <button type="submit" class="course-details-one__inner__top__right__btn drivschol-btn">Enroll Now</button>
-                                        </form>
+                                        <a href="{% url 'enroll_page' course_slug=course_slug %}" class="course-details-one__inner__top__right__btn drivschol-btn">Enroll Now</a>
                                     </div><!-- /.course-details-one__inner__top__right__btn -->
                                 </div><!-- /.course-details-one__inner__top__right -->
                             </div><!-- /.course-details-one__inner__top -->
@@ -148,11 +144,13 @@
                         <div class="course-details">
                             <div class="course-details__single">
                                 <div class="course-details__image wow fadeInUp" data-wow-delay='300ms'>
-                                    <img src="assets/getto.png" alt="course-details__image">
+                                    <img src="{{ course.image }}" alt="course-details__image">
                                 </div><!-- / -->
-                                <h3 id="mto-course" class="course-details__title wow fadeInUp" data-wow-delay='300ms'>MTO Approved Beginner Driving Online Course</h3><!-- /.course-details__title -->
-                                <div class="course-details__text wow fadeInUp" data-wow-delay='400ms'>This Ministry approved online BDE course includes 30 hours of online learning and 10 hours of one-on-one in-car training with a qualified driving instructor.</div><!-- /.course-details__text -->
-                                <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>During in-car training you will learn defensive driving, collision avoidance, parking manoeuvres, highway driving, and you’ll complete a mock road test. Upon successful completion, students are certified online with MTO and may be eligible for an insurance discount.</div><!-- /.course-details__text -->
+                                <h3 class="course-details__title wow fadeInUp" data-wow-delay='300ms'>{{ course.title }}</h3><!-- /.course-details__title -->
+                                <div class="course-details__text wow fadeInUp" data-wow-delay='400ms'>{{ course.summary }}</div><!-- /.course-details__text -->
+                                {% for paragraph in course.details %}
+                                <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>{{ paragraph }}</div><!-- /.course-details__text -->
+                                {% endfor %}
                             </div><!-- /.course-details__single -->
 
                             <div class="course-details__single course-details__single__two">
@@ -164,18 +162,25 @@
                                 <div class="course-details__benefit wow fadeInUp" data-wow-delay='500ms'>
                                     <h3 class="course-details__benefit__title">Program Includes</h3><!-- /.course-details__nav__title -->
                                     <ul class="course-details__benefit__nav">
-                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> 30 hours of online learning</li><!-- /.course-details__benefit__nav__item -->
-                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> 10 hours of one-on-one in-car training</li><!-- /.course-details__benefit__nav__item -->
-                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Each in-car session is 60 minutes</li><!-- /.course-details__benefit__nav__item -->
-                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Certified online for MTO road test and insurance discount</li><!-- /.course-details__benefit__nav__item -->
-                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Free pickup and drop off within 10km radius (in-car training)</li><!-- /.course-details__benefit__nav__item -->
+                                        {% for item in course.program_includes %}
+                                        <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> {{ item }}</li><!-- /.course-details__benefit__nav__item -->
+                                        {% endfor %}
                                     </ul><!-- /.course-details__nav -->
                                 </div><!-- /.course-details__nav -->
                             </div><!-- /.course-details__single -->
 
+                            {% if course_slug == "senior-driver-training" %}
                             <div class="course-details__single">
-                                <h3 id="senior-course" class="course-details__title course-details__title__two wow fadeInUp" data-wow-delay='300ms'>Senior Driver Training</h3><!-- /.course-details__title -->
-                                <div class="course-details__text wow fadeInUp" data-wow-delay='300ms'>Senior driver training supports safe, confident driving with refresher options and practical evaluations based on each driver’s needs.</div><!-- /.course-details__text -->
+                                <h3 class="course-details__title course-details__title__two wow fadeInUp" data-wow-delay='300ms'>G1 License Restrictions</h3><!-- /.course-details__title -->
+                                <ul class="course-details__benefit__nav wow fadeInUp" data-wow-delay='400ms'>
+                                    {% for item in course.g1_restrictions %}
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> {{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div><!-- /.course-details__single-->
+
+                            <div class="course-details__single">
+                                <h3 class="course-details__title course-details__title__two wow fadeInUp" data-wow-delay='300ms'>Options at SAM’S DRIVING SCHOOL</h3><!-- /.course-details__title -->
                                 <div class="course-details__inner">
 
                                     <div class="course-details__inner__item wow fadeInUp" data-wow-delay='300ms'>
@@ -186,14 +191,13 @@
                                                 </div><!-- /.icon -->
                                             </div><!-- /.course-details__inner__item__head__icon -->
                                             <div class="course-details__inner__item__head__content">
-                                                <h3 class="course-details__inner__item__head__content__title">55 Alive Group Program</h3><!-- /.course-details__inner__item__head__content__title -->
-                                                <span class="course-details__inner__item__head__content__degeneration">5 hours in-class + in-vehicle evaluation</span><!-- /.course-details__inner__item__head__content__degenations -->
+                                                <h3 class="course-details__inner__item__head__content__title">{{ course.program_options.0.title }}</h3><!-- /.course-details__inner__item__head__content__title -->
+                                                <span class="course-details__inner__item__head__content__degeneration">{{ course.program_options.0.subtitle }}</span><!-- /.course-details__inner__item__head__content__degenations -->
                                             </div><!-- /.course-details__inner__item__head__content -->
                                         </div><!-- /.course-details__inner__item__head -->
 
                                         <div class="course-details__inner__item__body">
-                                            <p class="course-details__inner__item__body__text">A group program for 10+ participants with 5 hours of classroom instruction (one day or split sessions) and an evaluation for each participant in their own vehicle.</p><!-- /.course-details__inner__item__body__text -->
-                                            <a href="#senior-course" class="blog-card__link"> Read more</a>
+                                            <p class="course-details__inner__item__body__text">{{ course.program_options.0.text }}</p><!-- /.course-details__inner__item__body__text -->
                                         </div><!-- /.course-details__inner__item__body -->
                                     </div><!-- /.course-details__inner__item -->
 
@@ -205,19 +209,37 @@
                                                 </div><!-- /.icon -->
                                             </div><!-- /.course-details__inner__item__head__icon -->
                                             <div class="course-details__inner__item__head__content">
-                                                <h3 class="course-details__inner__item__head__content__title">Individual Evaluation Option</h3><!-- /.course-details__inner__item__head__content__title -->
-                                                <span class="course-details__inner__item__head__content__degeneration">Review laws + in-vehicle assessment</span><!-- /.course-details__inner__item__head__content__degenations -->
+                                                <h3 class="course-details__inner__item__head__content__title">{{ course.program_options.1.title }}</h3><!-- /.course-details__inner__item__head__content__title -->
+                                                <span class="course-details__inner__item__head__content__degeneration">{{ course.program_options.1.subtitle }}</span><!-- /.course-details__inner__item__head__content__degenations -->
                                             </div><!-- /.course-details__inner__item__head__content -->
                                         </div><!-- /.course-details__inner__item__head -->
 
                                         <div class="course-details__inner__item__body">
-                                            <p class="course-details__inner__item__body__text">Arrange an office session to review Ontario Highway Traffic Laws, then complete an in-vehicle evaluation in your own car with manoeuvres such as parking and highway driving if required.</p><!-- /.course-details__inner__item__body__text -->
-                                            <a href="#senior-course" class="blog-card__link"> Read more</a>
+                                            <p class="course-details__inner__item__body__text">{{ course.program_options.1.text }}</p><!-- /.course-details__inner__item__body__text -->
                                         </div><!-- /.course-details__inner__item__body -->
                                     </div><!-- /.course-details__inner__item -->
 
                                 </div><!-- /.course-details -->
 
+                            </div><!-- /.course-details__single-->
+                            {% endif %}
+
+                            <div class="course-details__single">
+                                <h3 class="course-details__title course-details__title__two wow fadeInUp" data-wow-delay='300ms'>Fees</h3><!-- /.course-details__title -->
+                                <ul class="course-details__benefit__nav wow fadeInUp" data-wow-delay='400ms'>
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Regular Fees: {{ course.fees.regular }}</li>
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Promotion Fees: Save {{ course.fees.promotion_savings }}</li>
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Pay Only: {{ course.fees.pay_only }}</li>
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> HST ({{ course.fees.hst_rate_percent }}): ${{ course.fees.hst_amount }}</li>
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Total Fees: ${{ course.fees.total }}</li>
+                                </ul>
+                                {% if course.policies %}
+                                <ul class="course-details__benefit__nav wow fadeInUp" data-wow-delay='500ms'>
+                                    {% for item in course.policies %}
+                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> {{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
                             </div><!-- /.course-details__single-->
 
                         </div><!-- /.course-details -->
@@ -227,46 +249,31 @@
                             <div class="course-sidebar__single__two">
                                 <h3 class="course-sidebar__single__two__title">Course Features</h3><!-- /.course-sidebar__title -->
                                 <ul class="list-unstyled course-sidebar__nav">
+                                    {% for feature in course.features %}
                                     <li class="course-sidebar__nav__item">
-                                        <h6 class="course-sidebar__nav__item__left"><i class="course-sidebar__nav__item__icon icon-training"></i> Session:</h6><!-- /.course-sidebar__nav__item__ -->
-                                        <span class="course-sidebar__nav__item__right"> 40 Hours</span><!-- /.course-sidebar__nav__text -->
+                                        <h6 class="course-sidebar__nav__item__left"><i class="course-sidebar__nav__item__icon {% if forloop.counter == 1 %}icon-training{% elif forloop.counter == 2 %}icon-video-lesson{% else %}icon-education_2{% endif %}"></i> {{ feature.label }}:</h6><!-- /.course-sidebar__nav__item__ -->
+                                        <span class="course-sidebar__nav__item__right"> {{ feature.value }}</span><!-- /.course-sidebar__nav__text -->
                                     </li><!-- /.course-sidebar__nav__item -->
-                                    <li class="course-sidebar__nav__item">
-                                        <h6 class="course-sidebar__nav__item__left"><i class="course-sidebar__nav__item__icon icon-video-lesson"></i> Lessons:</h6><!-- /.course-sidebar__nav__item__ -->
-                                        <span class="course-sidebar__nav__item__right">10 In-Car Sessions</span><!-- /.course-sidebar__nav__text -->
-                                    </li><!-- /.course-sidebar__nav__item -->
-                                    <li class="course-sidebar__nav__item">
-                                        <h6 class="course-sidebar__nav__item__left"><i class="course-sidebar__nav__item__icon icon-education_2"></i> Students:</h6><!-- /.course-sidebar__nav__item__ -->
-                                        <span class="course-sidebar__nav__item__right">Online + 1-on-1</span><!-- /.course-sidebar__nav__text -->
-                                    </li><!-- /.course-sidebar__nav__item -->
+                                    {% endfor %}
                                 </ul><!-- /.list-unstyled course-sidebar__nav -->
                             </div><!-- /.course-sidebar__single -->
 
                             <div class="course-sidebar__single">
                                 <h3 class="course-sidebar__title">Latest Course</h3><!-- /.course-sidebar__title -->
                                 <ul class="course-sidebar__nav__two list-unstyled">
+                                    {% for other in other_courses %}
                                     <li class="course-sidebar__nav__two__item">
                                         <div class="course-sidebar__nav__two__item__image">
-                                            <img src="assets/getto.png" alt="course-sidebar__nav__item__image">
+                                            <img src="{{ other.image }}" alt="course-sidebar__nav__item__image">
                                         </div><!-- /.course-sidebar__image -->
 
                                         <div class="course-sidebar__nav__two__item__content">
                                             <p class="course-sidebar__nav__two__item__content__name"><span>by </span> SDS Team</p><!-- /.course-sidebar__date -->
-                                            <h5 class="course-sidebar__nav__two__item__content__title"><a href="#mto-course">MTO Approved Beginner Driving..</a></h5><!-- /.course-sidebar__title -->
-                                            <span class="course-sidebar__nav__two__item__content__price">$575</span><!-- /.course-sidebar__price -->
+                                            <h5 class="course-sidebar__nav__two__item__content__title"><a href="{% url 'course_details_page' other.slug %}">{{ other.title }}</a></h5><!-- /.course-sidebar__title -->
+                                            <span class="course-sidebar__nav__two__item__content__price">${{ other.price_display }}</span><!-- /.course-sidebar__price -->
                                         </div><!-- /.course-sidebar__content -->
                                     </li>
-                                    <li class="course-sidebar__nav__two__item">
-                                        <div class="course-sidebar__nav__two__item__image">
-                                            <img src="assets/senior.png" alt="course-sidebar__nav__item__image">
-                                        </div><!-- /.course-sidebar__image -->
-
-                                        <div class="course-sidebar__nav__two__item__content">
-                                            <p class="course-sidebar__nav__two__item__content__name"><span>by </span> SDS Team</p><!-- /.course-sidebar__date -->
-                                            <h5 class="course-sidebar__nav__two__item__content__title"><a href="#senior-course">Senior Driver Training</a></h5><!-- /.course-sidebar__title -->
-                                            <span class="course-sidebar__nav__two__item__content__price">$50</span><!-- /.course-sidebar__price -->
-                                        </div><!-- /.course-sidebar__content -->
-                                    </li>
+                                    {% endfor %}
                                 </ul>
                             </div><!-- /.course-sidebar__single -->
 

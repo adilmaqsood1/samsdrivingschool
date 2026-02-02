@@ -1,0 +1,131 @@
+{% extends "index.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block title %}Enrollment - {{ course.title }}{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <section class="page-header">
+        <div class="page-header__bg" style="background-image: url({% static 'assets/images/backgrounds/page-header-bg-1-1.jpg' %});"></div>
+        <div class="container">
+            <h2 class="page-header__title">Enrollment</h2>
+            <ul class="drivschol-breadcrumb list-unstyled">
+                <li><a href="{% url 'index_page' %}">Home</a></li>
+                <li><a href="{% url 'course_page' %}">Courses</a></li>
+                <li><span>Enrollment</span></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="enrollment-one" style="padding: 120px 0;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="enrollment-form">
+                        <h3 class="enrollment-form__title" style="margin-bottom: 30px;">Registration Form</h3>
+                        <form action="{% url 'process_enrollment' %}" method="post" class="contact-one__form contact-form-validated">
+                            {% csrf_token %}
+                            <input type="hidden" name="course_slug" value="{{ course_slug }}">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="first_name">First Name *</label>
+                                        <input type="text" name="first_name" id="first_name" class="form-control" placeholder="First Name" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="last_name">Last Name *</label>
+                                        <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last Name" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="email">Email Address *</label>
+                                        <input type="email" name="email" id="email" class="form-control" placeholder="Email Address" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="phone">Phone Number *</label>
+                                        <input type="tel" name="phone" id="phone" class="form-control" placeholder="Phone Number" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="address">Address *</label>
+                                        <input type="text" name="address" id="address" class="form-control" placeholder="Street Address" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="city">City *</label>
+                                        <input type="text" name="city" id="city" class="form-control" placeholder="City" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="province">Province *</label>
+                                        <input type="text" name="province" id="province" class="form-control" value="Ontario" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="postal_code">Postal Code *</label>
+                                        <input type="text" name="postal_code" id="postal_code" class="form-control" placeholder="Postal Code" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 20px;">
+                                        <label for="notes">Additional Notes</label>
+                                        <textarea name="notes" id="notes" class="form-control" placeholder="Any special requests or notes" style="width: 100%; padding: 10px; border: 1px solid #ddd; height: 100px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 20px;">
+                                <button type="submit" class="drivschol-btn drivschol-btn--base2">Proceed to Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="course-sidebar__single" style="padding: 30px; background-color: #f4f5f8; border-radius: 8px;">
+                        <h3 class="course-sidebar__title" style="margin-bottom: 20px;">Order Summary</h3>
+                        <div class="order-summary">
+                            <div class="order-summary__item" style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
+                                <h5 style="font-size: 18px; margin-bottom: 10px;">{{ course.title }}</h5>
+                                <p style="font-size: 14px; color: #666;">{{ course.session }}</p>
+                            </div>
+                            <ul class="list-unstyled" style="margin-bottom: 20px;">
+                                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>Course Fee</span>
+                                    <span>${{ course.price_display }}</span>
+                                </li>
+                                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>HST ({{ course.fees.hst_rate_percent }})</span>
+                                    <span>${{ course.fees.hst_amount }}</span>
+                                </li>
+                                <li style="display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold; font-size: 18px; border-top: 1px solid #ddd; padding-top: 15px;">
+                                    <span>Total</span>
+                                    <span>${{ course.fees.total }}</span>
+                                </li>
+                            </ul>
+                            <div class="payment-methods" style="margin-top: 20px; text-align: center;">
+                                <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Secure Payment via Stripe</p>
+                                <i class="fab fa-cc-stripe" style="font-size: 40px; color: #6772e5;"></i>
+                                <i class="fab fa-cc-visa" style="font-size: 40px; color: #1a1f71; margin-left: 10px;"></i>
+                                <i class="fab fa-cc-mastercard" style="font-size: 40px; color: #eb001b; margin-left: 10px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endblock %}
+</body>
+</html>

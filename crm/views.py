@@ -37,6 +37,114 @@ from .models import (
     Testimonial,
 )
 
+COURSE_CATALOG = {
+    "mto-approved-beginner-driving-online-course": {
+        "slug": "mto-approved-beginner-driving-online-course",
+        "title": "MTO Approved Beginner Driving Online Course",
+        "session": "30 Hours Online + 10 Hours In-Car",
+        "image": "assets/getto.png",
+        "price_display": "575.00",
+        "price_label": "Per Person",
+        "enroll_package": "MTO Approved Beginner Driving Online Course",
+        "summary": (
+            "This Ministry approved online BDE course includes 30 hours of online learning and 10 hours of "
+            "one-on-one in-car training with a qualified driving instructor."
+        ),
+        "details": [
+            "During your 10 hours in-car training you will be taught defensive driving, collision avoidance, "
+            "parking maneuvers, and highway driving.",
+            "In the last in-car session, your mock road test is conducted using the same exam sheet an examiner "
+            "uses, so you understand how the marking works.",
+            "Upon successful completion of this program students will be certified online with MTO.",
+            "BDE graduates with driver licence history may be eligible for an insurance discount.",
+        ],
+        "program_includes": [
+            "30 hours of online learning",
+            "10 hours one on one in-car training",
+            "Each in-car session 60 minutes",
+            "Certified online for MTO road test and insurance discount",
+            "Free pickup and drop off from home, work or school locally (only for in car training within 10km radius of Sams driving school)",
+        ],
+        "fees": {
+            "regular": "675$ +HST",
+            "promotion_savings": "100$ +HST",
+            "pay_only": "575$ +HST",
+            "hst_rate_percent": "13%",
+            "hst_amount": "74.75",
+            "total": "649.75",
+        },
+        "policies": [
+            "No refund will be made after the first in car session or student start online homework portion (whichever comes first).",
+        ],
+        "features": [
+            {"label": "Session", "value": "40 Hours"},
+            {"label": "Lessons", "value": "10 In-Car Sessions"},
+            {"label": "Students", "value": "Online + 1-on-1"},
+        ],
+    },
+    "senior-driver-training": {
+        "slug": "senior-driver-training",
+        "title": "Senior Driver Training",
+        "session": "55 Alive + In-Vehicle Evaluation",
+        "image": "assets/senior.png",
+        "price_display": "50.00",
+        "price_label": "Per Person",
+        "enroll_package": "Senior Driver Training",
+        "summary": (
+            "Senior Drivers have come under scrutiny due to incidents that occur when physical, visual, or cognitive "
+            "changes affect driving performance."
+        ),
+        "details": [
+            "The Ministry of Transportation runs a Driver Refresher Course lasting about 2 hours prior to the written exam.",
+            "Some seniors pass the written test but can still show signs of poor cognitive skills during certain driving tasks.",
+            "Certain prescriptions can affect motor skills, especially when mixed with other drugs. Doctors may be obligated to notify the Ministry of Transportation if a patient is a threat to themselves and the public.",
+            "Driving is a privilege and each driver needs to understand what is at stake.",
+        ],
+        "g1_restrictions": [
+            "Must be accompanied by a licensed G Driver in good standing for 4 years",
+            "Cannot drive from 12 Midnight to 5:00 am",
+            "Cannot drive on any highway with a posted speed limit of 80 or higher",
+            "Zero percent blood alcohol concentration",
+            "No more passengers than working seatbelts",
+        ],
+        "program_options": [
+            {
+                "title": "55 Alive Group Program",
+                "subtitle": "5 hours in class + in-vehicle evaluation",
+                "text": (
+                    "A group program for 10 or more, including 5 hours of in-class instruction (one day or split sessions) "
+                    "and an evaluation for each participant in their own vehicle. Workbooks and a power point show are included, "
+                    "and completion includes a certificate some insurance companies may recognize."
+                ),
+            },
+            {
+                "title": "Individual Evaluation Option",
+                "subtitle": "Review laws + in-vehicle assessment",
+                "text": (
+                    "An individual can arrange an office session to review Ontario Highway Traffic Laws and then schedule an instructor "
+                    "to evaluate their driving in their own vehicle by completing several manoeuvres. This can also be certified."
+                ),
+            },
+        ],
+        "program_includes": [
+            "One hour training as per MTO requirement including all Parallel parking, Reverse parking and HWY driving if required to pass Ministry Road Test",
+        ],
+        "fees": {
+            "regular": "50$ +HST",
+            "promotion_savings": "0$ +HST",
+            "pay_only": "50$ +HST",
+            "hst_rate_percent": "13%",
+            "hst_amount": "6.50",
+            "total": "56.50",
+        },
+        "features": [
+            {"label": "Session", "value": "1 Hour + Evaluation"},
+            {"label": "Lessons", "value": "Parking + Highway (as needed)"},
+            {"label": "Students", "value": "Seniors"},
+        ],
+    },
+}
+
 
 def template_page(request, template_name):
     if ".." in template_name or template_name.startswith("/"):
@@ -89,8 +197,149 @@ def course_page(request):
     return render(request, "course.html")
 
 
-def course_details_page(request):
-    return render(request, "course-details.html")
+def course_details_page(request, course_slug=None):
+    if not course_slug:
+        course_slug = "mto-approved-beginner-driving-online-course"
+    course = COURSE_CATALOG.get(course_slug)
+    if not course:
+        raise Http404()
+    other_courses = [c for slug, c in COURSE_CATALOG.items() if slug != course_slug]
+    return render(
+        request,
+        "course-details.html",
+        {"course": course, "course_slug": course_slug, "other_courses": other_courses},
+    )
+
+
+def enroll_page(request, course_slug):
+    course = COURSE_CATALOG.get(course_slug)
+    if not course:
+        raise Http404()
+    return render(request, "enroll.html", {"course": course, "course_slug": course_slug})
+
+
+def process_enrollment(request):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("course_page"))
+    
+    course_slug = request.POST.get("course_slug")
+    course_data = COURSE_CATALOG.get(course_slug)
+    if not course_data:
+        raise Http404()
+        
+    first_name = request.POST.get("first_name", "").strip()
+    last_name = request.POST.get("last_name", "").strip()
+    email = request.POST.get("email", "").strip()
+    phone = request.POST.get("phone", "").strip()
+    address = request.POST.get("address", "").strip()
+    city = request.POST.get("city", "").strip()
+    province = request.POST.get("province", "").strip()
+    postal_code = request.POST.get("postal_code", "").strip()
+    notes = request.POST.get("notes", "").strip()
+    
+    # Create or update student
+    student = None
+    if request.user.is_authenticated:
+        student = Student.objects.filter(user=request.user).first()
+        
+    if not student:
+        # Check by email
+        student = Student.objects.filter(email=email).first()
+        
+    if not student:
+        # Create new student (without user account for now)
+        student = Student.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            address_line1=address,
+            city=city,
+            province=province,
+            postal_code=postal_code,
+        )
+    
+    # Create Enrollment Request (for admin tracking)
+    EnrollmentRequest.objects.create(
+        name=f"{first_name} {last_name}",
+        email=email,
+        phone=phone,
+        package=course_data["title"],
+        preferred_location=f"{city}, {province}",
+        notes=notes,
+    )
+    
+    # Create Lead
+    Lead.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        phone=phone,
+        status="new",
+        interest=course_data["title"],
+        notes=notes,
+    )
+    
+    # Create Enrollment record (pending)
+    # We need a CourseSession, but for now we might not have one selected.
+    # Let's check if we can create an Enrollment without a session or pick a default/dummy one.
+    # The Enrollment model requires a session.
+    # For simplicity, we'll try to find an open session for this course type or create a placeholder.
+    # Or, given the constraints, we might skip Enrollment creation and go straight to Invoice 
+    # if Invoice doesn't strictly require Enrollment (let's check Invoice model).
+    # Invoice requires Enrollment.
+    
+    # So we need a Course and CourseSession in DB matching the catalog.
+    # This might be a bit complex if DB is empty.
+    # Let's try to find or create a placeholder Course and Session.
+    
+    db_course, _ = requests_get_or_create_course(course_data)
+    db_session = CourseSession.objects.filter(course=db_course, enrollment_open=True).first()
+    if not db_session:
+        db_session = CourseSession.objects.create(
+            course=db_course,
+            start_date=timezone.now().date(),
+            location="Online/TBD",
+            delivery_mode="online" if "Online" in course_data["title"] else "in_class"
+        )
+        
+    enrollment = models.Enrollment.objects.create(
+        student=student,
+        session=db_session,
+        status="pending"
+    )
+    
+    # Create Invoice
+    import random
+    invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    total_amount = float(course_data["fees"]["total"].replace("$", ""))
+    
+    invoice = Invoice.objects.create(
+        enrollment=enrollment,
+        number=invoice_number,
+        issue_date=timezone.now().date(),
+        total_amount=total_amount,
+        status="draft",
+        notes=f"Enrollment for {course_data['title']}"
+    )
+    
+    # Redirect to Stripe Checkout
+    return HttpResponseRedirect(reverse("stripe_checkout", args=[invoice.id]))
+
+
+def requests_get_or_create_course(course_data):
+    # Helper to map catalog data to DB model
+    from .models import Course
+    # We'll map by name
+    course, created = Course.objects.get_or_create(
+        name=course_data["title"],
+        defaults={
+            "price": float(course_data["price_display"]),
+            "course_type": "bde" if "BDE" in course_data["title"] else "refresher",
+            "description": course_data["summary"]
+        }
+    )
+    return course, created
 
 
 def blog_grid_right_page(request):

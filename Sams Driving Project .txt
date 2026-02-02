@@ -192,7 +192,7 @@ Sam’s Driving School opened our very first office in Scarborough in 2005 Havin
 
 Courses:
 
-Senior Driver Training 
+cousres: 1 - Senior Driver Training 
 Senior Drivers have come under scrutiny these last few weeks in the local papers and newscasts because of a number of incidents that have occurred when they have been behind the wheel. I personally witnessed a senior driver back out of a grocery store parking lot, hit two vehicles and drive over a curb. The driver left with no knowledge of the havoc left behind. If it wasn't for witnesses the driver would have gotten off to do it again. Maybe, the next time it would not have been a vehicle but a person this driver would have injured.
 Today a senior driver can keep their licence to drive, past the age of eighty, as long as they can pass a written and vision test every two years. The Ministry of Transportation runs a Driver Refresher Course lasting about 2 hours prior to the written exam. It covers the basic rules of the road, and how a senior driver can compensate for changes in reflexes and eyesight.
 Many seniors pass this written test with flying colours however, some of them show signs of poor cognitive skills when it comes to certain tasks behind the wheel. Many seniors consider themselves good drivers because they have been driving for over fifty years without incident. With age comes physical and mental changes.
@@ -235,7 +235,7 @@ Balance Due : $56.5
 
 
 
-MTO Approved Beginner Driving online course:
+cousres: 2 - MTO Approved Beginner Driving online course:
 This is Ministry Approved Online BDE course consist of 2 Components.
 1. 30 hours online course.
 2. 10 hours one on one in-car training by Qualified Driving Instructor.
