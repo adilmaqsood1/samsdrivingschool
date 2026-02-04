@@ -1,0 +1,32 @@
+{% extends "emails/base.html" %}
+
+{% block header %}New Payment Received{% endblock %}
+
+{% block content %}
+<p>A new payment has been successfully processed via Stripe.</p>
+
+<table class="info-table">
+    <tr>
+        <th>Student</th>
+        <td>{{ student_name }}</td>
+    </tr>
+    <tr>
+        <th>Invoice</th>
+        <td>{{ invoice_number }}</td>
+    </tr>
+    <tr>
+        <th>Amount</th>
+        <td>${{ amount }}</td>
+    </tr>
+    <tr>
+        <th>Course</th>
+        <td>{{ course_name }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ student_email }}</td>
+    </tr>
+</table>
+
+<p><a href="https://samsdriving.ca/admin/crm/payment/" class="button">View Payments</a></p>
+{% endblock %}

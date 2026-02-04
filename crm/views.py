@@ -143,6 +143,40 @@ COURSE_CATALOG = {
             {"label": "Students", "value": "Seniors"},
         ],
     },
+    "dummy-test-course": {
+        "slug": "dummy-test-course",
+        "title": "Dummy Test Course",
+        "session": "Online + In-Car",
+        "image": "assets/samslogo.png",
+        "price_display": "1.00",
+        "price_label": "Per Person",
+        "enroll_package": "Dummy Test Course",
+        "summary": "This is a dummy course for testing purposes.",
+        "details": [
+            "This course is used to test the enrollment and payment flow.",
+            "It includes a dummy session and a dummy invoice.",
+        ],
+        "program_includes": [
+            "Dummy Online Learning",
+            "Dummy In-Car Training",
+        ],
+        "fees": {
+            "regular": "1.00$ +HST",
+            "promotion_savings": "0$ +HST",
+            "pay_only": "1.00$ +HST",
+            "hst_rate_percent": "13%",
+            "hst_amount": "0.13",
+            "total": "1.13",
+        },
+        "policies": [
+            "No refunds for dummy courses.",
+        ],
+        "features": [
+            {"label": "Session", "value": "Dummy Session"},
+            {"label": "Lessons", "value": "Dummy Lessons"},
+            {"label": "Students", "value": "Testers"},
+        ],
+    },
 }
 
 
@@ -397,27 +431,67 @@ def lead_capture(request):
     )
     if message:
         LeadNote.objects.create(lead=lead, note=message)
-    notification_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
-    if notification_email:
-        body_lines = [
-            "New website lead received.",
-            f"Name: {name}",
-            f"Email: {email}",
-            f"Phone: {phone}",
-            f"Subject: {subject}",
-            "",
-            "Message:",
-            message,
-        ]
-        body = "\n".join(body_lines).strip()
+
+    # Send acknowledgement to lead (HTML)
+    if email:
+        ack_subject = "We have received your message"
+        ack_context = {
+            "first_name": first_name,
+            "subject": subject,
+            "message": message,
+        }
+        ack_html = get_template("emails/contact_ack.html").render(ack_context)
+        
+        sent_count = send_mail(
+            ack_subject, 
+            "", 
+            None, 
+            [email], 
+            fail_silently=True, 
+            html_message=ack_html
+        )
+        
         ScheduledEmail.objects.create(
-            recipient_email=notification_email,
-            subject="New Website Lead",
-            body=body,
+            recipient_email=email,
+            subject=ack_subject,
+            body=ack_html, # Store HTML body
             scheduled_for=timezone.now(),
             channel="email",
+            to_lead=lead,
+            status="sent" if sent_count > 0 else "scheduled",
+            sent_at=timezone.now() if sent_count > 0 else None,
         )
-        send_mail("New Website Lead", body, None, [notification_email], fail_silently=True)
+
+    notification_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
+    if notification_email:
+        admin_subject = "New Website Lead"
+        admin_context = {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "subject": subject,
+            "message": message,
+        }
+        admin_html = get_template("emails/contact_admin_notification.html").render(admin_context)
+        
+        sent_count = send_mail(
+            admin_subject, 
+            "", 
+            None, 
+            [notification_email], 
+            fail_silently=True, 
+            html_message=admin_html
+        )
+        
+        ScheduledEmail.objects.create(
+            recipient_email=notification_email,
+            subject=admin_subject,
+            body=admin_html,
+            scheduled_for=timezone.now(),
+            channel="email",
+            status="sent" if sent_count > 0 else "scheduled",
+            sent_at=timezone.now() if sent_count > 0 else None,
+        )
     return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
 
 
@@ -793,6 +867,72 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
                 stripe_payment_intent_id=payment_intent_id,
                 status="completed",
             )
+            
+            # Send purchase confirmation emails
+            student = invoice.enrollment.student
+            course_name = invoice.enrollment.session.course.name if invoice.enrollment and invoice.enrollment.session else "Driving Course"
+            
+            if student and student.email:
+                user_subject = "Payment Confirmation - Sams Driving School"
+                user_context = {
+                    "student_name": f"{student.first_name} {student.last_name}".strip(),
+                    "course_name": course_name,
+                    "invoice_number": invoice.number,
+                    "amount": f"{invoice.total_amount:.2f}",
+                }
+                user_html = get_template("emails/purchase_success_user.html").render(user_context)
+                
+                sent_count = send_mail(
+                    user_subject,
+                    "",
+                    None,
+                    [student.email],
+                    fail_silently=True,
+                    html_message=user_html
+                )
+                
+                ScheduledEmail.objects.create(
+                    recipient_email=student.email,
+                    subject=user_subject,
+                    body=user_html,
+                    scheduled_for=timezone.now(),
+                    channel="email",
+                    to_student=student,
+                    status="sent" if sent_count > 0 else "scheduled",
+                    sent_at=timezone.now() if sent_count > 0 else None,
+                )
+            
+            # Admin notification
+            admin_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
+            if admin_email:
+                admin_subject = f"New Payment Received - Invoice {invoice.number}"
+                admin_context = {
+                    "student_name": f"{student.first_name} {student.last_name}".strip() if student else "Unknown",
+                    "student_email": student.email if student else "Unknown",
+                    "invoice_number": invoice.number,
+                    "amount": f"{invoice.total_amount:.2f}",
+                    "course_name": course_name,
+                }
+                admin_html = get_template("emails/purchase_success_admin.html").render(admin_context)
+                
+                sent_count = send_mail(
+                    admin_subject,
+                    "",
+                    None,
+                    [admin_email],
+                    fail_silently=True,
+                    html_message=admin_html
+                )
+                
+                ScheduledEmail.objects.create(
+                    recipient_email=admin_email,
+                    subject=admin_subject,
+                    body=admin_html,
+                    scheduled_for=timezone.now(),
+                    channel="email",
+                    status="sent" if sent_count > 0 else "scheduled",
+                    sent_at=timezone.now() if sent_count > 0 else None,
+                )
 
 
 @login_required

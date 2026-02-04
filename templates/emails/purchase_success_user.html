@@ -1,0 +1,47 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Payment Confirmation - Sams Driving School{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center;">Welcome Aboard, {{ student_name }}! 🎉</h1>
+
+<p>Great news! We have successfully received your payment. You are now officially enrolled in <strong>{{ course_name }}</strong>.</p>
+
+<p>We are committed to providing you with the best training to help you become a safe and confident driver.</p>
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Payment Receipt</h3>
+    <table class="info-table" style="margin: 0;">
+        <tr>
+            <th>Invoice #</th>
+            <td>{{ invoice_number }}</td>
+        </tr>
+        <tr>
+            <th>Amount Paid</th>
+            <td style="color: #6fbe44; font-weight: bold;">${{ amount }}</td>
+        </tr>
+        <tr>
+            <th>Date</th>
+            <td>{% now "F j, Y" %}</td>
+        </tr>
+        <tr>
+            <th>Course</th>
+            <td>{{ course_name }}</td>
+        </tr>
+    </table>
+</div>
+
+<h3>What happens next?</h3>
+<p>You will receive a separate email shortly with your schedule details and instructor information. If you have chosen an online course, access details will be sent to this email address.</p>
+
+<div class="button-container">
+    <a href="https://samsdriving.ca/student-portal" class="button">Access Student Portal</a>
+</div>
+
+<p>If you have any questions or need to make changes, simply reply to this email.</p>
+
+<p>Let's get driving!</p>
+
+<p>Best regards,</p>
+<p><strong>Sams Driving School</strong></p>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Upcoming Lesson Reminder - Sams Driving School{% endblock %}
+
+{% block content %}
+<h1>Ready for your lesson, {{ student_name }}? 🚗</h1>
+
+<p>This is a friendly reminder that you have an upcoming driving lesson scheduled soon.</p>
+
+<div class="highlight-box" style="text-align: center;">
+    <h2 style="margin-top: 0; color: #6fbe44; text-transform: uppercase; letter-spacing: 1px;">{{ lesson_type }} Lesson</h2>
+    <p style="font-size: 24px; font-weight: bold; margin: 10px 0; color: #333;">{{ start_time|date:"l, F j" }}</p>
+    <p style="font-size: 20px; color: #555;">{{ start_time|date:"g:i A" }} - {{ end_time|date:"g:i A" }}</p>
+</div>
+
+<h3>Lesson Details</h3>
+<table class="info-table">
+    <tr>
+        <th>Instructor</th>
+        <td>{{ instructor_name }}</td>
+    </tr>
+    {% if pickup_location %}
+    <tr>
+        <th>Pickup Location</th>
+        <td>{{ pickup_location }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <th>Duration</th>
+        <td>{{ start_time|timesince:end_time }} (approx)</td>
+    </tr>
+</table>
+
+<p><strong>Important:</strong> Please ensure you have your learner's license with you. If you need to reschedule, please contact us at least 24 hours in advance to avoid cancellation fees.</p>
+
+<div class="button-container">
+    <a href="mailto:info@samsdriving.ca" class="button" style="background-color: #333;">Contact Us</a>
+</div>
+
+<p>See you on the road!</p>
+
+<p>Best regards,</p>
+<p><strong>Sams Driving School</strong></p>
+{% endblock %}

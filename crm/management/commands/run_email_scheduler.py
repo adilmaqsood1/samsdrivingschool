@@ -22,11 +22,13 @@ def _send_sms(recipient_phone, message):
         response.read()
 
 
+from django.template.loader import get_template
+
 def _enqueue_lesson_reminders(now):
     window_end = now + timedelta(hours=24)
     upcoming = (
         Lesson.objects.filter(start_time__gte=now, start_time__lte=window_end, status="scheduled")
-        .select_related("student")
+        .select_related("student", "instructor")
         .order_by("start_time")
     )
     for lesson in upcoming:
@@ -39,11 +41,22 @@ def _enqueue_lesson_reminders(now):
         ReminderLog.objects.create(lesson=lesson, reminder_type="lesson_24h", scheduled_for=reminder_time)
         student = lesson.student
         if student and student.email:
+            # Use HTML template for reminder
+            context = {
+                "student_name": f"{student.first_name} {student.last_name}".strip(),
+                "lesson_type": lesson.lesson_type,
+                "start_time": lesson.start_time,
+                "end_time": lesson.end_time,
+                "instructor_name": f"{lesson.instructor.user.first_name} {lesson.instructor.user.last_name}" if lesson.instructor and lesson.instructor.user else "Assigned Instructor",
+                "pickup_location": lesson.pickup_address,
+            }
+            body = get_template("emails/lesson_reminder.html").render(context)
+            
             ScheduledEmail.objects.create(
                 to_student=student,
                 recipient_email=student.email,
-                subject="Lesson reminder",
-                body=f"Your lesson is scheduled for {lesson.start_time}.",
+                subject="Upcoming Lesson Reminder",
+                body=body,
                 scheduled_for=reminder_time,
                 channel="email",
             )
@@ -100,19 +113,24 @@ class Command(BaseCommand):
                         recipient = scheduled.to_student.email
                     if not recipient:
                         raise ValueError("Missing recipient email")
-                    send_mail(subject, body, None, [recipient], fail_silently=False)
-                    scheduled.status = "sent"
-                    scheduled.sent_at = timezone.now()
-                    scheduled.last_error = ""
-                    scheduled.save(update_fields=["status", "sent_at", "last_error", "attempts"])
-                    CommunicationLog.objects.create(
-                        template=scheduled.template,
-                        to_lead=scheduled.to_lead,
-                        to_student=scheduled.to_student,
-                        recipient_email=recipient,
-                        status="sent",
-                        sent_at=scheduled.sent_at,
-                    )
+                    
+                    # Check if body looks like HTML (starts with <)
+                    html_message = body if body.strip().startswith("<") else None
+                    
+                    send_mail(subject, body if not html_message else "", None, [recipient], fail_silently=False, html_message=html_message)
+                
+                scheduled.status = "sent"
+                scheduled.sent_at = timezone.now()
+                scheduled.last_error = ""
+                scheduled.save(update_fields=["status", "sent_at", "last_error", "attempts"])
+                CommunicationLog.objects.create(
+                    template=scheduled.template,
+                    to_lead=scheduled.to_lead,
+                    to_student=scheduled.to_student,
+                    recipient_email=recipient,
+                    status="sent",
+                    sent_at=scheduled.sent_at,
+                )
             except Exception as exc:
                 scheduled.status = "failed"
                 scheduled.last_error = str(exc)
