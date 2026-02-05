@@ -1,5 +1,0 @@
-regex:sk_(?:test|live)_[0-9A-Za-z]+==>sk_REDACTED
-regex:whsec_[0-9A-Za-z]+==>whsec_REDACTED
-regex:pk_(?:test|live)_[0-9A-Za-z]+==>pk_REDACTED
-regex:django-insecure-[^\"\\r\\n]+==>django-insecure-REDACTED
-regex:EMAIL_HOST_PASSWORD\\s*=\\s*os\\.environ\\.get\\(\"EMAIL_HOST_PASSWORD\",\\s*\"[^\"\\r\\n]*\"\\)==>EMAIL_HOST_PASSWORD = os.environ.get(\"EMAIL_HOST_PASSWORD\", \"\")
