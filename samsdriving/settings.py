@@ -5,7 +5,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
+DEBUG = True
 
 SECRET_KEY = "django-insecure-6ioo9m4d=1%5!2u0v8a7n1ydqz3k2l1x1_9s4l5n3t7q6t8e0"
 
@@ -115,17 +115,8 @@ ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", 
 SMS_WEBHOOK_URL = os.environ.get("SMS_WEBHOOK_URL", "")
 SMS_WEBHOOK_TOKEN = os.environ.get("SMS_WEBHOOK_TOKEN", "")
 
-_csrf_trusted_origins_raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
-_csrf_trusted_origins = []
-for _origin in _csrf_trusted_origins_raw.split(","):
-    _origin = _origin.strip()
-    if not _origin:
-        continue
-    if "://" not in _origin:
-        _origin = f"https://{_origin.lstrip('/')}"
-    _csrf_trusted_origins.append(_origin)
 
-CSRF_TRUSTED_ORIGINS = _csrf_trusted_origins or [
+CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
     "http://0.0.0.0",
@@ -135,15 +126,7 @@ CSRF_TRUSTED_ORIGINS = _csrf_trusted_origins or [
     "https://*.samsdriving.ca",
 ]
 
-
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-
-SECURE_HSTS_SECONDS = 0 if DEBUG else 3600
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-SECURE_HSTS_PRELOAD = not DEBUG
+# SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
 
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")

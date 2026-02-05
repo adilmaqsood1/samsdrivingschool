@@ -25,7 +25,7 @@
                 <div class="col-lg-8">
                     <div class="enrollment-form">
                         <h3 class="enrollment-form__title" style="margin-bottom: 30px;">Registration Form</h3>
-                        <form action="{% url 'process_enrollment' %}" method="post" class="contact-one__form contact-form-validated">
+                        <form action="{% url 'process_enrollment' %}" method="post" class="contact-one__form">
                             {% csrf_token %}
                             <input type="hidden" name="course_slug" value="{{ course_slug }}">
                             

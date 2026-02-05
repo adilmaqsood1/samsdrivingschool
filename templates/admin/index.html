@@ -1,0 +1,481 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static crm_dashboard %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />
+    <style>
+        body.drivschol-dashboard-theme .dashboard-container { margin-top: 14px; }
+        .drivschol-dashboard-topbar {
+            display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 14px 16px; margin: 0 0 20px;
+            border-radius: 16px; border: 1px solid rgba(109, 112, 118, 0.16);
+            background: radial-gradient(900px 300px at 15% 0%, rgba(111, 190, 68, 0.26), rgba(255, 255, 255, 0.35)), rgba(255, 255, 255, 0.86);
+            box-shadow: 0 12px 34px rgba(17, 17, 23, 0.08); backdrop-filter: blur(8px);
+        }
+        .drivschol-dashboard-topbar-title h1 { margin: 0; font-size: 18px; line-height: 1.25; color: #111117; font-weight: 700; }
+        .drivschol-dashboard-topbar-title .subtitle { font-size: 12px; line-height: 1.35; color: #111117; opacity: 0.7; }
+        
+        /* Grid Layout */
+        .drivschol-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+            padding-bottom: 40px;
+        }
+
+        .drivschol-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(109, 112, 118, 0.16);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.04);
+            display: flex; flex-direction: column;
+            min-height: 280px;
+            position: relative;
+        }
+
+        .drivschol-card.kpi-card {
+            grid-column: span 3;
+            min-height: auto;
+            padding: 20px;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .drivschol-kpi-label { font-size: 13px; color: #111117; opacity: 0.65; font-weight: 500; }
+        .drivschol-kpi-value { font-size: 28px; color: #111117; font-weight: 700; letter-spacing: -0.5px; }
+        .drivschol-kpi-trend { font-size: 12px; font-weight: 500; }
+        .trend-positive { color: #6fbe44; }
+        .trend-negative { color: #e04f5f; }
+        .trend-neutral { color: #888; }
+
+        .drivschol-card.chart-card-lg { grid-column: span 8; }
+        .drivschol-card.chart-card-md { grid-column: span 6; }
+        .drivschol-card.chart-card-sm { grid-column: span 4; }
+        
+        .chart-title {
+            font-size: 14px; font-weight: 600; color: #111117; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .chart-container { position: relative; flex: 1; min-height: 0; }
+
+        .drivschol-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .drivschol-table th {
+            text-align: left;
+            padding: 8px 12px;
+            color: #111117;
+            opacity: 0.6;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.16);
+        }
+        .drivschol-table td {
+            padding: 10px 12px;
+            color: #111117;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.08);
+        }
+        .drivschol-table tr:last-child td { border-bottom: none; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .status-badge.new, .status-badge.pending { background: #e3f2fd; color: #1565c0; }
+        .status-badge.completed, .status-badge.converted { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.closed, .status-badge.cancelled { background: #ffebee; color: #c62828; }
+        .status-badge.scheduled { background: #fff3e0; color: #ef6c00; }
+
+        @media (max-width: 1200px) {
+            .drivschol-card.kpi-card { grid-column: span 6; }
+            .drivschol-card.chart-card-lg, .drivschol-card.chart-card-md, .drivschol-card.chart-card-sm { grid-column: span 12; }
+        }
+    </style>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.0/dist/chartjs-chart-sankey.min.js"></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard jet{% endblock %}
+
+{% block content %}
+{% get_custom_dashboard_data as data %}
+
+<div class="drivschol-dashboard-topbar">
+  <div class="drivschol-dashboard-topbar-title">
+    <h1>{% trans "Dashboard" %}</h1>
+    <div class="subtitle">{% trans "Unified analytics overview" %}</div>
+  </div>
+</div>
+
+<div class="drivschol-dashboard-grid">
+    <!-- KPIs -->
+    {% for kpi in data.kpis %}
+    <div class="drivschol-card kpi-card">
+        <div class="drivschol-kpi-label">{{ kpi.label }}</div>
+        <div class="drivschol-kpi-value">{{ kpi.value }}</div>
+        {% if kpi.trend %}
+        <div class="drivschol-kpi-trend trend-{{ kpi.trend_class }}">{{ kpi.trend }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Row 1: Main Trends -->
+    <div class="drivschol-card chart-card-lg" style="grid-column: span 6;">
+        <div class="chart-title">Revenue Trend</div>
+        <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-lg" style="grid-column: span 6;">
+        <div class="chart-title">Leads Trend</div>
+        <div class="chart-container"><canvas id="leadsChart"></canvas></div>
+    </div>
+
+    <!-- Row 2: Breakdowns -->
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Lead Status</div>
+        <div class="chart-container"><canvas id="leadStatusChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Invoice Status</div>
+        <div class="chart-container"><canvas id="invoiceStatusChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Lesson Status</div>
+        <div class="chart-container"><canvas id="lessonStatusChart"></canvas></div>
+    </div>
+
+    <!-- Row 3: Details -->
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Enrollments by Course</div>
+        <div class="chart-container"><canvas id="courseChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Leads by Source</div>
+        <div class="chart-container"><canvas id="sourceChart"></canvas></div>
+    </div>
+    
+    <!-- Row 4: Operational -->
+    <div class="drivschol-card chart-card-lg" style="grid-column: span 12;">
+        <div class="chart-title">Scheduled Lessons (Next 7 Days)</div>
+        <div class="chart-container" style="max-height: 250px;"><canvas id="nextLessonsChart"></canvas></div>
+    </div>
+
+    <!-- Row 5: Operations & Resources -->
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Vehicle Utilization (Lessons)</div>
+        <div class="chart-container"><canvas id="vehicleChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Instructor Performance (Completed)</div>
+        <div class="chart-container"><canvas id="instructorChart"></canvas></div>
+    </div>
+
+    <!-- Row 6: Finance & Students -->
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Payment Methods</div>
+        <div class="chart-container"><canvas id="paymentMethodChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">License Status</div>
+        <div class="chart-container"><canvas id="licenseStatusChart"></canvas></div>
+    </div>
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Invoice Amount by Status</div>
+        <div class="chart-container"><canvas id="invoiceAmountChart"></canvas></div>
+    </div>
+
+    <!-- Row 7: Sankey Diagram -->
+    <div class="drivschol-card chart-card-lg" style="grid-column: span 12;">
+        <div class="chart-title">Lead Flow (Source to Status)</div>
+        <div class="chart-container" style="height: 400px;"><canvas id="sankeyChart"></canvas></div>
+    </div>
+
+    <!-- Row 8: Tables -->
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Recent Leads <a href="{% url 'admin:crm_lead_changelist' %}" style="font-size:12px;color:#6fbe44;text-decoration:none;">View All</a></div>
+        <div class="chart-container">
+            <table class="drivschol-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in data.recent_leads %}
+                    <tr>
+                        <td>{{ lead.first_name }} {{ lead.last_name }}</td>
+                        <td>{{ lead.source }}</td>
+                        <td><span class="status-badge {{ lead.status }}">{{ lead.get_status_display }}</span></td>
+                        <td>{{ lead.created_at|date:"M d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">No recent leads</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="drivschol-card chart-card-md">
+        <div class="chart-title">Upcoming Lessons <a href="{% url 'admin:crm_lesson_changelist' %}" style="font-size:12px;color:#6fbe44;text-decoration:none;">View All</a></div>
+        <div class="chart-container">
+            <table class="drivschol-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Instructor</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson in data.upcoming_lessons %}
+                    <tr>
+                        <td>{{ lesson.enrollment.student.first_name }}</td>
+                        <td>{{ lesson.instructor.user.first_name }}</td>
+                        <td>{{ lesson.start_time|date:"M d, H:i" }}</td>
+                        <td><span class="status-badge {{ lesson.status }}">{{ lesson.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">No upcoming lessons</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Chart.defaults.font.family = "system-ui, -apple-system, sans-serif";
+    Chart.defaults.color = "#111117";
+    const primaryColor = "#6fbe44";
+    
+    // Currency Formatter
+    const currencyFormatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+
+    function createChart(id, type, labels, values, label, color=primaryColor, isCurrency=false) {
+        const ctx = document.getElementById(id);
+        if(!ctx) return;
+        
+        let bg = color;
+        if(type === 'line') {
+            const grad = ctx.getContext('2d').createLinearGradient(0,0,0,300);
+            // Default to primary color opacity if hex check fails
+            let startColor = "rgba(111, 190, 68, 0.2)";
+            
+            if (color === '#6fbe44') {
+                 startColor = "rgba(111, 190, 68, 0.2)";
+            } else if (color === '#448abe') {
+                 startColor = "rgba(68, 138, 190, 0.2)";
+            } else if (color.startsWith('#')) {
+                 // Convert hex to rgba manually if needed, or just use fallback
+                 startColor = "rgba(111, 190, 68, 0.2)";
+            } else if (color.startsWith('rgb')) {
+                 startColor = color.replace(')', ', 0.2)').replace('rgb', 'rgba');
+            }
+
+            grad.addColorStop(0, startColor);
+            grad.addColorStop(1, "rgba(255, 255, 255, 0.0)");
+            bg = grad;
+        }
+
+        new Chart(ctx, {
+            type: type,
+            data: {
+                labels: JSON.parse(labels),
+                datasets: [{
+                    label: label,
+                    data: JSON.parse(values),
+                    backgroundColor: bg,
+                    borderColor: color,
+                    borderWidth: 2,
+                    tension: 0.35,
+                    fill: type === 'line',
+                    borderRadius: 6,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (isCurrency) {
+                                    label += currencyFormatter.format(context.parsed.y);
+                                } else {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: type === 'doughnut' || type === 'radar' ? {} : {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: "rgba(0,0,0,0.05)" },
+                        ticks: {
+                            callback: function(value) {
+                                return isCurrency ? currencyFormatter.format(value) : value;
+                            }
+                        }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Pie/Doughnut Helper
+    function createPie(id, labels, values) {
+        new Chart(document.getElementById(id), {
+            type: 'doughnut',
+            data: {
+                labels: JSON.parse(labels),
+                datasets: [{
+                    data: JSON.parse(values),
+                    backgroundColor: [
+                        "#6fbe44", "#44be9f", "#448abe", "#6f44be", "#be448a", "#be7e44"
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true } }
+                }
+            }
+        });
+    }
+
+    createChart('revenueChart', 'bar', '{{ data.revenue_by_month.labels|escapejs }}', '{{ data.revenue_by_month.values|escapejs }}', 'Revenue', '#6fbe44', true);
+    createChart('leadsChart', 'line', '{{ data.leads_by_month.labels|escapejs }}', '{{ data.leads_by_month.values|escapejs }}', 'Leads', '#448abe');
+    
+    createPie('leadStatusChart', '{{ data.lead_status.labels|escapejs }}', '{{ data.lead_status.values|escapejs }}');
+    createPie('invoiceStatusChart', '{{ data.invoice_status.labels|escapejs }}', '{{ data.invoice_status.values|escapejs }}');
+    
+    // Polar Area for Lesson Status
+    new Chart(document.getElementById('lessonStatusChart'), {
+        type: 'polarArea',
+        data: {
+            labels: JSON.parse('{{ data.lesson_status.labels|escapejs }}'),
+            datasets: [{
+                label: 'Lessons',
+                data: JSON.parse('{{ data.lesson_status.values|escapejs }}'),
+                backgroundColor: [
+                    "rgba(111, 190, 68, 0.6)",  // Green
+                    "rgba(68, 190, 159, 0.6)",  // Teal
+                    "rgba(68, 138, 190, 0.6)",  // Blue
+                    "rgba(190, 68, 138, 0.6)",  // Pink
+                    "rgba(190, 120, 68, 0.6)",  // Orange
+                    "rgba(136, 136, 136, 0.6)"   // Gray
+                ],
+                borderColor: "#ffffff",
+                borderWidth: 2,
+                hoverBackgroundColor: [
+                    "rgba(111, 190, 68, 0.8)",
+                    "rgba(68, 190, 159, 0.8)",
+                    "rgba(68, 138, 190, 0.8)",
+                    "rgba(190, 68, 138, 0.8)",
+                    "rgba(190, 120, 68, 0.8)",
+                    "rgba(136, 136, 136, 0.8)"
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    ticks: { backdropColor: "transparent", z: 10 },
+                    grid: { color: "rgba(0,0,0,0.05)" }
+                }
+            },
+            plugins: {
+                legend: { 
+                    position: 'right', 
+                    labels: { boxWidth: 10, usePointStyle: true } 
+                }
+            }
+        }
+    });
+
+    createChart('courseChart', 'bar', '{{ data.enrollments_by_course.labels|escapejs }}', '{{ data.enrollments_by_course.values|escapejs }}', 'Enrollments', '#6fbe44');
+    createChart('sourceChart', 'bar', '{{ data.leads_by_source.labels|escapejs }}', '{{ data.leads_by_source.values|escapejs }}', 'Leads', '#44be9f');
+    createChart('nextLessonsChart', 'bar', '{{ data.lessons_next_7_days.labels|escapejs }}', '{{ data.lessons_next_7_days.values|escapejs }}', 'Lessons', '#be7e44');
+
+    createChart('vehicleChart', 'bar', '{{ data.vehicle_utilization.labels|escapejs }}', '{{ data.vehicle_utilization.values|escapejs }}', 'Lessons', '#6f44be');
+    createChart('instructorChart', 'bar', '{{ data.instructor_performance.labels|escapejs }}', '{{ data.instructor_performance.values|escapejs }}', 'Lessons', '#be448a');
+    
+    createPie('paymentMethodChart', '{{ data.payment_method_distribution.labels|escapejs }}', '{{ data.payment_method_distribution.values|escapejs }}');
+    createPie('licenseStatusChart', '{{ data.student_license_status.labels|escapejs }}', '{{ data.student_license_status.values|escapejs }}');
+    createPie('invoiceAmountChart', '{{ data.invoice_amount_by_status.labels|escapejs }}', '{{ data.invoice_amount_by_status.values|escapejs }}');
+
+    // Sankey Chart
+    const sankeyData = JSON.parse('{{ data.lead_flow_sankey|escapejs }}');
+    new Chart(document.getElementById('sankeyChart'), {
+        type: 'sankey',
+        data: {
+            datasets: [{
+                label: 'Lead Flow',
+                data: sankeyData,
+                colorFrom: (c) => '#448abe', // Blue for source
+                colorTo: (c) => {
+                    // Color code statuses
+                    const status = c.dataset.data[c.dataIndex].to.toLowerCase();
+                    if(status.includes('new')) return '#448abe'; // Blue
+                    if(status.includes('contacted')) return '#be7e44'; // Orange
+                    if(status.includes('qualified')) return '#be448a'; // Purple
+                    if(status.includes('converted')) return '#6fbe44'; // Green
+                    if(status.includes('closed')) return '#e04f5f'; // Red
+                    return '#888';
+                },
+                colorMode: 'gradient', // or 'to' or 'from'
+                size: 'max', // or 'min'
+                borderWidth: 0,
+                nodeWidth: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

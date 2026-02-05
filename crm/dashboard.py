@@ -346,6 +346,38 @@ class GoogleCalendarModule(modules.DashboardModule):
         )
 
 
+class KPIModule(modules.DashboardModule):
+    title = "Key Performance Indicators"
+    template = "jet.dashboard/modules/kpi_summary.html"
+    deletable = False
+    col_width = 12
+
+    def init_with_context(self, context):
+        from .models import EnrollmentRequest, Lead, Payment, Student
+
+        total_students = Student.objects.count()
+        
+        # Revenue this month
+        now = timezone.now()
+        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        revenue_month = Payment.objects.filter(
+            status="completed", paid_at__gte=start_of_month
+        ).aggregate(total=Sum("amount"))["total"] or 0
+
+        # New leads this month
+        new_leads = Lead.objects.filter(created_at__gte=start_of_month).count()
+        
+        # Pending Enrollments
+        pending_enrollments = EnrollmentRequest.objects.filter(status="new").count()
+
+        self.kpis = [
+            {"label": "Total Students", "value": total_students, "trend": "", "trend_class": "neutral"},
+            {"label": "Revenue (Month)", "value": f"${revenue_month:,.0f}", "trend": "This Month", "trend_class": "positive"},
+            {"label": "New Leads", "value": new_leads, "trend": "This Month", "trend_class": "neutral"},
+            {"label": "Pending Enrollments", "value": pending_enrollments, "trend": "Action Required", "trend_class": "negative" if pending_enrollments > 0 else "neutral"},
+        ]
+
+
 class CustomIndexDashboard(Dashboard):
     columns = 3
 
@@ -353,13 +385,14 @@ class CustomIndexDashboard(Dashboard):
         from jet.dashboard.models import UserDashboardModule
 
         chart_modules = [
-            ("crm.dashboard.LeadStatusDoughnutModule", LeadStatusDoughnutModule.title, 0, 0),
-            ("crm.dashboard.InvoiceStatusPieModule", InvoiceStatusPieModule.title, 1, 0),
-            ("crm.dashboard.LeadsByMonthLineModule", LeadsByMonthLineModule.title, 2, 0),
-            ("crm.dashboard.LessonStatusRadarModule", LessonStatusRadarModule.title, 0, 1),
-            ("crm.dashboard.EnrollmentsByCourseBarModule", EnrollmentsByCourseBarModule.title, 1, 1),
-            ("crm.dashboard.LeadsBySourceBarModule", LeadsBySourceBarModule.title, 0, 2),
-            ("crm.dashboard.LessonsNext7DaysBarModule", LessonsNext7DaysBarModule.title, 1, 2),
+            ("crm.dashboard.KPIModule", KPIModule.title, 0, 0),
+            ("crm.dashboard.LeadStatusDoughnutModule", LeadStatusDoughnutModule.title, 0, 1),
+            ("crm.dashboard.InvoiceStatusPieModule", InvoiceStatusPieModule.title, 1, 1),
+            ("crm.dashboard.LeadsByMonthLineModule", LeadsByMonthLineModule.title, 2, 1),
+            ("crm.dashboard.LessonStatusRadarModule", LessonStatusRadarModule.title, 0, 2),
+            ("crm.dashboard.EnrollmentsByCourseBarModule", EnrollmentsByCourseBarModule.title, 1, 2),
+            ("crm.dashboard.LeadsBySourceBarModule", LeadsBySourceBarModule.title, 0, 3),
+            ("crm.dashboard.LessonsNext7DaysBarModule", LessonsNext7DaysBarModule.title, 1, 3),
             ("crm.dashboard.RevenueByMonthLineModule", RevenueByMonthLineModule.title, 2, 2),
             ("crm.dashboard.InvoiceAmountByStatusDoughnutModule", InvoiceAmountByStatusDoughnutModule.title, 2, 3),
         ]

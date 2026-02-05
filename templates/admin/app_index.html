@@ -1,0 +1,136 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .drivschol-app-container {
+            margin-top: 20px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .drivschol-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(109, 112, 118, 0.16);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.04);
+        }
+
+        .drivschol-app-header {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .drivschol-app-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111117;
+            text-decoration: none;
+        }
+
+        .drivschol-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .drivschol-table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: #111117;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.16);
+        }
+
+        .drivschol-table td {
+            padding: 12px 16px;
+            color: #111117;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.08);
+        }
+
+        .drivschol-table tr:last-child td { border-bottom: none; }
+        .drivschol-table tr:hover td { background: rgba(111, 190, 68, 0.04); }
+
+        .drivschol-link {
+            color: #111117;
+            text-decoration: none;
+            display: block;
+        }
+        .drivschol-link:hover { color: #6fbe44; }
+
+        .drivschol-action-link {
+            color: #6fbe44;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 99px;
+            background: rgba(111, 190, 68, 0.1);
+            transition: all 0.2s;
+        }
+        .drivschol-action-link:hover {
+            background: #6fbe44;
+            color: white;
+        }
+        .drivschol-action-link.add { margin-right: 8px; }
+    </style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo;
+    {% for app in app_list %}
+        {{ app.name }}
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="drivschol-app-container">
+    {% for app in app_list %}
+        <div class="drivschol-card app-{{ app.app_label }}">
+            <div class="drivschol-app-header">
+                <a href="{{ app.app_url }}" class="drivschol-app-title" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+            </div>
+            
+            <table class="drivschol-table">
+                {% for model in app.models %}
+                    <tr class="model-{{ model.object_name|lower }}">
+                        {% if model.admin_url %}
+                            <th scope="row">
+                                <a href="{{ model.admin_url }}" class="drivschol-link">{{ model.name }}</a>
+                            </th>
+                        {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                        {% endif %}
+
+                        <td align="right">
+                            {% if model.add_url %}
+                                <a href="{{ model.add_url }}" class="drivschol-action-link add">{% trans 'Add' %}</a>
+                            {% endif %}
+                            
+                            {% if model.admin_url %}
+                                {% if model.view_only %}
+                                    <a href="{{ model.admin_url }}" class="drivschol-action-link view">{% trans 'View' %}</a>
+                                {% else %}
+                                    <a href="{{ model.admin_url }}" class="drivschol-action-link change">{% trans 'Change' %}</a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% empty %}
+        <p>{% trans "You don't have permission to view or edit anything." %}</p>
+    {% endfor %}
+</div>
+{% endblock %}

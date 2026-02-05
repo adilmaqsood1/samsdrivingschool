@@ -1,0 +1,71 @@
+{% load i18n %}
+
+<style>
+  .drivschol-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .drivschol-kpi-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(109, 112, 118, 0.16);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(17, 17, 23, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(6px);
+  }
+
+  .drivschol-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(17, 17, 23, 0.08);
+    border-color: rgba(111, 190, 68, 0.4);
+  }
+
+  .drivschol-kpi-label {
+    font-size: 13px;
+    line-height: 1.3;
+    color: var(--drivschol-heading-text, #111117);
+    opacity: 0.65;
+    font-weight: 500;
+  }
+
+  .drivschol-kpi-value {
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--drivschol-heading-text, #111117);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .drivschol-kpi-trend {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+  }
+
+  .drivschol-kpi-trend.positive { color: #6fbe44; }
+  .drivschol-kpi-trend.negative { color: #e04f5f; }
+  .drivschol-kpi-trend.neutral { color: #888; }
+</style>
+
+<div class="drivschol-kpi-grid">
+  {% for kpi in module.kpis %}
+    <div class="drivschol-kpi-card">
+      <div class="drivschol-kpi-label">{{ kpi.label }}</div>
+      <div class="drivschol-kpi-value">{{ kpi.value }}</div>
+      {% if kpi.trend %}
+        <div class="drivschol-kpi-trend {{ kpi.trend_class }}">
+          <span>{{ kpi.trend }}</span>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
