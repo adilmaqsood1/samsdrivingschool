@@ -518,11 +518,14 @@ def login_view(request):
     form = LoginForm(request.POST)
     if not form.is_valid():
         return HttpResponseRedirect(reverse("login_page"))
-    email = form.cleaned_data["email"]
+    username = form.cleaned_data["username"]
     password = form.cleaned_data["password"]
-    user = authenticate(request, username=email, password=password)
+    user = authenticate(request, username=username, password=password)
     if user:
         login(request, user)
+        if user.is_staff or user.is_superuser:
+            return HttpResponseRedirect("/admin/")
+        return HttpResponseRedirect(reverse("home"))
     return HttpResponseRedirect(reverse("login_page"))
 
 
@@ -1002,3 +1005,6 @@ def notifications_mark_all_read(request):
         )
     )
     return JsonResponse({"ok": True, "updated": updated})
+
+def gallery(request):
+    return render(request, "gallery.html")

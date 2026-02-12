@@ -95,7 +95,7 @@
         <!-- Topbar Start-->
 
         <!-- Header Start-->
-        {% include 'header.html' %}
+        {% include 'includes/header.html' %}
         <!-- Header End-->
         {% block content %}
         <section class="page-header">
@@ -112,9 +112,6 @@
         <!-- Login Start -->
         <section class="login-page">
             <div class="container">
-                <div class="login-page__info  wow fadeInUp" data-wow-delay='500ms'>
-                    <p class="login-page__info__item">We have a demo account setup. <span>Username:</span> <a href="{% url 'login_page' %}">demo</a> and <span> Password:</span> <a href="{% url 'login_page' %}">demo</a></p>
-                </div><!-- login-info -->
                 <div class="login-page__inner">
                     <div class="row gutter-x-94">
                         <div class="col-lg-6 wow fadeInUp animated" data-wow-delay="300ms">
@@ -123,7 +120,7 @@
                                 <form class="login-page__form" action="{% url 'login' %}" method="post">
                                     {% csrf_token %}
                                     <div class="login-page__form-input-box">
-                                        <input type="email" name="email" placeholder="User Name or  Email Address*">
+                                        <input type="text" name="username" placeholder="Username*">
                                     </div>
                                     <div class="login-page__form-input-box">
                                         <input type="password" name="password" placeholder="Password*">
@@ -144,31 +141,6 @@
 
                                 <div class="form__border"></div>
                             </div><!-- login-form -->
-                        </div>
-
-                        <div class="col-lg-6 wow fadeInUp animated" data-wow-delay="400ms">
-                            <div class="login-page__wrap register-page__wrap">
-                                <h3 class="login-page__wrap__title">Register</h3>
-                                <form class="login-page__form" action="{% url 'register' %}" method="post">
-                                    {% csrf_token %}
-                                    <div class="login-page__form-input-box">
-                                        <input type="email" name="email" placeholder="User Name">
-                                    </div>
-                                    <div class="login-page__form-input-box">
-                                        <input type="password" name="password" placeholder="Password*">
-                                    </div>
-                                    <div class="login-page__checked-box">
-                                        <input type="checkbox" name="accept-policy" id="accept-policy">
-                                        <label for="accept-policy"><span></span>I Accept company privacy policy.</label>
-                                    </div>
-                                    <div class="login-page__form-btn-box">
-                                        <button type="submit" class="drivschol-btn drivschol-btn--base2">
-                                            <span>Register</span>
-                                        </button>
-                                    </div>
-                                </form>
-
-                            </div><!-- register-form -->
                         </div>
                     </div>
                 </div>

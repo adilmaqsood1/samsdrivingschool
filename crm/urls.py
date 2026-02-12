@@ -18,6 +18,7 @@ urlpatterns = [
         views.notifications_mark_read,
         name="notifications_mark_read",
     ),
+    path("gallery/", views.gallery, name="gallery"),
     path("notifications/mark-all-read/", views.notifications_mark_all_read, name="notifications_mark_all_read"),
     path("calendar/<uuid:token>/", views.calendar_feed, name="calendar_feed"),
     path("stripe/checkout/<int:invoice_id>/", views.stripe_checkout, name="stripe_checkout"),

@@ -5,7 +5,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = True
+DEBUG = False
 
 SECRET_KEY = "django-insecure-6ioo9m4d=1%5!2u0v8a7n1ydqz3k2l1x1_9s4l5n3t7q6t8e0"
 
@@ -55,13 +55,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "samsdriving.wsgi.application"
 
-if os.environ.get("DATABASE_URL"):
+if not DEBUG:
     DATABASES = {
-        "default": dj_database_url.config(
-            conn_max_age=600,
-            ssl_require=not DEBUG,
-        )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'samsdriving_sams',        # your database name
+        'USER': 'samsdriving_id_rsa',    # your db user
+        'PASSWORD': 'Samsdrive123@',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
+}
 else:
     DATABASES = {
         "default": {
