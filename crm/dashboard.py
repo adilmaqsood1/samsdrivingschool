@@ -317,30 +317,21 @@ class GoogleCalendarModule(modules.DashboardModule):
     min_height = 520
 
     def init_with_context(self, context):
-        from .models import CalendarAccount
-
-        request = context.get("request")
-        user = getattr(request, "user", None)
-        account = None
-        if user and user.is_authenticated:
-            account = (
-                CalendarAccount.objects.filter(owner=user, provider="google", active=True)
-                .order_by("-created_at")
-                .first()
-            )
+        from urllib.parse import quote
 
         embed_url = getattr(settings, "GOOGLE_CALENDAR_EMBED_URL", "") or ""
-        is_oauth_configured = bool(getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")) and bool(
-            getattr(settings, "GOOGLE_OAUTH_CLIENT_SECRET", "")
-        )
+        if not embed_url:
+            calendar_id = getattr(settings, "GOOGLE_CALENDAR_ID", "") or ""
+            tz = getattr(settings, "GOOGLE_CALENDAR_TIME_ZONE", "") or ""
+            if calendar_id and calendar_id != "primary":
+                embed_url = f"https://calendar.google.com/calendar/embed?src={quote(calendar_id)}"
+                if tz:
+                    embed_url = f"{embed_url}&ctz={quote(tz)}"
+
         self.context.update(
             {
                 "embed_url": embed_url,
-                "account_email": getattr(account, "email", "") if account else "",
-                "is_connected": bool(account),
-                "is_oauth_configured": is_oauth_configured,
-                "connect_url": "/crm/oauth/google/start/",
-                "manage_url": "/admin/crm/calendaraccount/",
+                "calendar_id": getattr(settings, "GOOGLE_CALENDAR_ID", "") or "",
                 "min_height": self.min_height,
             }
         )

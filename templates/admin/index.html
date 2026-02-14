@@ -63,35 +63,56 @@
 
         .drivschol-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0 6px;
             font-size: 13px;
         }
         .drivschol-table th {
             text-align: left;
-            padding: 8px 12px;
+            padding: 0 16px 8px;
             color: #111117;
             opacity: 0.6;
             font-weight: 500;
-            border-bottom: 1px solid rgba(109, 112, 118, 0.16);
+            border: none;
         }
         .drivschol-table td {
-            padding: 10px 12px;
+            padding: 12px 16px;
             color: #111117;
-            border-bottom: 1px solid rgba(109, 112, 118, 0.08);
+            background: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(109, 112, 118, 0.05);
+            border-bottom: 1px solid rgba(109, 112, 118, 0.05);
+            transition: all 0.2s;
         }
-        .drivschol-table tr:last-child td { border-bottom: none; }
+        .drivschol-table tr td:first-child {
+            border-left: 1px solid rgba(109, 112, 118, 0.05);
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .drivschol-table tr td:last-child {
+            border-right: 1px solid rgba(109, 112, 118, 0.05);
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .drivschol-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.03);
+            transform: translateY(-1px);
+        }
         
         .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
+            line-height: 1;
         }
         .status-badge.new, .status-badge.pending { background: #e3f2fd; color: #1565c0; }
-        .status-badge.completed, .status-badge.converted { background: #e8f5e9; color: #2e7d32; }
-        .status-badge.closed, .status-badge.cancelled { background: #ffebee; color: #c62828; }
-        .status-badge.scheduled { background: #fff3e0; color: #ef6c00; }
+        .status-badge.completed, .status-badge.converted, .status-badge.paid { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.closed, .status-badge.cancelled, .status-badge.failed { background: #ffebee; color: #c62828; }
+        .status-badge.scheduled, .status-badge.contacted { background: #fff3e0; color: #ef6c00; }
+        .status-badge.qualified { background: #f3e5f5; color: #7b1fa2; }
 
         @media (max-width: 1200px) {
             .drivschol-card.kpi-card { grid-column: span 6; }
@@ -170,6 +191,32 @@
         <div class="chart-container" style="max-height: 250px;"><canvas id="nextLessonsChart"></canvas></div>
     </div>
 
+    <div class="drivschol-card chart-card-lg" style="grid-column: span 12; min-height: 560px;">
+        <div class="chart-title">Google Calendar</div>
+        {% if data.google_calendar_embed_url %}
+            <div class="chart-container" style="min-height: 520px;">
+                <iframe
+                    title="Google Calendar"
+                    src="{{ data.google_calendar_embed_url }}"
+                    style="border: 0; width: 100%; height: 100%; position: absolute; inset: 0;"
+                    frameborder="0"
+                    scrolling="no"
+                    referrerpolicy="no-referrer"
+                ></iframe>
+            </div>
+        {% else %}
+            <div style="font-size: 13px; opacity: 0.85;">
+                Calendar not configured. Set GOOGLE_CALENDAR_EMBED_URL (recommended) or GOOGLE_CALENDAR_ID in settings.
+                {% if data.google_calendar_id %}
+                    <div style="margin-top: 6px; font-size: 12px; opacity: 0.85;">
+                        Current GOOGLE_CALENDAR_ID:
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">{{ data.google_calendar_id }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
     <!-- Row 5: Operations & Resources -->
     <div class="drivschol-card chart-card-md">
         <div class="chart-title">Vehicle Utilization (Lessons)</div>
@@ -201,14 +248,13 @@
     </div>
 
     <!-- Row 8: Tables -->
-    <div class="drivschol-card chart-card-md">
+    <div class="drivschol-card chart-card-sm">
         <div class="chart-title">Recent Leads <a href="{% url 'admin:crm_lead_changelist' %}" style="font-size:12px;color:#6fbe44;text-decoration:none;">View All</a></div>
         <div class="chart-container">
             <table class="drivschol-table">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Source</th>
                         <th>Status</th>
                         <th>Date</th>
                     </tr>
@@ -216,27 +262,28 @@
                 <tbody>
                     {% for lead in data.recent_leads %}
                     <tr>
-                        <td>{{ lead.first_name }} {{ lead.last_name }}</td>
-                        <td>{{ lead.source }}</td>
-                        <td><span class="status-badge {{ lead.status }}">{{ lead.get_status_display }}</span></td>
+                        <td>
+                            <div style="font-weight:600;">{{ lead.first_name }} {{ lead.last_name }}</div>
+                            <div style="font-size:11px;opacity:0.6;">{{ lead.source }}</div>
+                        </td>
+                        <td><span class="status-badge {{ lead.status|slugify }}">{{ lead.get_status_display }}</span></td>
                         <td>{{ lead.created_at|date:"M d" }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4">No recent leads</td></tr>
+                    <tr><td colspan="3">No recent leads</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
     
-    <div class="drivschol-card chart-card-md">
+    <div class="drivschol-card chart-card-sm">
         <div class="chart-title">Upcoming Lessons <a href="{% url 'admin:crm_lesson_changelist' %}" style="font-size:12px;color:#6fbe44;text-decoration:none;">View All</a></div>
         <div class="chart-container">
             <table class="drivschol-table">
                 <thead>
                     <tr>
                         <th>Student</th>
-                        <th>Instructor</th>
                         <th>Time</th>
                         <th>Status</th>
                     </tr>
@@ -244,13 +291,44 @@
                 <tbody>
                     {% for lesson in data.upcoming_lessons %}
                     <tr>
-                        <td>{{ lesson.enrollment.student.first_name }}</td>
-                        <td>{{ lesson.instructor.user.first_name }}</td>
+                        <td>
+                            <div style="font-weight:600;">{{ lesson.enrollment.student.first_name }}</div>
+                            <div style="font-size:11px;opacity:0.6;">{{ lesson.instructor.user.first_name }}</div>
+                        </td>
                         <td>{{ lesson.start_time|date:"M d, H:i" }}</td>
-                        <td><span class="status-badge {{ lesson.status }}">{{ lesson.get_status_display }}</span></td>
+                        <td><span class="status-badge {{ lesson.status|slugify }}">{{ lesson.get_status_display }}</span></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4">No upcoming lessons</td></tr>
+                    <tr><td colspan="3">No upcoming lessons</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="drivschol-card chart-card-sm">
+        <div class="chart-title">Recent Payments <a href="{% url 'admin:crm_payment_changelist' %}" style="font-size:12px;color:#6fbe44;text-decoration:none;">View All</a></div>
+        <div class="chart-container">
+            <table class="drivschol-table">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in data.recent_payments %}
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">{{ payment.invoice.number }}</div>
+                            <div style="font-size:11px;opacity:0.6;">{{ payment.method|title }}</div>
+                        </td>
+                        <td style="font-weight:600;color:#111117;">${{ payment.amount|floatformat:0 }}</td>
+                        <td><span class="status-badge {{ payment.status|slugify }}">{{ payment.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3">No recent payments</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

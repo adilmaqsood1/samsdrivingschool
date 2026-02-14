@@ -616,6 +616,13 @@ class NotificationReceipt(models.Model):
         return f"{self.user.get_username()} - {self.notification.title}"
 
 
+class Event(models.Model):
+    title = models.CharField(max_length=200)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    google_event_id = models.CharField(max_length=255, blank=True, null=True)
+
+
 class CalendarFeed(models.Model):
     FEED_CHOICES = [
         ("student", "Student"),
@@ -631,25 +638,6 @@ class CalendarFeed(models.Model):
 
     def __str__(self):
         return f"{self.feed_type} {self.token}"
-
-
-class CalendarAccount(models.Model):
-    PROVIDER_CHOICES = [
-        ("google", "Google"),
-        ("outlook", "Outlook"),
-    ]
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="calendar_accounts")
-    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
-    email = models.EmailField(blank=True)
-    access_token = models.TextField(blank=True)
-    refresh_token = models.TextField(blank=True)
-    token_expires_at = models.DateTimeField(null=True, blank=True)
-    active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.owner.get_username()} {self.provider}"
-
 
 class StaffProfile(models.Model):
     ROLE_CHOICES = [
@@ -680,9 +668,12 @@ class BlogCategory(models.Model):
             base_slug = slugify(self.name) or "category"
             candidate = base_slug
             counter = 1
+            # Loop safely to avoid infinite recursion if db is locked or other issues
             while BlogCategory.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
                 counter += 1
                 candidate = f"{base_slug}-{counter}"
+                if counter > 1000: # Circuit breaker
+                    break 
             self.slug = candidate
         super().save(*args, **kwargs)
 

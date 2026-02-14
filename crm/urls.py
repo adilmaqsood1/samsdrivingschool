@@ -25,9 +25,5 @@ urlpatterns = [
     path("stripe/success/<int:invoice_id>/", views.stripe_success, name="stripe_success"),
     path("stripe/cancel/<int:invoice_id>/", views.stripe_cancel, name="stripe_cancel"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
-    path("oauth/google/start/", views.google_oauth_start, name="google_oauth_start"),
-    path("oauth/google/callback/", views.google_oauth_callback, name="google_oauth_callback"),
-    path("oauth/outlook/start/", views.outlook_oauth_start, name="outlook_oauth_start"),
-    path("oauth/outlook/callback/", views.outlook_oauth_callback, name="outlook_oauth_callback"),
     re_path(r"^(?P<template_name>[^/]+\.html)$", views.template_page, name="template_page"),
 ]

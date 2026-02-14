@@ -6,6 +6,8 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from googleapiclient.errors import HttpError
+from utils.gcalendar import get_calendar_service
 from .models import (
     Lead,
     LeadNote,
@@ -33,7 +35,6 @@ from .models import (
     ConflictDetection,
     ReminderLog,
     CalendarFeed,
-    CalendarAccount,
     StaffProfile,
     Notification,
     NotificationReceipt,
@@ -42,6 +43,7 @@ from .models import (
     BlogTag,
     BlogComment,
     Testimonial,
+    Event,
 )
 
 
@@ -103,36 +105,74 @@ def _certificate_number(enrollment):
     return f"CERT-{enrollment.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
 
 
+# --- Inlines ---
+
+class LeadNoteInline(admin.TabularInline):
+    model = LeadNote
+    extra = 1
+
+class LeadTaskInline(admin.TabularInline):
+    model = LeadTask
+    extra = 1
+
+class StudentDocumentInline(admin.TabularInline):
+    model = StudentDocument
+    extra = 0
+
+class StudentModuleProgressInline(admin.TabularInline):
+    model = StudentModuleProgress
+    extra = 0
+    readonly_fields = ("completed_at", "updated_at")
+
+class MinistrySubmissionInline(admin.TabularInline):
+    model = MinistrySubmission
+    extra = 0
+    readonly_fields = ("submitted_at",)
+
+class CertificateInline(admin.TabularInline):
+    model = Certificate
+    extra = 0
+    readonly_fields = ("issued_at", "submitted_at")
+
+class PaymentScheduleInline(admin.TabularInline):
+    model = PaymentSchedule
+    extra = 0
+
+class LessonAttendanceInline(admin.TabularInline):
+    model = LessonAttendance
+    extra = 0
+
+class ConflictDetectionInline(admin.TabularInline):
+    model = ConflictDetection
+    fk_name = "lesson"
+    extra = 0
+    readonly_fields = ("detected_at",)
+
+class ReminderLogInline(admin.TabularInline):
+    model = ReminderLog
+    extra = 0
+    readonly_fields = ("created_at",)
+
+class BlogCommentInline(admin.TabularInline):
+    model = BlogComment
+    extra = 0
+
+
+# --- Admin Registrations ---
+
 @admin.register(Lead)
 class LeadAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("first_name", "last_name", "email", "phone", "status", "assigned_to", "created_at")
     list_filter = ("status", "assigned_to", "created_at")
     search_fields = ("first_name", "last_name", "email", "phone", "source", "interest")
-
-
-@admin.register(LeadNote)
-class LeadNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("lead", "created_by", "created_at")
-    search_fields = ("lead__first_name", "lead__last_name", "note")
-
-
-@admin.register(LeadTask)
-class LeadTaskAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("title", "lead", "status", "due_date", "assigned_to")
-    list_filter = ("status", "due_date")
-    search_fields = ("title", "lead__first_name", "lead__last_name")
+    inlines = [LeadNoteInline, LeadTaskInline]
 
 
 @admin.register(Student)
 class StudentAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("first_name", "last_name", "email", "phone", "preferred_location", "created_at")
     search_fields = ("first_name", "last_name", "email", "phone")
-
-
-@admin.register(StudentDocument)
-class StudentDocumentAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("student", "document_type", "verified", "uploaded_at")
-    list_filter = ("document_type", "verified")
+    inlines = [StudentDocumentInline]
 
 
 @admin.register(Course)
@@ -154,6 +194,7 @@ class EnrollmentAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("student__first_name", "student__last_name")
     actions = ["issue_certificates", "submit_ministry"]
+    inlines = [StudentModuleProgressInline, MinistrySubmissionInline, CertificateInline]
 
     def issue_certificates(self, request, queryset):
         issued = 0
@@ -213,6 +254,7 @@ class BlogAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ("is_published", "published_at")
     search_fields = ("title", "summary", "content", "author_name")
     prepopulated_fields = {"slug": ("title",)}
+    inlines = [BlogCommentInline]
 
 
 @admin.register(BlogCategory)
@@ -222,18 +264,7 @@ class BlogCategoryAdmin(ExportCsvMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
-@admin.register(BlogTag)
-class BlogTagAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("name", "slug", "updated_at")
-    search_fields = ("name", "slug")
-    prepopulated_fields = {"slug": ("name",)}
-
-
-@admin.register(BlogComment)
-class BlogCommentAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("blog", "name", "is_approved", "created_at")
-    list_filter = ("is_approved", "created_at")
-    search_fields = ("blog__title", "name", "email", "body")
+# BlogTag hidden (less necessary)
 
 
 @admin.register(Testimonial)
@@ -261,6 +292,7 @@ class LessonAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ("lesson_type", "status")
     search_fields = ("student__first_name", "student__last_name")
     actions = ["detect_conflicts"]
+    inlines = [LessonAttendanceInline, ConflictDetectionInline, ReminderLogInline]
 
     def detect_conflicts(self, request, queryset):
         created = 0
@@ -350,12 +382,7 @@ class InvoiceAdmin(ExportCsvMixin, admin.ModelAdmin):
 class PaymentPlanAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("name", "total_amount", "installment_count", "frequency", "active")
     list_filter = ("frequency", "active")
-
-
-@admin.register(PaymentSchedule)
-class PaymentScheduleAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("plan", "invoice", "due_date", "amount", "status")
-    list_filter = ("status", "due_date")
+    inlines = [PaymentScheduleInline]
 
 
 @admin.register(Payment)
@@ -395,24 +422,6 @@ class CertificateAdmin(ExportCsvMixin, admin.ModelAdmin):
             self.message_user(request, f"Generated {generated} certificate PDF(s).", level=messages.SUCCESS)
 
 
-@admin.register(StudentModuleProgress)
-class StudentModuleProgressAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("enrollment", "module", "status", "score", "completed_at", "updated_at")
-    list_filter = ("status",)
-
-
-@admin.register(LessonAttendance)
-class LessonAttendanceAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("lesson", "status", "recorded_by", "recorded_at")
-    list_filter = ("status",)
-
-
-@admin.register(MinistrySubmission)
-class MinistrySubmissionAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("enrollment", "status", "submitted_at", "external_reference")
-    list_filter = ("status",)
-
-
 @admin.register(CommunicationTemplate)
 class CommunicationTemplateAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("name", "channel", "active")
@@ -420,40 +429,47 @@ class CommunicationTemplateAdmin(ExportCsvMixin, admin.ModelAdmin):
     search_fields = ("name", "subject", "body")
 
 
-@admin.register(CommunicationLog)
-class CommunicationLogAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("template", "recipient_email", "status", "sent_at")
-    list_filter = ("status",)
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ("title", "start", "end", "google_event_id")
+    readonly_fields = ("google_event_id",)
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
 
-@admin.register(ScheduledEmail)
-class ScheduledEmailAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("recipient_email", "scheduled_for", "status", "attempts", "sent_at")
-    list_filter = ("status", "scheduled_for")
+        tz = getattr(settings, "GOOGLE_CALENDAR_TIME_ZONE", "Asia/Karachi")
+        calendar_id = getattr(settings, "GOOGLE_CALENDAR_ID", "") or "primary"
+        body = {
+            "summary": obj.title,
+            "start": {"dateTime": obj.start.isoformat(), "timeZone": tz},
+            "end": {"dateTime": obj.end.isoformat(), "timeZone": tz},
+        }
 
+        try:
+            service = get_calendar_service()
 
-@admin.register(ConflictDetection)
-class ConflictDetectionAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("lesson", "conflict_type", "conflicting_lesson", "resolved", "detected_at")
-    list_filter = ("conflict_type", "resolved")
+            if obj.google_event_id:
+                try:
+                    service.events().update(
+                        calendarId=calendar_id, eventId=obj.google_event_id, body=body
+                    ).execute()
+                    return
+                except HttpError as e:
+                    status = getattr(getattr(e, "resp", None), "status", None)
+                    if status != 404:
+                        raise
 
-
-@admin.register(ReminderLog)
-class ReminderLogAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("lesson", "reminder_type", "channel", "scheduled_for", "created_at")
-    list_filter = ("reminder_type", "channel")
-
-
-@admin.register(CalendarFeed)
-class CalendarFeedAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("feed_type", "student", "instructor", "active", "token")
-    list_filter = ("feed_type", "active")
-
-
-@admin.register(CalendarAccount)
-class CalendarAccountAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("owner", "provider", "email", "active", "token_expires_at")
-    list_filter = ("provider", "active")
+            event = service.events().insert(calendarId=calendar_id, body=body).execute()
+            google_event_id = event.get("id", "")
+            if google_event_id and google_event_id != obj.google_event_id:
+                obj.google_event_id = google_event_id
+                obj.save(update_fields=["google_event_id"])
+        except Exception as e:
+            self.message_user(
+                request,
+                f"Google Calendar sync failed: {e}",
+                level=messages.WARNING,
+            )
 
 
 @admin.register(StaffProfile)
@@ -495,34 +511,3 @@ class NotificationAdmin(admin.ModelAdmin):
         updated = queryset.update(active=False)
         if updated:
             self.message_user(request, f"Deactivated {updated} notification(s).", level=messages.SUCCESS)
-
-
-@admin.register(NotificationReceipt)
-class NotificationReceiptAdmin(admin.ModelAdmin):
-    list_display = ("notification", "user", "read_at", "dismissed_at", "created_at")
-    list_filter = ("read_at", "dismissed_at", "created_at", "notification__level")
-    search_fields = ("notification__title", "user__username", "user__email")
-    autocomplete_fields = ("notification", "user")
-    actions = ["mark_read", "mark_unread", "dismiss", "clear_dismiss"]
-
-    def mark_read(self, request, queryset):
-        now = timezone.now()
-        updated = queryset.filter(read_at__isnull=True).update(read_at=now)
-        if updated:
-            self.message_user(request, f"Marked {updated} as read.", level=messages.SUCCESS)
-
-    def mark_unread(self, request, queryset):
-        updated = queryset.exclude(read_at__isnull=True).update(read_at=None)
-        if updated:
-            self.message_user(request, f"Marked {updated} as unread.", level=messages.SUCCESS)
-
-    def dismiss(self, request, queryset):
-        now = timezone.now()
-        updated = queryset.filter(dismissed_at__isnull=True).update(dismissed_at=now)
-        if updated:
-            self.message_user(request, f"Dismissed {updated}.", level=messages.SUCCESS)
-
-    def clear_dismiss(self, request, queryset):
-        updated = queryset.exclude(dismissed_at__isnull=True).update(dismissed_at=None)
-        if updated:
-            self.message_user(request, f"Cleared dismiss for {updated}.", level=messages.SUCCESS)

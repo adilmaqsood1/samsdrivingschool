@@ -4,27 +4,8 @@
   <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
     <div style="display: grid; gap: 2px;">
       <div style="font-weight: 600;">{% trans "Google Calendar" %}</div>
-      {% if is_connected %}
-        <div style="font-size: 12px; opacity: 0.85;">{% trans "Connected" %}{% if account_email %}: {{ account_email }}{% endif %}</div>
-      {% else %}
-        <div style="font-size: 12px; opacity: 0.85;">{% trans "Not connected" %}</div>
-      {% endif %}
-    </div>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      {% if is_oauth_configured %}
-        <a class="button" href="{{ connect_url }}">{% trans "Connect" %}</a>
-      {% endif %}
-      <a class="button" href="{{ manage_url }}">{% trans "Manage" %}</a>
     </div>
   </div>
-
-  {% if not is_oauth_configured %}
-    <div style="padding: 10px; border: 1px dashed rgba(109, 112, 118, 0.5); border-radius: 8px;">
-      <div style="font-size: 13px;">
-        {% trans "Google OAuth is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET." %}
-      </div>
-    </div>
-  {% endif %}
 
   {% if embed_url %}
     <div style="min-height: {{ min_height }}px; position: relative;">
@@ -40,7 +21,15 @@
   {% else %}
     <div style="padding: 10px; border: 1px dashed rgba(109, 112, 118, 0.5); border-radius: 8px;">
       <div style="font-size: 13px;">
-        {% trans "Set GOOGLE_CALENDAR_EMBED_URL in settings to display an embedded calendar." %}
+        {% trans "Calendar not configured." %}
+        <div style="margin-top: 6px; font-size: 12px; opacity: 0.85;">
+          {% trans "Set GOOGLE_CALENDAR_EMBED_URL (recommended) or set GOOGLE_CALENDAR_ID to your calendar id/email." %}
+        </div>
+        {% if calendar_id %}
+          <div style="margin-top: 6px; font-size: 12px; opacity: 0.85;">
+            {% trans "Current GOOGLE_CALENDAR_ID:" %} <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">{{ calendar_id }}</span>
+          </div>
+        {% endif %}
       </div>
     </div>
   {% endif %}

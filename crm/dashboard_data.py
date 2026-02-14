@@ -1,5 +1,7 @@
 import json
 from datetime import timedelta
+from urllib.parse import quote
+from django.conf import settings
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay, TruncMonth
 from django.utils import timezone
@@ -167,5 +169,19 @@ def get_dashboard_data():
     data['upcoming_lessons'] = Lesson.objects.filter(
         start_time__gte=timezone.now(), status="scheduled"
     ).order_by("start_time")[:5]
+
+    # Recent Payments (Table)
+    data['recent_payments'] = Payment.objects.filter(status="completed").order_by("-paid_at")[:5]
+    
+    embed_url = getattr(settings, "GOOGLE_CALENDAR_EMBED_URL", "") or ""
+    calendar_id = getattr(settings, "GOOGLE_CALENDAR_ID", "") or ""
+    tz = getattr(settings, "GOOGLE_CALENDAR_TIME_ZONE", "") or ""
+    if not embed_url and calendar_id:
+        embed_url = f"https://calendar.google.com/calendar/embed?src={quote(calendar_id)}"
+        if tz:
+            embed_url = f"{embed_url}&ctz={quote(tz)}"
+
+    data["google_calendar_embed_url"] = embed_url
+    data["google_calendar_id"] = calendar_id
 
     return data

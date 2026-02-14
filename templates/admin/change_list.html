@@ -1,0 +1,176 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Modern Table Styling for Change List */
+    #changelist {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #changelist .actions {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(109, 112, 118, 0.1);
+      margin-bottom: 10px;
+    }
+
+    #changelist table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 10px;
+    }
+
+    #changelist thead th {
+      background: transparent;
+      border: none;
+      color: #111117;
+      font-weight: 600;
+      padding: 10px 15px;
+      text-transform: uppercase;
+      font-size: 12px;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+
+    #changelist thead th a {
+      color: inherit;
+    }
+
+    #changelist tbody tr {
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 2px 6px rgba(17, 17, 23, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    #changelist tbody tr:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(17, 17, 23, 0.06);
+      z-index: 1;
+      position: relative;
+    }
+
+    #changelist tbody td, #changelist tbody th {
+      padding: 14px 15px;
+      border-top: 1px solid rgba(109, 112, 118, 0.05);
+      border-bottom: 1px solid rgba(109, 112, 118, 0.05);
+      color: #111117;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    #changelist tbody tr td:first-child, #changelist tbody tr th:first-child {
+      border-left: 1px solid rgba(109, 112, 118, 0.05);
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+
+    #changelist tbody tr td:last-child {
+      border-right: 1px solid rgba(109, 112, 118, 0.05);
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+
+    /* Links in table */
+    #changelist tbody a {
+      color: #111117;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    #changelist tbody a:hover {
+      color: #6fbe44;
+    }
+
+    /* Status Badges within Change List */
+    td.field-status, td.field-is_published, td.field-active {
+      font-weight: 600;
+    }
+    
+    /* Search Bar Enhancement */
+    #toolbar {
+      background: transparent;
+      border: none;
+      margin-bottom: 20px;
+      padding: 0;
+    }
+    #toolbar form input[type="text"] {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(109, 112, 118, 0.2);
+      width: 300px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    #toolbar form input[type="submit"] {
+      background: #6fbe44;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    /* Filters */
+    #changelist-filter {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(109, 112, 118, 0.1);
+      margin-left: 20px;
+    }
+    
+    #changelist-filter h2 {
+      background: transparent;
+      color: #111117;
+      font-size: 16px;
+      padding: 0 0 10px 0;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    #changelist-filter ul {
+      margin-bottom: 15px;
+    }
+    
+    #changelist-filter li.selected {
+      border-left: 3px solid #6fbe44;
+      padding-left: 10px;
+    }
+    
+    #changelist-filter a {
+      color: #666;
+    }
+    
+    #changelist-filter a:hover {
+      color: #6fbe44;
+    }
+
+    /* Pagination */
+    .paginator {
+      background: transparent;
+      border: none;
+      padding: 20px 0;
+      font-size: 13px;
+    }
+    
+    /* Header Sort Icons */
+    .sortoptions {
+        display: none;
+    }
+    
+    /* Responsive Table */
+    @media (max-width: 767px) {
+        #changelist table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+  </style>
+{% endblock %}

@@ -1,0 +1,366 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Font Reset */
+        body, input, textarea, select, button, .button {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        }
+
+        /* Background Tweak */
+        body {
+            background-color: #f3f4f6; /* Light gray-blue for better contrast with white cards */
+        }
+        
+        /* Jet Sidebar Tweaks (if Jet is active) */
+        .sidebar-header {
+            background-color: #111117 !important;
+        }
+        .sidebar-wrapper {
+            background-color: #1c1c24 !important;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Breadcrumbs */
+        .breadcrumbs {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 10px 0 !important;
+            color: #6b7280 !important;
+        }
+        .breadcrumbs a {
+            color: #6fbe44 !important; 
+        }
+
+        /* Success Messages */
+        ul.messagelist li.success {
+            background: #ecfdf5 !important;
+            color: #065f46 !important;
+            border: 1px solid #a7f3d0 !important;
+            border-radius: 8px;
+            padding: 12px 20px !important;
+            background-image: none !important; /* Remove default icon if ugly */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        
+        /* Warning Messages */
+        ul.messagelist li.warning {
+            background: #fffbeb !important;
+            color: #92400e !important;
+            border: 1px solid #fde68a !important;
+            border-radius: 8px;
+        }
+        
+        /* Error Messages */
+        ul.messagelist li.error {
+            background: #fef2f2 !important;
+            color: #991b1b !important;
+            border: 1px solid #fecaca !important;
+            border-radius: 8px;
+        }
+        
+        /* Content Title */
+        #content h1 {
+            font-weight: 700 !important;
+            color: #111117 !important;
+            font-size: 24px !important;
+            margin-bottom: 20px !important;
+            padding: 0 !important;
+        }
+        
+        /* Object Tools (Add buttons in change list) */
+        .object-tools a.addlink {
+            background: #6fbe44 !important;
+            border-radius: 99px !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 8px 20px !important;
+            text-transform: none !important;
+            transition: all 0.2s;
+        }
+        .object-tools a.addlink:hover {
+            background: #5ea839 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(111, 190, 68, 0.3);
+        }
+        .object-tools a.addlink:before {
+            color: white !important;
+        }
+
+        /* Filter Sidebar (Right side in change list) */
+        #changelist-filter {
+            background: #ffffff !important;
+            border-left: none !important;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.02);
+        }
+        #changelist-filter h2 {
+            background: #f9fafb !important;
+            color: #374151 !important;
+        }
+        
+        /* =========================================
+           Change List Styling (Table Grid)
+           ========================================= */
+        #changelist .actions {
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 8px;
+          border: 1px solid rgba(109, 112, 118, 0.1);
+          margin-bottom: 10px;
+        }
+
+        #changelist table {
+          width: 100%;
+          border-collapse: separate !important;
+          border-spacing: 0 8px !important;
+          margin-top: 10px;
+        }
+
+        #changelist thead th {
+          background: transparent !important;
+          border: none !important;
+          color: #111117;
+          font-weight: 600;
+          padding: 10px 15px;
+          text-transform: uppercase;
+          font-size: 12px;
+          opacity: 0.7;
+          letter-spacing: 0.5px;
+        }
+
+        #changelist thead th a {
+          color: inherit;
+        }
+
+        #changelist tbody tr {
+          background: rgba(255, 255, 255, 0.85);
+          box-shadow: 0 2px 6px rgba(17, 17, 23, 0.02);
+          transition: all 0.2s ease;
+        }
+
+        #changelist tbody tr:hover {
+          background: rgba(255, 255, 255, 1);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(17, 17, 23, 0.06);
+          z-index: 1;
+          position: relative;
+        }
+
+        #changelist tbody td, #changelist tbody th {
+          padding: 14px 15px !important;
+          border-top: 1px solid rgba(109, 112, 118, 0.05);
+          border-bottom: 1px solid rgba(109, 112, 118, 0.05);
+          color: #111117;
+          font-size: 14px;
+          vertical-align: middle;
+        }
+
+        #changelist tbody tr td:first-child, #changelist tbody tr th:first-child {
+          border-left: 1px solid rgba(109, 112, 118, 0.05);
+          border-top-left-radius: 10px;
+          border-bottom-left-radius: 10px;
+        }
+
+        #changelist tbody tr td:last-child {
+          border-right: 1px solid rgba(109, 112, 118, 0.05);
+          border-top-right-radius: 10px;
+          border-bottom-right-radius: 10px;
+        }
+
+        #changelist tbody a {
+          color: #111117;
+          text-decoration: none;
+          font-weight: 500;
+        }
+        #changelist tbody a:hover {
+          color: #6fbe44;
+        }
+
+        /* Status Badges within Change List */
+        td.field-status, td.field-is_published, td.field-active {
+          font-weight: 600;
+        }
+        
+        /* Search Bar Enhancement */
+        #toolbar {
+          background: transparent !important;
+          border: none !important;
+          margin-bottom: 20px;
+        }
+        #toolbar form input[type="text"] {
+          padding: 10px 15px;
+          border-radius: 8px;
+          border: 1px solid rgba(109, 112, 118, 0.2);
+          width: 300px;
+          background: rgba(255, 255, 255, 0.9);
+        }
+        #toolbar form input[type="submit"] {
+          background: #6fbe44;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          margin-left: 10px;
+        }
+        
+        /* Filters */
+        #changelist-filter {
+          background: rgba(255, 255, 255, 0.85) !important;
+          border-radius: 12px;
+          padding: 20px;
+          border: 1px solid rgba(109, 112, 118, 0.1);
+        }
+        
+        #changelist-filter li.selected {
+          border-left: 3px solid #6fbe44;
+          padding-left: 10px;
+        }
+        
+        #changelist-filter a:hover {
+          color: #6fbe44;
+        }
+
+        /* Pagination */
+        .paginator {
+          background: transparent !important;
+          border: none !important;
+          padding: 20px 0;
+          font-size: 13px;
+        }
+        
+        /* =========================================
+           Change Form Styling (Edit/Add)
+           ========================================= */
+        /* Fieldsets (Cards) */
+        fieldset.module {
+            background: #ffffff !important;
+            border: 1px solid rgba(109, 112, 118, 0.1) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.03) !important;
+            margin-bottom: 20px !important;
+        }
+
+        fieldset.module h2 {
+            background: rgba(249, 250, 251, 0.8) !important;
+            color: #111117 !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            padding: 12px 20px !important;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.1) !important;
+            text-transform: none !important;
+        }
+
+        /* Form Rows */
+        .form-row {
+            padding: 15px 20px !important;
+            border-bottom: 1px solid rgba(109, 112, 118, 0.05) !important;
+        }
+        
+        .form-row:last-child {
+            border-bottom: none !important;
+        }
+        
+        /* Inputs */
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"], 
+        input[type="url"], 
+        input[type="number"], 
+        textarea, 
+        select, 
+        .vTextField, 
+        .vLargeTextField, 
+        .vURLField, 
+        .vIntegerField {
+            padding: 8px 12px !important;
+            border: 1px solid rgba(109, 112, 118, 0.2) !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            color: #111117 !important;
+            background: #fff !important;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, 
+        textarea:focus, 
+        select:focus {
+            border-color: #6fbe44 !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(111, 190, 68, 0.1) !important;
+        }
+
+        /* Submit Row (Sticky Footer) */
+        .submit-row {
+            background: #ffffff !important;
+            border: 1px solid rgba(109, 112, 118, 0.1) !important;
+            border-radius: 12px !important;
+            padding: 15px 20px !important;
+            box-shadow: 0 -4px 20px rgba(17, 17, 23, 0.05) !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            gap: 12px !important;
+            position: sticky !important;
+            bottom: 20px !important;
+            z-index: 100 !important;
+            margin-top: 20px !important;
+        }
+
+        /* Buttons */
+        input[type="submit"], .submit-row input {
+            background: #6fbe44 !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 24px !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            height: auto !important;
+        }
+
+        input[type="submit"]:hover {
+            background: #5ea839 !important;
+        }
+
+        .submit-row input[name="_continue"], .submit-row input[name="_addanother"] {
+            background: #ffffff !important;
+            color: #374151 !important;
+            border: 1px solid rgba(109, 112, 118, 0.2) !important;
+        }
+        
+        .submit-row input[name="_continue"]:hover, .submit-row input[name="_addanother"]:hover {
+            background: #f9fafb !important;
+            border-color: #6fbe44 !important;
+            color: #6fbe44 !important;
+        }
+        
+        a.deletelink {
+            color: #e04f5f !important;
+            font-weight: 500 !important;
+            padding: 8px 16px !important;
+            border-radius: 6px !important;
+        }
+        a.deletelink:hover {
+            background: rgba(224, 79, 95, 0.1) !important;
+        }
+    </style>
+{% endblock %}

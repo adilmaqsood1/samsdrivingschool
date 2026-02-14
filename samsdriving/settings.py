@@ -133,31 +133,13 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*.samsdriving.ca",
 ]
 
-# SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
+SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
 
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
-GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
-GOOGLE_OAUTH_REDIRECT_URI = os.environ.get(
-    "GOOGLE_OAUTH_REDIRECT_URI", "/crm/oauth/google/callback/"
-)
-GOOGLE_OAUTH_SCOPES = [
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/calendar",
-]
-GOOGLE_CALENDAR_EMBED_URL = os.environ.get("GOOGLE_CALENDAR_EMBED_URL", "")
-
-OUTLOOK_OAUTH_CLIENT_ID = os.environ.get("OUTLOOK_OAUTH_CLIENT_ID", "")
-OUTLOOK_OAUTH_CLIENT_SECRET = os.environ.get("OUTLOOK_OAUTH_CLIENT_SECRET", "")
-OUTLOOK_OAUTH_TENANT_ID = os.environ.get("OUTLOOK_OAUTH_TENANT_ID", "common")
-OUTLOOK_OAUTH_REDIRECT_URI = os.environ.get(
-    "OUTLOOK_OAUTH_REDIRECT_URI", "/crm/oauth/outlook/callback/"
-)
-OUTLOOK_OAUTH_SCOPES = [
-    "offline_access",
-    "https://graph.microsoft.com/User.Read",
-    "https://graph.microsoft.com/Calendars.ReadWrite",
-]
+GOOGLE_CALENDAR_EMBED_URL = "https://calendar.google.com/calendar/embed?src=7b9fe324b71fedec82b15990f4e64b212cc34942ed3910a2ef799f83a2b1af97%40group.calendar.google.com&ctz=Asia%2FKarachi"
+GOOGLE_SERVICE_ACCOUNT_FILE = "drive-487316-d8f1315e9274.json"
+GOOGLE_CALENDAR_ID = "7b9fe324b71fedec82b15990f4e64b212cc34942ed3910a2ef799f83a2b1af97@group.calendar.google.com"
+GOOGLE_CALENDAR_TIME_ZONE = "Asia/Karachi"

@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static %}
+{% load i18n static crm_dashboard %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -7,77 +7,124 @@
         .drivschol-app-container {
             margin-top: 20px;
             display: grid;
-            gap: 20px;
+            gap: 30px;
         }
 
-        .drivschol-card {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(109, 112, 118, 0.16);
-            border-radius: 12px;
-            padding: 20px;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.04);
-        }
-
-        .drivschol-app-header {
+        .drivschol-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111117;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .drivschol-section-title a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        .drivschol-app-title {
-            font-size: 18px;
+        .drivschol-model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .drivschol-model-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(109, 112, 118, 0.16);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(17, 17, 23, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .drivschol-model-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(17, 17, 23, 0.08);
+            border-color: #6fbe44;
+        }
+
+        .drivschol-model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .drivschol-model-title {
+            font-size: 16px;
             font-weight: 700;
             color: #111117;
             text-decoration: none;
+            margin: 0;
+            line-height: 1.3;
         }
-
-        .drivschol-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        .drivschol-table th {
-            text-align: left;
-            padding: 12px 16px;
-            color: #111117;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(109, 112, 118, 0.16);
-        }
-
-        .drivschol-table td {
-            padding: 12px 16px;
-            color: #111117;
-            border-bottom: 1px solid rgba(109, 112, 118, 0.08);
-        }
-
-        .drivschol-table tr:last-child td { border-bottom: none; }
-        .drivschol-table tr:hover td { background: rgba(111, 190, 68, 0.04); }
-
-        .drivschol-link {
-            color: #111117;
-            text-decoration: none;
-            display: block;
-        }
-        .drivschol-link:hover { color: #6fbe44; }
-
-        .drivschol-action-link {
+        
+        .drivschol-model-count {
+            background: rgba(111, 190, 68, 0.1);
             color: #6fbe44;
-            text-decoration: none;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             padding: 4px 10px;
             border-radius: 99px;
-            background: rgba(111, 190, 68, 0.1);
+            white-space: nowrap;
+        }
+
+        .drivschol-model-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            border-top: 1px solid rgba(109, 112, 118, 0.08);
+            padding-top: 12px;
+        }
+
+        .drivschol-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
             transition: all 0.2s;
         }
-        .drivschol-action-link:hover {
+        
+        .btn-view {
+            background: #f5f7fa;
+            color: #111117;
+        }
+        .btn-view:hover { background: #eef1f6; }
+        
+        .btn-add {
             background: #6fbe44;
             color: white;
         }
-        .drivschol-action-link.add { margin-right: 8px; }
+        .btn-add:hover { background: #5ea839; }
+        
+        .btn-change {
+            background: rgba(111, 190, 68, 0.1);
+            color: #6fbe44;
+        }
+        .btn-change:hover {
+            background: #6fbe44;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .drivschol-model-grid { grid-template-columns: 1fr; }
+        }
     </style>
 {% endblock %}
 
@@ -96,38 +143,42 @@
 {% block content %}
 <div class="drivschol-app-container">
     {% for app in app_list %}
-        <div class="drivschol-card app-{{ app.app_label }}">
-            <div class="drivschol-app-header">
-                <a href="{{ app.app_url }}" class="drivschol-app-title" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+        <div class="app-section app-{{ app.app_label }}">
+            <div class="drivschol-section-title">
+                <a href="{{ app.app_url }}" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
             </div>
             
-            <table class="drivschol-table">
+            <div class="drivschol-model-grid">
                 {% for model in app.models %}
-                    <tr class="model-{{ model.object_name|lower }}">
-                        {% if model.admin_url %}
-                            <th scope="row">
-                                <a href="{{ model.admin_url }}" class="drivschol-link">{{ model.name }}</a>
-                            </th>
-                        {% else %}
-                            <th scope="row">{{ model.name }}</th>
-                        {% endif %}
+                    <div class="drivschol-model-card model-{{ model.object_name|lower }}">
+                        <div class="drivschol-model-header">
+                            {% if model.admin_url %}
+                                <a href="{{ model.admin_url }}" class="drivschol-model-title">{{ model.name }}</a>
+                            {% else %}
+                                <span class="drivschol-model-title">{{ model.name }}</span>
+                            {% endif %}
+                            
+                            <span class="drivschol-model-count">
+                                {% get_model_count app.app_label model.object_name %} Items
+                            </span>
+                        </div>
 
-                        <td align="right">
+                        <div class="drivschol-model-actions">
                             {% if model.add_url %}
-                                <a href="{{ model.add_url }}" class="drivschol-action-link add">{% trans 'Add' %}</a>
+                                <a href="{{ model.add_url }}" class="drivschol-action-btn btn-add">{% trans 'Add' %}</a>
                             {% endif %}
                             
                             {% if model.admin_url %}
                                 {% if model.view_only %}
-                                    <a href="{{ model.admin_url }}" class="drivschol-action-link view">{% trans 'View' %}</a>
+                                    <a href="{{ model.admin_url }}" class="drivschol-action-btn btn-view">{% trans 'View' %}</a>
                                 {% else %}
-                                    <a href="{{ model.admin_url }}" class="drivschol-action-link change">{% trans 'Change' %}</a>
+                                    <a href="{{ model.admin_url }}" class="drivschol-action-btn btn-change">{% trans 'Manage' %}</a>
                                 {% endif %}
                             {% endif %}
-                        </td>
-                    </tr>
+                        </div>
+                    </div>
                 {% endfor %}
-            </table>
+            </div>
         </div>
     {% empty %}
         <p>{% trans "You don't have permission to view or edit anything." %}</p>

@@ -1,7 +1,3 @@
-from datetime import timedelta
-import secrets
-from urllib.parse import urlencode
-import requests
 import stripe
 from django.conf import settings
 from django.contrib import messages
@@ -23,7 +19,6 @@ from .models import (
     Invoice,
     Payment,
     CalendarFeed,
-    CalendarAccount,
     Lesson,
     EnrollmentRequest,
     LessonRequest,
@@ -619,132 +614,6 @@ def lesson_request(request):
             channel="email",
         )
     return HttpResponseRedirect(reverse("course_details_page"))
-
-
-@login_required
-def google_oauth_start(request):
-    if not getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", ""):
-        messages.error(request, "Google OAuth is not configured (missing client_id).")
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    if not getattr(settings, "GOOGLE_OAUTH_CLIENT_SECRET", ""):
-        messages.error(request, "Google OAuth is not configured (missing client_secret).")
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    state = secrets.token_urlsafe(16)
-    request.session["google_oauth_state"] = state
-    params = {
-        "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-        "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
-        "response_type": "code",
-        "scope": " ".join(settings.GOOGLE_OAUTH_SCOPES),
-        "access_type": "offline",
-        "prompt": "consent",
-        "state": state,
-    }
-    return HttpResponseRedirect(f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}")
-
-
-@login_required
-def google_oauth_callback(request):
-    state = request.GET.get("state")
-    code = request.GET.get("code")
-    if not code or state != request.session.get("google_oauth_state"):
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    token_response = requests.post(
-        "https://oauth2.googleapis.com/token",
-        data={
-            "code": code,
-            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-            "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET,
-            "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
-            "grant_type": "authorization_code",
-        },
-        timeout=30,
-    )
-    token_data = token_response.json()
-    access_token = token_data.get("access_token")
-    refresh_token = token_data.get("refresh_token", "")
-    expires_in = token_data.get("expires_in", 0)
-    if not access_token:
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    userinfo = requests.get(
-        "https://www.googleapis.com/oauth2/v2/userinfo",
-        headers={"Authorization": f"Bearer {access_token}"},
-        timeout=30,
-    ).json()
-    email = userinfo.get("email", "")
-    CalendarAccount.objects.update_or_create(
-        owner=request.user,
-        provider="google",
-        defaults={
-            "email": email,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_expires_at": timezone.now() + timedelta(seconds=expires_in or 0),
-            "active": True,
-        },
-    )
-    return HttpResponseRedirect("/admin/crm/calendaraccount/")
-
-
-@login_required
-def outlook_oauth_start(request):
-    state = secrets.token_urlsafe(16)
-    request.session["outlook_oauth_state"] = state
-    params = {
-        "client_id": settings.OUTLOOK_OAUTH_CLIENT_ID,
-        "redirect_uri": settings.OUTLOOK_OAUTH_REDIRECT_URI,
-        "response_type": "code",
-        "response_mode": "query",
-        "scope": " ".join(settings.OUTLOOK_OAUTH_SCOPES),
-        "state": state,
-    }
-    return HttpResponseRedirect(
-        f"https://login.microsoftonline.com/{settings.OUTLOOK_OAUTH_TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
-    )
-
-
-@login_required
-def outlook_oauth_callback(request):
-    state = request.GET.get("state")
-    code = request.GET.get("code")
-    if not code or state != request.session.get("outlook_oauth_state"):
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    token_response = requests.post(
-        f"https://login.microsoftonline.com/{settings.OUTLOOK_OAUTH_TENANT_ID}/oauth2/v2.0/token",
-        data={
-            "client_id": settings.OUTLOOK_OAUTH_CLIENT_ID,
-            "client_secret": settings.OUTLOOK_OAUTH_CLIENT_SECRET,
-            "redirect_uri": settings.OUTLOOK_OAUTH_REDIRECT_URI,
-            "grant_type": "authorization_code",
-            "code": code,
-            "scope": " ".join(settings.OUTLOOK_OAUTH_SCOPES),
-        },
-        timeout=30,
-    )
-    token_data = token_response.json()
-    access_token = token_data.get("access_token")
-    refresh_token = token_data.get("refresh_token", "")
-    expires_in = token_data.get("expires_in", 0)
-    if not access_token:
-        return HttpResponseRedirect("/admin/crm/calendaraccount/")
-    profile = requests.get(
-        "https://graph.microsoft.com/v1.0/me",
-        headers={"Authorization": f"Bearer {access_token}"},
-        timeout=30,
-    ).json()
-    email = profile.get("mail") or profile.get("userPrincipalName") or ""
-    CalendarAccount.objects.update_or_create(
-        owner=request.user,
-        provider="outlook",
-        defaults={
-            "email": email,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_expires_at": timezone.now() + timedelta(seconds=expires_in or 0),
-            "active": True,
-        },
-    )
-    return HttpResponseRedirect("/admin/crm/calendaraccount/")
 
 
 def calendar_feed(request, token):
