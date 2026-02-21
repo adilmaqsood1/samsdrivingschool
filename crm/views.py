@@ -728,6 +728,19 @@ def stripe_success(request, invoice_id):
 
 
 def stripe_cancel(request, invoice_id):
+    invoice = Invoice.objects.select_related("enrollment__session__course").filter(id=invoice_id).first()
+    if invoice and invoice.enrollment and invoice.enrollment.session and invoice.enrollment.session.course:
+        course_slug = None
+        course_name = invoice.enrollment.session.course.name
+        # Find slug from catalog by name (reverse lookup)
+        for slug, data in COURSE_CATALOG.items():
+            if data["title"] == course_name:
+                course_slug = slug
+                break
+        
+        if course_slug:
+            return HttpResponseRedirect(reverse("enroll_page", args=[course_slug]))
+            
     return HttpResponseRedirect(reverse("course_page"))
 
 
