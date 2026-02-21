@@ -84,6 +84,31 @@
                                         <textarea name="notes" id="notes" class="form-control" placeholder="Any special requests or notes" style="width: 100%; padding: 10px; border: 1px solid #ddd; height: 100px;"></textarea>
                                     </div>
                                 </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 20px; border: 1px solid #ddd; padding: 20px; border-radius: 5px; background-color: #fafafa;">
+                                        <label style="display: block; margin-bottom: 15px; font-weight: bold; font-size: 18px;">Payment Method</label>
+                                        <div class="form-check" style="margin-bottom: 15px;">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="pay_stripe" value="stripe" checked>
+                                            <label class="form-check-label" for="pay_stripe" style="margin-left: 5px; font-weight: 500;">
+                                                Pay Now (Credit Card / Stripe)
+                                                <div style="margin-top: 5px;">
+                                                    <i class="fab fa-cc-stripe" style="font-size: 24px; color: #6772e5;"></i>
+                                                    <i class="fab fa-cc-visa" style="font-size: 24px; color: #1a1f71; margin-left: 5px;"></i>
+                                                    <i class="fab fa-cc-mastercard" style="font-size: 24px; color: #eb001b; margin-left: 5px;"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="pay_later" value="pay_later">
+                                            <label class="form-check-label" for="pay_later" style="margin-left: 5px; font-weight: 500;">
+                                                Pay Later / Pay in Person
+                                                <div style="margin-top: 5px; font-size: 13px; color: #666;">
+                                                    Visit our office to complete payment.
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="form-group" style="margin-top: 20px;">

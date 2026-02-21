@@ -352,6 +352,16 @@ def process_enrollment(request):
         notes=f"Enrollment for {course_data['title']}"
     )
     
+    payment_method = request.POST.get("payment_method", "stripe")
+    if payment_method == "pay_later":
+        # Update enrollment status? Maybe keep it pending.
+        # Render success page
+        return render(request, "enroll_success_pay_later.html", {
+            "invoice": invoice, 
+            "course": course_data,
+            "student_name": f"{first_name} {last_name}".strip()
+        })
+    
     # Redirect to Stripe Checkout
     return HttpResponseRedirect(reverse("stripe_checkout", args=[invoice.id]))
 

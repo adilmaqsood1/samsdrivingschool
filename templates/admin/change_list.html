@@ -21,60 +21,80 @@
 
     #changelist table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
+      border-collapse: collapse; /* Switch to collapse for grid look */
+      border-spacing: 0;
       margin-top: 10px;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden; /* For rounded corners */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Outer shadow */
     }
 
     #changelist thead th {
-      background: transparent;
-      border: none;
-      color: #111117;
-      font-weight: 600;
-      padding: 10px 15px;
+      background: #f3f4f6; /* Light grey header */
+      border-bottom: 2px solid rgba(109, 112, 118, 0.1);
+      color: #374151;
+      font-weight: 700;
+      padding: 14px 16px;
       text-transform: uppercase;
       font-size: 12px;
-      opacity: 0.7;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
+      vertical-align: middle;
     }
 
     #changelist thead th a {
       color: inherit;
+      text-decoration: none;
+    }
+    
+    #changelist thead th.sorted {
+        background: #e5e7eb;
     }
 
     #changelist tbody tr {
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 2px 6px rgba(17, 17, 23, 0.02);
+      background: #ffffff;
       transition: all 0.2s ease;
+      border-bottom: 1px solid rgba(109, 112, 118, 0.08);
+    }
+    
+    /* Zebra Striping */
+    #changelist tbody tr:nth-child(even) {
+        background: #f9fafb;
     }
 
     #changelist tbody tr:hover {
-      background: rgba(255, 255, 255, 1);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(17, 17, 23, 0.06);
-      z-index: 1;
-      position: relative;
+      background: #f0fdf4 !important; /* Light green hover */
+      transform: none; /* Remove transform for grid view stability */
+      box-shadow: none; /* Remove per-row shadow */
+      z-index: auto;
     }
 
     #changelist tbody td, #changelist tbody th {
-      padding: 14px 15px;
-      border-top: 1px solid rgba(109, 112, 118, 0.05);
-      border-bottom: 1px solid rgba(109, 112, 118, 0.05);
+      padding: 14px 16px;
+      border-right: 1px solid rgba(109, 112, 118, 0.05); /* Vertical borders */
       color: #111117;
       font-size: 14px;
       vertical-align: middle;
+      border-top: none; /* Handled by tr border-bottom logic or collapse */
+      border-bottom: 1px solid rgba(109, 112, 118, 0.08);
+    }
+
+    #changelist tbody td:last-child, #changelist tbody th:last-child {
+      border-right: none;
+    }
+
+    #changelist tbody tr:last-child td {
+        border-bottom: none;
     }
 
     #changelist tbody tr td:first-child, #changelist tbody tr th:first-child {
-      border-left: 1px solid rgba(109, 112, 118, 0.05);
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
+      border-left: none;
+      border-radius: 0;
     }
 
     #changelist tbody tr td:last-child {
-      border-right: 1px solid rgba(109, 112, 118, 0.05);
-      border-top-right-radius: 10px;
-      border-bottom-right-radius: 10px;
+      border-right: none;
+      border-radius: 0;
     }
 
     /* Links in table */
@@ -82,15 +102,22 @@
       color: #111117;
       text-decoration: none;
       font-weight: 500;
+      transition: color 0.2s;
     }
     #changelist tbody a:hover {
       color: #6fbe44;
+      text-decoration: underline;
     }
 
-    /* Status Badges within Change List */
-    td.field-status, td.field-is_published, td.field-active {
+    /* Status Coloring - Attempt to style known status columns */
+    td.field-status, td.field-is_published, td.field-active, td.field-enrollment_open {
       font-weight: 600;
+      text-transform: capitalize;
+      color: #374151;
     }
+    
+    /* Specific text coloring based on content isn't possible with CSS alone unless specific classes are added by Django. 
+       However, we can style the column generally. */
     
     /* Search Bar Enhancement */
     #toolbar {
@@ -100,21 +127,42 @@
       padding: 0;
     }
     #toolbar form input[type="text"] {
-      padding: 10px 15px;
+      padding: 12px 16px;
       border-radius: 8px;
       border: 1px solid rgba(109, 112, 118, 0.2);
       width: 300px;
       background: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
     }
+    
+    #toolbar form input[type="text"]:focus {
+        border-color: #6fbe44;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(111, 190, 68, 0.15);
+    }
+
     #toolbar form input[type="submit"] {
-      background: #6fbe44;
+      background: linear-gradient(135deg, #6fbe44 0%, #5ea839 100%);
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 24px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
       margin-left: 10px;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(111, 190, 68, 0.2);
+    }
+    
+    #toolbar form input[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(111, 190, 68, 0.4);
     }
     
     /* Filters */

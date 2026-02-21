@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
@@ -88,6 +89,7 @@ class LeadTask(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=50, blank=True)
@@ -97,13 +99,17 @@ class Student(models.Model):
     province = models.CharField(max_length=100, blank=True)
     postal_code = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    license_number = models.CharField(max_length=100, blank=True)
+    license_issue_date = models.DateField(null=True, blank=True)
+    license_expiry_date = models.DateField(null=True, blank=True)
     license_status = models.CharField(max_length=100, blank=True)
     preferred_location = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}".strip()
+        name = f"{self.first_name} {self.middle_name} {self.last_name}".strip()
+        return " ".join(name.split())
 
 
 class StudentDocument(models.Model):
@@ -287,7 +293,7 @@ class Lesson(models.Model):
     session = models.ForeignKey(CourseSession, null=True, blank=True, on_delete=models.SET_NULL, related_name="lessons")
     lesson_type = models.CharField(max_length=20, choices=LESSON_TYPES, default="driving")
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True, blank=True)
     pickup_address = models.CharField(max_length=200, blank=True)
     dropoff_address = models.CharField(max_length=200, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="scheduled")
@@ -298,6 +304,9 @@ class Lesson(models.Model):
         return f"{self.student} {self.start_time}"
 
     def clean(self):
+        if not self.end_time and self.start_time:
+            self.end_time = self.start_time + timedelta(hours=1)
+            
         if self.start_time >= self.end_time:
             raise ValidationError("End time must be after start time.")
         overlapping = Lesson.objects.filter(start_time__lt=self.end_time, end_time__gt=self.start_time)
@@ -309,6 +318,21 @@ class Lesson(models.Model):
             raise ValidationError("Vehicle is already booked for this time.")
         if self.classroom and overlapping.filter(classroom=self.classroom).exists():
             raise ValidationError("Classroom is already booked for this time.")
+        
+        # Validation rule: Max 5 lessons if not paid
+        if self.student:
+            # Check if student has paid in full
+            # We check if there is any enrollment that is 'paid' or 'completed'
+            has_paid = Enrollment.objects.filter(
+                student=self.student, 
+                status__in=["paid", "completed"]
+            ).exists()
+            
+            if not has_paid:
+                # Count existing lessons (excluding self)
+                lesson_count = Lesson.objects.filter(student=self.student).exclude(pk=self.pk).count()
+                if lesson_count >= 5:
+                    raise ValidationError("Student has not paid in full. Maximum 5 lessons allowed.")
 
     def save(self, *args, **kwargs):
         self.full_clean()

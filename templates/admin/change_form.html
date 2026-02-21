@@ -83,23 +83,25 @@
         .vLargeTextField, 
         .vURLField, 
         .vIntegerField {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid rgba(109, 112, 118, 0.2);
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 14px;
             color: #111117;
-            background: #fff;
-            transition: all 0.2s;
+            background: #fdfdfd;
+            transition: all 0.2s ease;
             max-width: 100%;
             box-sizing: border-box;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
         }
 
         input[type="text"]:focus, 
         textarea:focus, 
         select:focus {
             border-color: #6fbe44;
+            background: #fff;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(111, 190, 68, 0.1);
+            box-shadow: 0 0 0 4px rgba(111, 190, 68, 0.15);
         }
 
         /* Checkboxes */
@@ -156,60 +158,65 @@
 
         /* Buttons */
         input[type="submit"], .submit-row input {
-            background: #6fbe44;
+            background: linear-gradient(135deg, #6fbe44 0%, #5ea839 100%);
             color: white;
             border: none;
-            padding: 10px 24px;
+            padding: 12px 24px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: background 0.2s;
+            letter-spacing: 0.8px;
+            transition: all 0.3s ease;
             height: auto;
+            box-shadow: 0 4px 10px rgba(94, 168, 57, 0.3);
         }
 
-        input[type="submit"]:hover {
-            background: #5ea839;
+        input[type="submit"]:hover, .submit-row input:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(94, 168, 57, 0.4);
         }
 
         input[type="submit"].default {
-            background: #6fbe44;
+            background: linear-gradient(135deg, #6fbe44 0%, #5ea839 100%);
         }
         
-        .submit-row input[name="_continue"] {
-            background: #ffffff;
-            color: #374151;
-            border: 1px solid rgba(109, 112, 118, 0.2);
-        }
-        .submit-row input[name="_continue"]:hover {
-            background: #f9fafb;
-            border-color: #6fbe44;
-            color: #6fbe44;
-        }
-        
+        .submit-row input[name="_continue"], 
         .submit-row input[name="_addanother"] {
             background: #ffffff;
             color: #374151;
             border: 1px solid rgba(109, 112, 118, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
+
+        .submit-row input[name="_continue"]:hover, 
         .submit-row input[name="_addanother"]:hover {
             background: #f9fafb;
             border-color: #6fbe44;
             color: #6fbe44;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(111, 190, 68, 0.15);
         }
-
+        
         a.deletelink {
             color: #e04f5f;
             text-decoration: none;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: background 0.2s;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 1px solid rgba(224, 79, 95, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.5);
+            display: inline-block;
         }
+
         a.deletelink:hover {
-            background: rgba(224, 79, 95, 0.1);
+            background: #e04f5f;
+            color: white;
+            border-color: #e04f5f;
+            box-shadow: 0 4px 10px rgba(224, 79, 95, 0.2);
+            transform: translateY(-2px);
         }
 
         /* Inlines */

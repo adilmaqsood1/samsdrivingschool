@@ -129,10 +129,10 @@ class MinistrySubmissionInline(admin.TabularInline):
     extra = 0
     readonly_fields = ("submitted_at",)
 
-class CertificateInline(admin.TabularInline):
-    model = Certificate
-    extra = 0
-    readonly_fields = ("issued_at", "submitted_at")
+# class CertificateInline(admin.TabularInline):
+#     model = Certificate
+#     extra = 0
+#     readonly_fields = ("issued_at", "submitted_at")
 
 class PaymentScheduleInline(admin.TabularInline):
     model = PaymentSchedule
@@ -193,35 +193,8 @@ class EnrollmentAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("student", "session", "status", "enrolled_at", "balance")
     list_filter = ("status",)
     search_fields = ("student__first_name", "student__last_name")
-    actions = ["issue_certificates", "submit_ministry"]
-    inlines = [StudentModuleProgressInline, MinistrySubmissionInline, CertificateInline]
-
-    def issue_certificates(self, request, queryset):
-        issued = 0
-        for enrollment in queryset.select_related("student", "session__course"):
-            certificate, created = Certificate.objects.get_or_create(
-                enrollment=enrollment,
-                defaults={"certificate_number": _certificate_number(enrollment)},
-            )
-            if certificate.status == "issued" and certificate.file:
-                continue
-            student_name = f"{enrollment.student.first_name} {enrollment.student.last_name}".strip()
-            course_name = enrollment.session.course.name if enrollment.session and enrollment.session.course else ""
-            lines = [
-                "Certificate of Completion",
-                f"Student: {student_name}",
-                f"Course: {course_name}",
-                f"Enrollment ID: {enrollment.id}",
-                f"Issued: {timezone.now().strftime('%Y-%m-%d')}",
-            ]
-            pdf_bytes = _build_simple_pdf(lines)
-            certificate.file.save(f"certificate-{enrollment.id}.pdf", ContentFile(pdf_bytes), save=False)
-            certificate.status = "issued"
-            certificate.issued_at = timezone.now()
-            certificate.save()
-            issued += 1
-        if issued:
-            self.message_user(request, f"Issued {issued} certificate(s).", level=messages.SUCCESS)
+    actions = ["submit_ministry"]
+    inlines = [StudentModuleProgressInline, MinistrySubmissionInline]
 
     def submit_ministry(self, request, queryset):
         submitted = 0
@@ -391,35 +364,35 @@ class PaymentAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ("method", "status")
 
 
-@admin.register(Certificate)
-class CertificateAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("certificate_number", "enrollment", "status", "issued_at", "submitted_at")
-    list_filter = ("status",)
-    actions = ["generate_pdf"]
-
-    def generate_pdf(self, request, queryset):
-        generated = 0
-        for certificate in queryset.select_related("enrollment__student", "enrollment__session__course"):
-            enrollment = certificate.enrollment
-            if not enrollment:
-                continue
-            student_name = f"{enrollment.student.first_name} {enrollment.student.last_name}".strip()
-            course_name = enrollment.session.course.name if enrollment.session and enrollment.session.course else ""
-            lines = [
-                "Certificate of Completion",
-                f"Student: {student_name}",
-                f"Course: {course_name}",
-                f"Enrollment ID: {enrollment.id}",
-                f"Issued: {timezone.now().strftime('%Y-%m-%d')}",
-            ]
-            pdf_bytes = _build_simple_pdf(lines)
-            certificate.file.save(f"certificate-{enrollment.id}.pdf", ContentFile(pdf_bytes), save=False)
-            certificate.status = "issued"
-            certificate.issued_at = timezone.now()
-            certificate.save()
-            generated += 1
-        if generated:
-            self.message_user(request, f"Generated {generated} certificate PDF(s).", level=messages.SUCCESS)
+# @admin.register(Certificate)
+# class CertificateAdmin(ExportCsvMixin, admin.ModelAdmin):
+#     list_display = ("certificate_number", "enrollment", "status", "issued_at", "submitted_at")
+#     list_filter = ("status",)
+#     actions = ["generate_pdf"]
+#
+#     def generate_pdf(self, request, queryset):
+#         generated = 0
+#         for certificate in queryset.select_related("enrollment__student", "enrollment__session__course"):
+#             enrollment = certificate.enrollment
+#             if not enrollment:
+#                 continue
+#             student_name = f"{enrollment.student.first_name} {enrollment.student.last_name}".strip()
+#             course_name = enrollment.session.course.name if enrollment.session and enrollment.session.course else ""
+#             lines = [
+#                 "Certificate of Completion",
+#                 f"Student: {student_name}",
+#                 f"Course: {course_name}",
+#                 f"Enrollment ID: {enrollment.id}",
+#                 f"Issued: {timezone.now().strftime('%Y-%m-%d')}",
+#             ]
+#             pdf_bytes = _build_simple_pdf(lines)
+#             certificate.file.save(f"certificate-{enrollment.id}.pdf", ContentFile(pdf_bytes), save=False)
+#             certificate.status = "issued"
+#             certificate.issued_at = timezone.now()
+#             certificate.save()
+#             generated += 1
+#         if generated:
+#             self.message_user(request, f"Generated {generated} certificate PDF(s).", level=messages.SUCCESS)
 
 
 @admin.register(CommunicationTemplate)

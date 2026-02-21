@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}Enrollment Successful - Sams Driving{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header__bg" style="background-image: url({% static 'assets/images/backgrounds/page-header-bg-1-1.jpg' %});"></div>
+    <div class="container">
+        <h2 class="page-header__title">Enrollment Successful</h2>
+        <ul class="drivschol-breadcrumb list-unstyled">
+            <li><a href="{% url 'index_page' %}">Home</a></li>
+            <li><span>Enrollment</span></li>
+        </ul>
+    </div>
+</section>
+
+<section class="enrollment-success" style="padding: 120px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="enrollment-success__content text-center">
+                    <div class="icon-box" style="margin-bottom: 30px;">
+                        <i class="fas fa-check-circle" style="font-size: 80px; color: #28a745;"></i>
+                    </div>
+                    <h3 class="enrollment-success__title" style="margin-bottom: 20px;">Thank You, {{ student_name }}!</h3>
+                    <p class="enrollment-success__text" style="font-size: 18px; margin-bottom: 30px;">
+                        Your enrollment for <strong>{{ course.title }}</strong> has been received.
+                    </p>
+                    
+                    <div class="enrollment-details" style="background-color: #f9f9f9; padding: 30px; border-radius: 8px; text-align: left; margin-bottom: 30px;">
+                        <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Payment Details</h4>
+                        <p><strong>Invoice Number:</strong> {{ invoice.number }}</p>
+                        <p><strong>Amount Due:</strong> ${{ invoice.total_amount|floatformat:2 }}</p>
+                        <p><strong>Payment Status:</strong> Pay Later / Pay in Person</p>
+                        
+                        <div class="alert alert-info" style="margin-top: 20px;">
+                            <p>Please visit our office to complete your payment or contact us to arrange an alternative payment method.</p>
+                            <p><strong>Office Address:</strong> 123 Driving School Lane, City, Province</p>
+                            <p><strong>Phone:</strong> (555) 123-4567</p>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'index_page' %}" class="drivschol-btn drivschol-btn--base">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
