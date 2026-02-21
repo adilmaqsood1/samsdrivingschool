@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
@@ -351,15 +352,18 @@ def process_enrollment(request):
         invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
         if not Invoice.objects.filter(number=invoice_number).exists():
             try:
-                invoice = Invoice.objects.create(
-                    enrollment=enrollment,
-                    number=invoice_number,
-                    issue_date=timezone.now().date(),
-                    total_amount=total_amount,
-                    status="draft",
-                    notes=f"Enrollment for {course_data['title']}"
-                )
+                with transaction.atomic():
+                    invoice = Invoice.objects.create(
+                        enrollment=enrollment,
+                        number=invoice_number,
+                        issue_date=timezone.now().date(),
+                        total_amount=total_amount,
+                        status="draft",
+                        notes=f"Enrollment for {course_data['title']}"
+                    )
                 break
+            except IntegrityError:
+                continue
             except Exception:
                 continue
     
