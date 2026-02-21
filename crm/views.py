@@ -714,8 +714,8 @@ def stripe_checkout(request, invoice_id):
                 "quantity": 1,
             }
         ],
-        success_url=f"{settings.SITE_URL}/crm/stripe/success/{invoice.id}/",
-        cancel_url=f"{settings.SITE_URL}/crm/stripe/cancel/{invoice.id}/",
+        success_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/success/{invoice.id}/",
+        cancel_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/cancel/{invoice.id}/",
         metadata={"invoice_id": str(invoice.id)},
     )
     invoice.stripe_checkout_session_id = session.id
