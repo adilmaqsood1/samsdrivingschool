@@ -30,6 +30,9 @@ from .models import (
     BlogTag,
     BlogComment,
     Testimonial,
+    Course,
+    CourseSession,
+    Enrollment,
 )
 
 COURSE_CATALOG = {
@@ -332,7 +335,7 @@ def process_enrollment(request):
             delivery_mode="online" if "Online" in course_data["title"] else "in_class"
         )
         
-    enrollment = models.Enrollment.objects.create(
+    enrollment = Enrollment.objects.create(
         student=student,
         session=db_session,
         status="pending"
