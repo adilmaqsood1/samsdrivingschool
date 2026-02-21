@@ -343,17 +343,38 @@ def process_enrollment(request):
     
     # Create Invoice
     import random
-    invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
     total_amount = float(course_data["fees"]["total"].replace("$", ""))
     
-    invoice = Invoice.objects.create(
-        enrollment=enrollment,
-        number=invoice_number,
-        issue_date=timezone.now().date(),
-        total_amount=total_amount,
-        status="draft",
-        notes=f"Enrollment for {course_data['title']}"
-    )
+    invoice = None
+    max_retries = 5
+    for _ in range(max_retries):
+        invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+        if not Invoice.objects.filter(number=invoice_number).exists():
+            try:
+                invoice = Invoice.objects.create(
+                    enrollment=enrollment,
+                    number=invoice_number,
+                    issue_date=timezone.now().date(),
+                    total_amount=total_amount,
+                    status="draft",
+                    notes=f"Enrollment for {course_data['title']}"
+                )
+                break
+            except Exception:
+                continue
+    
+    if not invoice:
+        # Fallback to UUID if random fails repeatedly
+        import uuid
+        invoice_number = f"INV-{uuid.uuid4().hex[:12].upper()}"
+        invoice = Invoice.objects.create(
+            enrollment=enrollment,
+            number=invoice_number,
+            issue_date=timezone.now().date(),
+            total_amount=total_amount,
+            status="draft",
+            notes=f"Enrollment for {course_data['title']}"
+        )
     
     payment_method = request.POST.get("payment_method", "stripe")
     if payment_method == "pay_later":
