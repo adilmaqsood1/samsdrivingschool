@@ -152,14 +152,21 @@
 <div class="drivschol-dashboard-grid">
     <!-- KPIs -->
     {% for kpi in data.kpis %}
-    <div class="drivschol-card kpi-card">
+    <a href="{{ kpi.url|default:'#' }}" class="drivschol-card kpi-card" style="text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
         <div class="drivschol-kpi-label">{{ kpi.label }}</div>
         <div class="drivschol-kpi-value">{{ kpi.value }}</div>
         {% if kpi.trend %}
         <div class="drivschol-kpi-trend trend-{{ kpi.trend_class }}">{{ kpi.trend }}</div>
         {% endif %}
-    </div>
+    </a>
     {% endfor %}
+
+    <style>
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(17, 17, 23, 0.08);
+        }
+    </style>
 
     <!-- Row 1: Main Trends -->
     <div class="drivschol-card chart-card-lg" style="grid-column: span 6;">

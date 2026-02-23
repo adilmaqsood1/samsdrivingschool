@@ -4,6 +4,7 @@ from urllib.parse import quote
 from django.conf import settings
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay, TruncMonth
+from django.urls import reverse
 from django.utils import timezone
 from .models import Enrollment, Invoice, Lead, Lesson, Payment, EnrollmentRequest, Student
 
@@ -19,25 +20,29 @@ def get_dashboard_data():
             "label": "Total Students",
             "value": Student.objects.count(),
             "trend": "",
-            "trend_class": "neutral"
+            "trend_class": "neutral",
+            "url": reverse("admin:crm_student_changelist")
         },
         {
             "label": "Revenue (Month)",
             "value": f"${(Payment.objects.filter(status='completed', paid_at__gte=start_of_month).aggregate(total=Sum('amount'))['total'] or 0):,.0f}",
             "trend": "This Month",
-            "trend_class": "positive"
+            "trend_class": "positive",
+            "url": reverse("admin:crm_payment_changelist")
         },
         {
             "label": "New Leads",
             "value": Lead.objects.filter(created_at__gte=start_of_month).count(),
             "trend": "This Month",
-            "trend_class": "neutral"
+            "trend_class": "neutral",
+            "url": reverse("admin:crm_lead_changelist")
         },
         {
             "label": "Pending Enrollments",
             "value": EnrollmentRequest.objects.filter(status="new").count(),
             "trend": "Action Required",
-            "trend_class": "negative" if EnrollmentRequest.objects.filter(status="new").count() > 0 else "neutral"
+            "trend_class": "negative" if EnrollmentRequest.objects.filter(status="new").count() > 0 else "neutral",
+            "url": reverse("admin:crm_enrollmentrequest_changelist")
         },
     ]
 

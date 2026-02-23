@@ -12,6 +12,7 @@ from .models import (
     Lead,
     LeadNote,
     LeadTask,
+    EnrollmentRequest,
     Student,
     StudentDocument,
     Course,
@@ -214,6 +215,13 @@ class EnrollmentAdmin(ExportCsvMixin, admin.ModelAdmin):
             submitted += 1
         if submitted:
             self.message_user(request, f"Submitted {submitted} enrollment(s).", level=messages.SUCCESS)
+
+
+@admin.register(EnrollmentRequest)
+class EnrollmentRequestAdmin(ExportCsvMixin, admin.ModelAdmin):
+    list_display = ("name", "email", "phone", "package", "status", "created_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("name", "email", "phone")
 
 
 @admin.register(Instructor)
