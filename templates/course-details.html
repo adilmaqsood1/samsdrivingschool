@@ -84,11 +84,11 @@
                             <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
                             <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
                         </div>
-                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+                        {% comment %} <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p> {% endcomment %}    
                     </div>
                     <ul class="topbar-one__right">
-                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
-                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com"> sdsburlington@gmail.com</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">Serving Milton & Burlington areas</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
                     </ul>
                 </div>
             </div>
@@ -143,14 +143,16 @@
                     <div class="col-lg-8">
                         <div class="course-details">
                             <div class="course-details__single">
-                                <div class="course-details__image wow fadeInUp" data-wow-delay='300ms'>
-                                    <img src="{{ course.image }}" alt="course-details__image">
-                                </div><!-- / -->
+        
                                 <h3 class="course-details__title wow fadeInUp" data-wow-delay='300ms'>{{ course.title }}</h3><!-- /.course-details__title -->
                                 <div class="course-details__text wow fadeInUp" data-wow-delay='400ms'>{{ course.summary }}</div><!-- /.course-details__text -->
+                                {% if course.overview %}
+                                <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>{{ course.overview|safe }}</div><!-- /.course-details__text -->
+                                {% else %}
                                 {% for paragraph in course.details %}
                                 <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>{{ paragraph }}</div><!-- /.course-details__text -->
                                 {% endfor %}
+                                {% endif %}
                             </div><!-- /.course-details__single -->
 
                             <div class="course-details__single course-details__single__two">
@@ -226,19 +228,46 @@
 
                             <div class="course-details__single">
                                 <h3 class="course-details__title course-details__title__two wow fadeInUp" data-wow-delay='300ms'>Fees</h3><!-- /.course-details__title -->
-                                <ul class="course-details__benefit__nav wow fadeInUp" data-wow-delay='400ms'>
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Regular Fees: {{ course.fees.regular }}</li>
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Promotion Fees: Save {{ course.fees.promotion_savings }}</li>
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Pay Only: {{ course.fees.pay_only }}</li>
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> HST ({{ course.fees.hst_rate_percent }}): ${{ course.fees.hst_amount }}</li>
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> Total Fees: ${{ course.fees.total }}</li>
-                                </ul>
+                                <div class="row g-3 wow fadeInUp" data-wow-delay='400ms'>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
+                                            <span><i class="fa fa-check-circle"></i> Regular Fees</span>
+                                            <span class="fw-semibold">{{ course.fees.regular }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
+                                            <span><i class="fa fa-check-circle"></i> Promotion Fees</span>
+                                            <span class="badge bg-success">Save {{ course.fees.promotion_savings }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
+                                            <span><i class="fa fa-check-circle"></i> Pay Only</span>
+                                            <span class="fw-semibold">{{ course.fees.pay_only }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
+                                            <span><i class="fa fa-check-circle"></i> HST ({{ course.fees.hst_rate_percent }})</span>
+                                            <span class="fw-semibold">${{ course.fees.hst_amount }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-3 bg-dark text-white">
+                                            <span><i class="fa fa-check-circle"></i> Total Fees</span>
+                                            <span class="fw-bold fs-5">${{ course.fees.total }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 {% if course.policies %}
-                                <ul class="course-details__benefit__nav wow fadeInUp" data-wow-delay='500ms'>
-                                    {% for item in course.policies %}
-                                    <li class="course-details__benefit__nav__item"> <i class="fa fa-check-circle"></i> {{ item }}</li>
-                                    {% endfor %}
-                                </ul>
+                                <div class="alert alert-warning mt-4 wow fadeInUp" data-wow-delay='500ms' role="alert">
+                                    <ul class="mb-0 ps-3">
+                                        {% for item in course.policies %}
+                                        <li>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                                 {% endif %}
                             </div><!-- /.course-details__single-->
 

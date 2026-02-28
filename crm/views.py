@@ -1,9 +1,15 @@
 import stripe
+import json
+import uuid
+from datetime import timedelta
+from urllib.parse import urlencode
+from urllib import request as urlrequest
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -12,7 +18,14 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import LeadForm, StudentRegistrationForm, LoginForm, EnrollmentRequestForm, LessonRequestForm
+from .forms import (
+    LeadForm,
+    StudentRegistrationForm,
+    LoginForm,
+    EnrollmentRequestForm,
+    LessonRequestForm,
+    BlogCommentForm,
+)
 from .models import (
     Lead,
     LeadNote,
@@ -27,156 +40,14 @@ from .models import (
     Notification,
     NotificationReceipt,
     Blog,
-    BlogCategory,
-    BlogTag,
     BlogComment,
     Testimonial,
     Course,
     CourseSession,
     Enrollment,
+    CalendarAccount,
 )
 
-COURSE_CATALOG = {
-    "mto-approved-beginner-driving-online-course": {
-        "slug": "mto-approved-beginner-driving-online-course",
-        "title": "MTO Approved Beginner Driving Online Course",
-        "session": "30 Hours Online + 10 Hours In-Car",
-        "image": "assets/getto.png",
-        "price_display": "575.00",
-        "price_label": "Per Person",
-        "enroll_package": "MTO Approved Beginner Driving Online Course",
-        "summary": (
-            "This Ministry approved online BDE course includes 30 hours of online learning and 10 hours of "
-            "one-on-one in-car training with a qualified driving instructor."
-        ),
-        "details": [
-            "During your 10 hours in-car training you will be taught defensive driving, collision avoidance, "
-            "parking maneuvers, and highway driving.",
-            "In the last in-car session, your mock road test is conducted using the same exam sheet an examiner "
-            "uses, so you understand how the marking works.",
-            "Upon successful completion of this program students will be certified online with MTO.",
-            "BDE graduates with driver licence history may be eligible for an insurance discount.",
-        ],
-        "program_includes": [
-            "30 hours of online learning",
-            "10 hours one on one in-car training",
-            "Each in-car session 60 minutes",
-            "Certified online for MTO road test and insurance discount",
-            "Free pickup and drop off from home, work or school locally (only for in car training within 10km radius of Sams driving school)",
-        ],
-        "fees": {
-            "regular": "675$ +HST",
-            "promotion_savings": "100$ +HST",
-            "pay_only": "575$ +HST",
-            "hst_rate_percent": "13%",
-            "hst_amount": "74.75",
-            "total": "649.75",
-        },
-        "policies": [
-            "No refund will be made after the first in car session or student start online homework portion (whichever comes first).",
-        ],
-        "features": [
-            {"label": "Session", "value": "40 Hours"},
-            {"label": "Lessons", "value": "10 In-Car Sessions"},
-            {"label": "Students", "value": "Online + 1-on-1"},
-        ],
-    },
-    "senior-driver-training": {
-        "slug": "senior-driver-training",
-        "title": "Senior Driver Training",
-        "session": "55 Alive + In-Vehicle Evaluation",
-        "image": "assets/senior.png",
-        "price_display": "50.00",
-        "price_label": "Per Person",
-        "enroll_package": "Senior Driver Training",
-        "summary": (
-            "Senior Drivers have come under scrutiny due to incidents that occur when physical, visual, or cognitive "
-            "changes affect driving performance."
-        ),
-        "details": [
-            "The Ministry of Transportation runs a Driver Refresher Course lasting about 2 hours prior to the written exam.",
-            "Some seniors pass the written test but can still show signs of poor cognitive skills during certain driving tasks.",
-            "Certain prescriptions can affect motor skills, especially when mixed with other drugs. Doctors may be obligated to notify the Ministry of Transportation if a patient is a threat to themselves and the public.",
-            "Driving is a privilege and each driver needs to understand what is at stake.",
-        ],
-        "g1_restrictions": [
-            "Must be accompanied by a licensed G Driver in good standing for 4 years",
-            "Cannot drive from 12 Midnight to 5:00 am",
-            "Cannot drive on any highway with a posted speed limit of 80 or higher",
-            "Zero percent blood alcohol concentration",
-            "No more passengers than working seatbelts",
-        ],
-        "program_options": [
-            {
-                "title": "55 Alive Group Program",
-                "subtitle": "5 hours in class + in-vehicle evaluation",
-                "text": (
-                    "A group program for 10 or more, including 5 hours of in-class instruction (one day or split sessions) "
-                    "and an evaluation for each participant in their own vehicle. Workbooks and a power point show are included, "
-                    "and completion includes a certificate some insurance companies may recognize."
-                ),
-            },
-            {
-                "title": "Individual Evaluation Option",
-                "subtitle": "Review laws + in-vehicle assessment",
-                "text": (
-                    "An individual can arrange an office session to review Ontario Highway Traffic Laws and then schedule an instructor "
-                    "to evaluate their driving in their own vehicle by completing several manoeuvres. This can also be certified."
-                ),
-            },
-        ],
-        "program_includes": [
-            "One hour training as per MTO requirement including all Parallel parking, Reverse parking and HWY driving if required to pass Ministry Road Test",
-        ],
-        "fees": {
-            "regular": "50$ +HST",
-            "promotion_savings": "0$ +HST",
-            "pay_only": "50$ +HST",
-            "hst_rate_percent": "13%",
-            "hst_amount": "6.50",
-            "total": "56.50",
-        },
-        "features": [
-            {"label": "Session", "value": "1 Hour + Evaluation"},
-            {"label": "Lessons", "value": "Parking + Highway (as needed)"},
-            {"label": "Students", "value": "Seniors"},
-        ],
-    },
-    "dummy-test-course": {
-        "slug": "dummy-test-course",
-        "title": "Dummy Test Course",
-        "session": "Online + In-Car",
-        "image": "assets/samslogo.png",
-        "price_display": "1.00",
-        "price_label": "Per Person",
-        "enroll_package": "Dummy Test Course",
-        "summary": "This is a dummy course for testing purposes.",
-        "details": [
-            "This course is used to test the enrollment and payment flow.",
-            "It includes a dummy session and a dummy invoice.",
-        ],
-        "program_includes": [
-            "Dummy Online Learning",
-            "Dummy In-Car Training",
-        ],
-        "fees": {
-            "regular": "1.00$ +HST",
-            "promotion_savings": "0$ +HST",
-            "pay_only": "1.00$ +HST",
-            "hst_rate_percent": "13%",
-            "hst_amount": "0.13",
-            "total": "1.13",
-        },
-        "policies": [
-            "No refunds for dummy courses.",
-        ],
-        "features": [
-            {"label": "Session", "value": "Dummy Session"},
-            {"label": "Lessons", "value": "Dummy Lessons"},
-            {"label": "Students", "value": "Testers"},
-        ],
-    },
-}
 
 
 def template_page(request, template_name):
@@ -194,7 +65,8 @@ def template_page(request, template_name):
 def index_page(request):
     home_blogs = Blog.objects.filter(is_published=True).order_by("-published_at")[:6]
     testimonials = Testimonial.objects.filter(is_published=True).order_by("display_order", "-updated_at")[:12]
-    return render(request, "index.html", {"home_blogs": home_blogs, "testimonials": testimonials})
+    courses = Course.objects.filter(active=True).exclude(slug="").order_by("display_order", "name")
+    return render(request, "index.html", {"home_blogs": home_blogs, "testimonials": testimonials, "courses": courses})
 
 
 def about_page(request):
@@ -227,28 +99,29 @@ def not_found_page(request):
 
 
 def course_page(request):
-    return render(request, "course.html")
+    courses = Course.objects.filter(active=True).exclude(slug="").order_by("display_order", "name")
+    return render(request, "course.html", {"courses": courses})
 
 
 def course_details_page(request, course_slug=None):
     if not course_slug:
-        course_slug = "mto-approved-beginner-driving-online-course"
-    course = COURSE_CATALOG.get(course_slug)
-    if not course:
-        raise Http404()
-    other_courses = [c for slug, c in COURSE_CATALOG.items() if slug != course_slug]
+        course = Course.objects.filter(active=True).exclude(slug="").order_by("display_order", "name").first()
+        if not course:
+            raise Http404()
+    else:
+        course = get_object_or_404(Course, slug=course_slug, active=True)
+
+    other_courses = Course.objects.filter(active=True).exclude(pk=course.pk).order_by("display_order", "name")[:6]
     return render(
         request,
         "course-details.html",
-        {"course": course, "course_slug": course_slug, "other_courses": other_courses},
+        {"course": course, "course_slug": course.slug, "other_courses": other_courses},
     )
 
 
 def enroll_page(request, course_slug):
-    course = COURSE_CATALOG.get(course_slug)
-    if not course:
-        raise Http404()
-    return render(request, "enroll.html", {"course": course, "course_slug": course_slug})
+    course = get_object_or_404(Course, slug=course_slug, active=True)
+    return render(request, "enroll.html", {"course": course, "course_slug": course.slug})
 
 
 def process_enrollment(request):
@@ -256,9 +129,9 @@ def process_enrollment(request):
         return HttpResponseRedirect(reverse("course_page"))
     
     course_slug = request.POST.get("course_slug")
-    course_data = COURSE_CATALOG.get(course_slug)
-    if not course_data:
+    if not course_slug:
         raise Http404()
+    course = get_object_or_404(Course, slug=course_slug, active=True)
         
     first_name = request.POST.get("first_name", "").strip()
     last_name = request.POST.get("last_name", "").strip()
@@ -297,7 +170,7 @@ def process_enrollment(request):
         name=f"{first_name} {last_name}",
         email=email,
         phone=phone,
-        package=course_data["title"],
+        package=course.enroll_package or course.title,
         preferred_location=f"{city}, {province}",
         notes=notes,
     )
@@ -309,7 +182,7 @@ def process_enrollment(request):
         email=email,
         phone=phone,
         status="new",
-        interest=course_data["title"],
+        interest=course.title,
         notes=notes,
     )
     
@@ -326,14 +199,13 @@ def process_enrollment(request):
     # This might be a bit complex if DB is empty.
     # Let's try to find or create a placeholder Course and Session.
     
-    db_course, _ = requests_get_or_create_course(course_data)
-    db_session = CourseSession.objects.filter(course=db_course, enrollment_open=True).first()
+    db_session = CourseSession.objects.filter(course=course, enrollment_open=True).first()
     if not db_session:
         db_session = CourseSession.objects.create(
-            course=db_course,
+            course=course,
             start_date=timezone.now().date(),
             location="Online/TBD",
-            delivery_mode="online" if "Online" in course_data["title"] else "in_class"
+            delivery_mode="online" if "online" in (course.session or "").lower() else "in_class"
         )
         
     enrollment = Enrollment.objects.create(
@@ -344,7 +216,10 @@ def process_enrollment(request):
     
     # Create Invoice
     import random
-    total_amount = float(course_data["fees"]["total"].replace("$", ""))
+    try:
+        total_amount = float((course.fees or {}).get("total") or course.price)
+    except Exception:
+        total_amount = float(course.price)
     
     invoice = None
     max_retries = 5
@@ -359,7 +234,7 @@ def process_enrollment(request):
                         issue_date=timezone.now().date(),
                         total_amount=total_amount,
                         status="draft",
-                        notes=f"Enrollment for {course_data['title']}"
+                        notes=f"Enrollment for {course.title}"
                     )
                 break
             except IntegrityError:
@@ -377,7 +252,7 @@ def process_enrollment(request):
             issue_date=timezone.now().date(),
             total_amount=total_amount,
             status="draft",
-            notes=f"Enrollment for {course_data['title']}"
+            notes=f"Enrollment for {course.title}"
         )
     
     payment_method = request.POST.get("payment_method", "stripe")
@@ -386,7 +261,7 @@ def process_enrollment(request):
         # Render success page
         return render(request, "enroll_success_pay_later.html", {
             "invoice": invoice, 
-            "course": course_data,
+            "course": course,
             "student_name": f"{first_name} {last_name}".strip()
         })
     
@@ -411,6 +286,15 @@ def requests_get_or_create_course(course_data):
 
 def blog_grid_right_page(request):
     blogs = Blog.objects.filter(is_published=True).order_by("-published_at")
+    q = (request.GET.get("q") or "").strip()
+    category_slug = (request.GET.get("category") or "").strip()
+    tag_slug = (request.GET.get("tag") or "").strip()
+    if q:
+        blogs = blogs.filter(Q(title__icontains=q) | Q(summary__icontains=q) | Q(content__icontains=q))
+    if category_slug:
+        blogs = blogs.filter(categories__slug=category_slug)
+    if tag_slug:
+        blogs = blogs.filter(tags__slug=tag_slug)
     latest_blogs = blogs[:3]
     categories = BlogCategory.objects.order_by("name")
     tags = BlogTag.objects.order_by("name")
@@ -422,7 +306,16 @@ def blog_grid_right_page(request):
     return render(
         request,
         "blogs.html",
-        {"blogs": blogs, "latest_blogs": latest_blogs, "categories": categories, "tags": tags, "comments": comments},
+        {
+            "blogs": blogs.distinct(),
+            "latest_blogs": latest_blogs,
+            "categories": categories,
+            "tags": tags,
+            "comments": comments,
+            "q": q,
+            "category": category_slug,
+            "tag": tag_slug,
+        },
     )
 
 
@@ -431,7 +324,62 @@ def blog_details_right_page(request, slug):
     latest_blogs = (
         Blog.objects.filter(is_published=True).exclude(pk=blog.pk).order_by("-published_at")[:3]
     )
-    return render(request, "blog-details.html", {"blog": blog, "latest_blogs": latest_blogs})
+    comments = BlogComment.objects.filter(blog=blog, is_approved=True).order_by("-created_at")
+    recent_comments = (
+        BlogComment.objects.filter(is_approved=True, blog__is_published=True)
+        .select_related("blog")
+        .order_by("-created_at")[:6]
+    )
+    comment_form = BlogCommentForm()
+    return render(
+        request,
+        "blog-details.html",
+        {
+            "blog": blog,
+            "latest_blogs": latest_blogs,
+            "comments": comments,
+            "recent_comments": recent_comments,
+            "comment_form": comment_form,
+        },
+    )
+
+
+def blog_comment_create(request, slug):
+    blog = get_object_or_404(Blog, slug=slug, is_published=True)
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("blog_details", args=[blog.slug]))
+
+    form = BlogCommentForm(request.POST)
+    if form.is_valid():
+        BlogComment.objects.create(
+            blog=blog,
+            name=form.cleaned_data["name"],
+            email=form.cleaned_data.get("email") or "",
+            body=form.cleaned_data["body"],
+            is_approved=True,
+        )
+        return HttpResponseRedirect(f"{reverse('blog_details', args=[blog.slug])}#comments")
+
+    latest_blogs = (
+        Blog.objects.filter(is_published=True).exclude(pk=blog.pk).order_by("-published_at")[:3]
+    )
+    comments = BlogComment.objects.filter(blog=blog, is_approved=True).order_by("-created_at")
+    recent_comments = (
+        BlogComment.objects.filter(is_approved=True, blog__is_published=True)
+        .select_related("blog")
+        .order_by("-created_at")[:6]
+    )
+    return render(
+        request,
+        "blog-details.html",
+        {
+            "blog": blog,
+            "latest_blogs": latest_blogs,
+            "comments": comments,
+            "recent_comments": recent_comments,
+            "comment_form": form,
+        },
+    )
 
 
 def contact_page(request):
@@ -730,14 +678,7 @@ def stripe_success(request, invoice_id):
 def stripe_cancel(request, invoice_id):
     invoice = Invoice.objects.select_related("enrollment__session__course").filter(id=invoice_id).first()
     if invoice and invoice.enrollment and invoice.enrollment.session and invoice.enrollment.session.course:
-        course_slug = None
-        course_name = invoice.enrollment.session.course.name
-        # Find slug from catalog by name (reverse lookup)
-        for slug, data in COURSE_CATALOG.items():
-            if data["title"] == course_name:
-                course_slug = slug
-                break
-        
+        course_slug = invoice.enrollment.session.course.slug
         if course_slug:
             return HttpResponseRedirect(reverse("enroll_page", args=[course_slug]))
             
@@ -928,3 +869,126 @@ def notifications_mark_all_read(request):
 
 def gallery(request):
     return render(request, "gallery.html")
+
+
+def _settings_absolute_uri(request, path):
+    site_url = getattr(settings, "SITE_URL", "") or ""
+    if site_url:
+        return f"{site_url.rstrip('/')}{path}"
+    return request.build_absolute_uri(path)
+
+
+@login_required
+def google_calendar_connect(request):
+    client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "") or ""
+    if not client_id:
+        messages.error(
+            request,
+            "Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET (or GOOGLE_OAUTH_CLIENT_SECRET_FILE).",
+        )
+        return HttpResponseRedirect("/admin/")
+
+    redirect_uri = _settings_absolute_uri(request, reverse("google_calendar_callback"))
+    state = uuid.uuid4().hex
+    request.session["google_oauth_state"] = state
+
+    auth_uri = getattr(settings, "GOOGLE_OAUTH_AUTH_URI", "") or "https://accounts.google.com/o/oauth2/auth"
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": " ".join(getattr(settings, "GOOGLE_OAUTH_SCOPES", []) or ["https://www.googleapis.com/auth/calendar"]),
+        "access_type": "offline",
+        "include_granted_scopes": "true",
+        "prompt": "consent",
+        "state": state,
+    }
+    return HttpResponseRedirect(f"{auth_uri}?{urlencode(params)}")
+
+
+@login_required
+def google_calendar_callback(request):
+    error = request.GET.get("error") or ""
+    if error:
+        messages.error(request, f"Google OAuth failed: {error}")
+        return HttpResponseRedirect("/admin/")
+
+    state = request.GET.get("state") or ""
+    if not state or state != (request.session.get("google_oauth_state") or ""):
+        return JsonResponse({"detail": "invalid_state"}, status=400)
+
+    code = request.GET.get("code") or ""
+    if not code:
+        return JsonResponse({"detail": "missing_code"}, status=400)
+
+    client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "") or ""
+    client_secret = getattr(settings, "GOOGLE_OAUTH_CLIENT_SECRET", "") or ""
+    token_uri = getattr(settings, "GOOGLE_OAUTH_TOKEN_URI", "") or "https://oauth2.googleapis.com/token"
+    if not (client_id and client_secret):
+        return JsonResponse({"detail": "oauth_not_configured"}, status=500)
+
+    redirect_uri = _settings_absolute_uri(request, reverse("google_calendar_callback"))
+    payload = urlencode(
+        {
+            "code": code,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+        }
+    ).encode("utf-8")
+
+    try:
+        token_request = urlrequest.Request(
+            token_uri,
+            data=payload,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            method="POST",
+        )
+        with urlrequest.urlopen(token_request, timeout=30) as response:
+            token_data = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        return JsonResponse({"detail": f"token_exchange_failed: {exc}"}, status=502)
+
+    access_token = token_data.get("access_token") or ""
+    refresh_token = token_data.get("refresh_token") or ""
+    expires_in = token_data.get("expires_in")
+    if not access_token:
+        return JsonResponse({"detail": "missing_access_token"}, status=502)
+
+    token_expires_at = None
+    try:
+        if expires_in is not None:
+            token_expires_at = timezone.now() + timedelta(seconds=int(expires_in))
+    except Exception:
+        token_expires_at = None
+
+    account = CalendarAccount.objects.filter(owner=request.user, provider="google").order_by("-created_at").first()
+    if account:
+        account.access_token = access_token
+        if refresh_token:
+            account.refresh_token = refresh_token
+        account.token_expires_at = token_expires_at
+        account.active = True
+        account.save(update_fields=["access_token", "refresh_token", "token_expires_at", "active"])
+    else:
+        CalendarAccount.objects.create(
+            owner=request.user,
+            provider="google",
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_expires_at=token_expires_at,
+            active=True,
+        )
+
+    messages.success(request, "Google Calendar connected.")
+    return HttpResponseRedirect("/admin/")
+
+
+@login_required
+def google_calendar_disconnect(request):
+    if request.method != "POST":
+        return JsonResponse({"detail": "method_not_allowed"}, status=405)
+    CalendarAccount.objects.filter(owner=request.user, provider="google").update(active=False)
+    messages.success(request, "Google Calendar disconnected.")
+    return JsonResponse({"ok": True})

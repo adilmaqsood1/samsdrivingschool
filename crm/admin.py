@@ -6,8 +6,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from googleapiclient.errors import HttpError
-from utils.gcalendar import get_calendar_service
+from utils.gcalendar import get_calendar_service, upsert_event
 from .models import (
     Lead,
     LeadNote,
@@ -36,12 +35,11 @@ from .models import (
     ConflictDetection,
     ReminderLog,
     CalendarFeed,
+    CalendarAccount,
     StaffProfile,
     Notification,
     NotificationReceipt,
     Blog,
-    BlogCategory,
-    BlogTag,
     BlogComment,
     Testimonial,
     Event,
@@ -178,9 +176,10 @@ class StudentAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 @admin.register(Course)
 class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("name", "course_type", "price", "active")
+    list_display = ("name", "slug", "course_type", "price", "active")
     list_filter = ("course_type", "active")
-    search_fields = ("name", "description")
+    search_fields = ("name", "slug", "summary", "description")
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(CourseSession)
@@ -236,13 +235,6 @@ class BlogAdmin(ExportCsvMixin, admin.ModelAdmin):
     search_fields = ("title", "summary", "content", "author_name")
     prepopulated_fields = {"slug": ("title",)}
     inlines = [BlogCommentInline]
-
-
-@admin.register(BlogCategory)
-class BlogCategoryAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("name", "slug", "updated_at")
-    search_fields = ("name", "slug")
-    prepopulated_fields = {"slug": ("name",)}
 
 
 # BlogTag hidden (less necessary)
@@ -410,6 +402,13 @@ class CommunicationTemplateAdmin(ExportCsvMixin, admin.ModelAdmin):
     search_fields = ("name", "subject", "body")
 
 
+@admin.register(CalendarAccount)
+class CalendarAccountAdmin(admin.ModelAdmin):
+    list_display = ("provider", "owner", "email", "active", "token_expires_at", "created_at")
+    list_filter = ("provider", "active", "created_at")
+    search_fields = ("email", "owner__username", "owner__email")
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ("title", "start", "end", "google_event_id")
@@ -418,31 +417,16 @@ class EventAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
-        tz = getattr(settings, "GOOGLE_CALENDAR_TIME_ZONE", "Asia/Karachi")
-        calendar_id = getattr(settings, "GOOGLE_CALENDAR_ID", "") or "primary"
-        body = {
-            "summary": obj.title,
-            "start": {"dateTime": obj.start.isoformat(), "timeZone": tz},
-            "end": {"dateTime": obj.end.isoformat(), "timeZone": tz},
-        }
-
         try:
-            service = get_calendar_service()
-
-            if obj.google_event_id:
-                try:
-                    service.events().update(
-                        calendarId=calendar_id, eventId=obj.google_event_id, body=body
-                    ).execute()
-                    return
-                except HttpError as e:
-                    status = getattr(getattr(e, "resp", None), "status", None)
-                    if status != 404:
-                        raise
-
-            event = service.events().insert(calendarId=calendar_id, body=body).execute()
-            google_event_id = event.get("id", "")
-            if google_event_id and google_event_id != obj.google_event_id:
+            service = get_calendar_service(request.user)
+            google_event_id = upsert_event(
+                service=service,
+                title=obj.title,
+                start=obj.start,
+                end=obj.end,
+                google_event_id=obj.google_event_id,
+            )
+            if google_event_id and google_event_id != (obj.google_event_id or ""):
                 obj.google_event_id = google_event_id
                 obj.save(update_fields=["google_event_id"])
         except Exception as e:

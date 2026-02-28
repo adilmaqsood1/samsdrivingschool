@@ -83,11 +83,11 @@
                             <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
                             <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
                         </div>
-                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+                        {% comment %} <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p> {% endcomment %}    
                     </div>
                     <ul class="topbar-one__right">
-                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
-                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com"> sdsburlington@gmail.com</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">Serving Milton & Burlington areas</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
                     </ul>
                 </div>
             </div>
@@ -114,20 +114,21 @@
         <section class="course-two course-two--page">
             <div class="container">
                 <div class="row gutter-y-30">
+                    {% for course in courses %}
                     <div class="col-md-6 col-lg-4">
                         <div class="course-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
-                            <a href="{% url 'course_details_page' 'mto-approved-beginner-driving-online-course' %}" class="course-card__image">
-                                <img src="assets/getto.png" alt="@@name">
+                            <a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="course-card__image">
+                                <img src="{% if course.image %}{{ course.image }}{% else %}assets/samslogo.png{% endif %}" alt="{{ course.title }}">
                             </a><!-- /.team-card__image -->
                             <div class="course-card__content">
                                 <div class="course-card__thumbnail">
-                                    <a class="course-card__session"> <i class="icon-training"></i> <span>30 Hours Online + 10 Hours In-Car</span></a> <!-- ./course-card__session -->
+                                    <a class="course-card__session"> <i class="icon-training"></i> <span>{{ course.session }}</span></a> <!-- ./course-card__session -->
                                     <div class="course-card__meta"><!-- ./course-card__meta -->
-                                        <h4 class="course-card__meta-price">$575</h4>
-                                        <span class="course-card__meta-class">PER PERSON</span>
+                                        <h4 class="course-card__meta-price">${{ course.price_display }}</h4>
+                                        <span class="course-card__meta-class">{{ course.price_label|upper }}</span>
                                     </div>
-                                    <h3 class="course-card__title"><a href="{% url 'course_details_page' 'mto-approved-beginner-driving-online-course' %}">MTO Approved Beginner Driving Online Course</a></h3><!-- /.course-card__title -->
-                                    <p class="course-card__designation">30 hours online learning plus 10 hours one-on-one in-car training with an insurance certificate.</p><!-- /.course-card__designation -->
+                                    <h3 class="course-card__title"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">{{ course.title }}</a></h3><!-- /.course-card__title -->
+                                    <p class="course-card__designation">{{ course.summary }}</p><!-- /.course-card__designation -->
 
                                 </div><!-- /.course-card__hover -->
 
@@ -141,77 +142,12 @@
                                             <p class="course-card__author-designation">Certified Instructor</p>
                                         </div>
                                     </div>
-                                    <a href="{% url 'course_details_page' 'mto-approved-beginner-driving-online-course' %}" class="course-card__bottom-btns"><i class="icon-arrow"></i></a>
+                                    <a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="course-card__bottom-btns"><i class="icon-arrow"></i></a>
                                 </div>
                             </div><!-- /.course-card__content -->
                         </div><!-- /.course-card -->
                     </div><!-- /.col-md-6 col-lg-4 -->
-
-                    <div class="col-md-6 col-lg-4">
-                        <div class="course-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
-                            <a href="{% url 'course_details_page' 'senior-driver-training' %}" class="course-card__image">
-                                <img src="assets/senior.png" alt="@@name">
-                            </a><!-- /.team-card__image -->
-                            <div class="course-card__content">
-                                <div class="course-card__thumbnail">
-                                    <a class="course-card__session"> <i class="icon-training"></i> <span>55 Alive + In-Vehicle Evaluation</span></a> <!-- ./course-card__session -->
-                                    <div class="course-card__meta"><!-- ./course-card__meta -->
-                                        <h4 class="course-card__meta-price">$50</h4>
-                                        <span class="course-card__meta-class">PER PERSON</span>
-                                    </div>
-                                    <h3 class="course-card__title"><a href="{% url 'course_details_page' 'senior-driver-training' %}">Senior Driver Training</a></h3><!-- /.course-card__title -->
-                                    <p class="course-card__designation">Refresher options including the 55 Alive group program and individual in-vehicle evaluations for seniors.</p><!-- /.course-card__designation -->
-
-                                </div><!-- /.course-card__hover -->
-
-                                <div class="course-card__bottom">
-                                    <div class="course-card__author">
-                                        <div class="course-card__author-image">
-                                            <img src="assets/samslogo.png" alt="course-card__author-image">
-                                        </div>
-                                        <div class="course-card__author-content">
-                                            <h5 class="course-card__author-name"><a href="#">SDS Team</a></h5>
-                                            <p class="course-card__author-designation">Certified Instructor</p>
-                                        </div>
-                                    </div>
-                                    <a href="{% url 'course_details_page' 'senior-driver-training' %}" class="course-card__bottom-btns"><i class="icon-arrow"></i></a>
-                                </div>
-                            </div><!-- /.course-card__content -->
-                        </div><!-- /.course-card -->
-                    </div><!-- /.col-md-6 col-lg-4 -->
-
-                    <div class="col-md-6 col-lg-4">
-                        <div class="course-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
-                            <a href="{% url 'course_details_page' 'dummy-test-course' %}" class="course-card__image">
-                                <img src="assets/samslogo.png" alt="Dummy Test Course">
-                            </a><!-- /.team-card__image -->
-                            <div class="course-card__content">
-                                <div class="course-card__thumbnail">
-                                    <a class="course-card__session"> <i class="icon-training"></i> <span>Online + In-Car</span></a> <!-- ./course-card__session -->
-                                    <div class="course-card__meta"><!-- ./course-card__meta -->
-                                        <h4 class="course-card__meta-price">$1</h4>
-                                        <span class="course-card__meta-class">PER PERSON</span>
-                                    </div>
-                                    <h3 class="course-card__title"><a href="{% url 'course_details_page' 'dummy-test-course' %}">Dummy Test Course</a></h3><!-- /.course-card__title -->
-                                    <p class="course-card__designation">This is a dummy course for testing purposes.</p><!-- /.course-card__designation -->
-
-                                </div><!-- /.course-card__hover -->
-
-                                <div class="course-card__bottom">
-                                    <div class="course-card__author">
-                                        <div class="course-card__author-image">
-                                            <img src="assets/samslogo.png" alt="course-card__author-image">
-                                        </div>
-                                        <div class="course-card__author-content">
-                                            <h5 class="course-card__author-name"><a href="#">SDS Team</a></h5>
-                                            <p class="course-card__author-designation">Certified Instructor</p>
-                                        </div>
-                                    </div>
-                                    <a href="{% url 'course_details_page' 'dummy-test-course' %}" class="course-card__bottom-btns"><i class="icon-arrow"></i></a>
-                                </div>
-                            </div><!-- /.course-card__content -->
-                        </div><!-- /.course-card -->
-                    </div><!-- /.col-md-6 col-lg-4 -->
+                    {% endfor %}
 
                 </div><!-- /.row -->
             </div><!-- /.container -->

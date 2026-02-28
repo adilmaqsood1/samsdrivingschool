@@ -36,3 +36,9 @@ class LessonRequestForm(forms.Form):
     preferred_date = forms.DateField(required=False)
     preferred_time = forms.CharField(max_length=100, required=False)
     notes = forms.CharField(required=False, widget=forms.Textarea)
+
+
+class BlogCommentForm(forms.Form):
+    name = forms.CharField(max_length=120)
+    email = forms.EmailField(required=False)
+    body = forms.CharField(widget=forms.Textarea)

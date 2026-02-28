@@ -1,5 +1,6 @@
 Django>=4.2,<5.0
 django-jet-reboot
+django-ckeditor>=6.7,<7.0
 stripe
 APScheduler
 whitenoise>=6.6,<7.0

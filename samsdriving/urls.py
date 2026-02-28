@@ -9,6 +9,7 @@ urlpatterns = [
     path("jet/", include(("jet.urls", "jet"), namespace="jet")),
     path("jet/dashboard/", include(("jet.dashboard.urls", "jet-dashboard"), namespace="jet-dashboard")),
     path("admin/", admin.site.urls),
+    path("ckeditor/", include("ckeditor_uploader.urls")),
     path("crm/", include("crm.urls")),
     path("", crm_views.index_page, name="home"),
     path("index/", crm_views.index_page, name="index_page"),
@@ -24,6 +25,7 @@ urlpatterns = [
     path("course-details/<slug:course_slug>/", crm_views.course_details_page, name="course_details_page"),
     path("blogs/", crm_views.blog_grid_right_page, name="blog_page"),
     path("blogs/<slug:slug>/", crm_views.blog_details_right_page, name="blog_details"),
+    path("blogs/<slug:slug>/comment/", crm_views.blog_comment_create, name="blog_comment_create"),
     path("contact/", crm_views.contact_page, name="contact_page"),
 ]
 

@@ -85,11 +85,11 @@
 	                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
 	                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
 	                        </div>
-	                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+	                        {% comment %} <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p> {% endcomment %}
 	                    </div>
 	                    <ul class="topbar-one__right">
-	                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
-	                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a></li>
+	                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">Serving Milton & Burlington areas</a></li>
+	                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
 	                    </ul>
 	                </div>
 	            </div>
@@ -329,42 +329,26 @@
 	                    </div>
 	                </div>
 	                <div class="row gutter-y-30">
+	                    {% for course in courses %}
 	                    <div class="col-md-6 col-lg-4">
-	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='000ms'>
+	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='{% if forloop.counter0 == 0 %}000ms{% elif forloop.counter0 == 1 %}400ms{% else %}000ms{% endif %}'>
 
 	                            <div class="service-card__image">
-	                                <img src="assets/cousre.png" alt="Instructor Training">
+	                                <img src="{% if course.image %}{{ course.image }}{% else %}assets/cousre.png{% endif %}" alt="{{ course.title }}">
 	                            </div><!-- /.blog-card__image -->
 
 	                            <div class="service-card__content">
-	                                <h3 class="service-card__title"><a href="{% url 'course_page' %}">MTO Approved Beginner Driving Online Course</a></h3>
-	                                <p class="service-card__text">30 hours online learning plus 10 hours one-on-one in-car training with an insurance certificate.</p><!-- /.blog-card-two__text -->
+	                                <h3 class="service-card__title"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">{{ course.title }}</a></h3>
+	                                <p class="service-card__text">{{ course.summary }} <br><strong>${{ course.price_display }}</strong> {{ course.price_label }}</p><!-- /.blog-card-two__text -->
 	                            </div><!-- /.blog-card__content -->
 
 	                            <div class="service-card__bth">
-	                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
+	                                <a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
 	                            </div>
 
 	                        </div><!-- /.blog-card -->
 	                    </div><!-- /.col-md-6 col-lg-4 -->
-	                    <div class="col-md-6 col-lg-4">
-	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='400ms'>
-
-	                            <div class="service-card__image">
-	                                <img src="assets/senior.png" alt="Driving License">
-	                            </div><!-- /.blog-card__image -->
-
-	                            <div class="service-card__content">
-	                                <h3 class="service-card__title"><a href="{% url 'course_page' %}">Senior Driver Training</a></h3>
-	                                <p class="service-card__text">Refresher courses and evaluations to build confidence and stay safe on Ontario roads.</p><!-- /.blog-card-two__text -->
-	                            </div><!-- /.blog-card__content -->
-
-	                            <div class="service-card__bth">
-	                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
-	                            </div>
-
-	                        </div><!-- /.blog-card -->
-	                    </div><!-- /.col-md-6 col-lg-4 -->
+	                    {% endfor %}
 	                </div><!-- /.row -->
 	            </div><!-- /.container -->
 	        </section><!-- /.service-one -->
@@ -770,7 +754,7 @@
 	                                        <div class="experience-one__left__content__item  wow fadeInUp" data-wow-delay='500ms' style="background-image: url(assets/images/resources/exprince-1-1.jpg);">
 	                                            <div class="funfact-one__content">
 	                                                <h3 class="funfact-one__count">
-	                                                    <span class="count-text" data-stop="40" data-speed="2500"></span>
+	                                                    <span class="count-text" data-stop="20" data-speed="2500"></span>
 	                                                    <span class="funfact-one__count__pluse">+</span>
 	                                                </h3>
 	                                                <span class="funfact-one__content__text">Year <br>
@@ -983,7 +967,7 @@
 	                                <i class="icon-right-arrow sec-title__img"></i>
 	                            </h6><!-- /.sec-title__tagline -->
 
-	                            <h3 class="sec-title__title">Why You Should Choose Our <br> Drivschol? </h3><!-- /.sec-title__title -->
+	                            <h3 class="sec-title__title">Why You Should Choose Our <br> Driving School? </h3><!-- /.sec-title__title -->
 	                        </div><!-- /.sec-title -->
 	                    </div><!-- /.col-md-6 -->
 	                    <div class="col-md-6">
@@ -1013,7 +997,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-trust-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Trusted Platform</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">99% Pass Rate</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -1021,7 +1005,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-certificate-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Provide Certificate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Insurance Certificate</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                    </div><!-- /.row -->
@@ -1042,11 +1026,11 @@
 
 	                                <h6 class="sec-title__tagline">
 	                                    <i class="icon-left-arrow sec-title__img"></i>
-	                                    Contact with Us
+	                                    Contact Us
 	                                    <i class="icon-right-arrow sec-title__img"></i>
 	                                </h6><!-- /.sec-title__tagline -->
 
-	                                <h3 class="sec-title__title">Feel Free to Write us</h3><!-- /.sec-title__title -->
+	                                <h3 class="sec-title__title">Get in Touch</h3><!-- /.sec-title__title -->
 	                            </div><!-- /.sec-title -->
 	                            <div class="form-one__group  wow fadeInUp" data-wow-delay='500ms'>
 	                                <div class="form-one__control ">
@@ -1130,7 +1114,7 @@
 	                                <div class="blog-card__date">
 	                                    <h2 class="blog-card__date__month">{{ blog.published_at|date:"d" }}</h2>
 	                                    <span class="blog-card__date__year">{{ blog.published_at|date:"F Y" }}</span>
-	                                    <img class="date__shape" src="{% static 'assets/images/shapes/date.png' %}" alt>
+	                                    <img class="date__shape" src="{% static 'images/date.png' %}" alt>
 	                                </div>
 	                            </div><!-- /.blog-card__image -->
 

@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Lead(models.Model):
@@ -138,16 +139,51 @@ class Course(models.Model):
         ("refresher", "Refresher"),
     ]
     name = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
+    slug = models.SlugField(max_length=180, unique=True, blank=True)
+    image = models.CharField(max_length=255, blank=True)
+    summary = models.TextField(blank=True)
+    description = RichTextUploadingField(blank=True)
+    overview = RichTextUploadingField(blank=True)
+    session = models.CharField(max_length=200, blank=True)
     course_type = models.CharField(max_length=30, choices=COURSE_TYPES, default="bde")
     hours_theory = models.PositiveIntegerField(default=0)
     hours_homework = models.PositiveIntegerField(default=0)
     hours_incar = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    price_label = models.CharField(max_length=50, blank=True, default="Per Person")
+    enroll_package = models.CharField(max_length=200, blank=True)
+    details = models.JSONField(default=list, blank=True)
+    program_includes = models.JSONField(default=list, blank=True)
+    program_options = models.JSONField(default=list, blank=True)
+    g1_restrictions = models.JSONField(default=list, blank=True)
+    fees = models.JSONField(default=dict, blank=True)
+    policies = models.JSONField(default=list, blank=True)
+    features = models.JSONField(default=list, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def title(self):
+        return self.name
+
+    @property
+    def price_display(self):
+        return f"{self.price:.2f}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)[:170] or uuid.uuid4().hex[:12]
+            candidate = base_slug
+            suffix = 2
+            while Course.objects.exclude(pk=self.pk).filter(slug=candidate).exists():
+                suffix_str = f"-{suffix}"
+                candidate = f"{base_slug[: (180 - len(suffix_str))]}{suffix_str}"
+                suffix += 1
+            self.slug = candidate
+        super().save(*args, **kwargs)
 
 
 class CourseModule(models.Model):
@@ -647,6 +683,25 @@ class Event(models.Model):
     google_event_id = models.CharField(max_length=255, blank=True, null=True)
 
 
+class CalendarAccount(models.Model):
+    PROVIDER_CHOICES = [
+        ("google", "Google"),
+        ("outlook", "Outlook"),
+    ]
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="calendar_accounts")
+    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
+    email = models.EmailField(blank=True)
+    access_token = models.TextField(blank=True)
+    refresh_token = models.TextField(blank=True)
+    token_expires_at = models.DateTimeField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        label = self.email or self.owner.get_username()
+        return f"{self.provider} {label}".strip()
+
+
 class CalendarFeed(models.Model):
     FEED_CHOICES = [
         ("student", "Student"),
@@ -677,59 +732,11 @@ class StaffProfile(models.Model):
     def __str__(self):
         return f"{self.user.get_username()} {self.role}"
 
-
-class BlogCategory(models.Model):
-    name = models.CharField(max_length=120, unique=True)
-    slug = models.SlugField(max_length=140, unique=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            base_slug = slugify(self.name) or "category"
-            candidate = base_slug
-            counter = 1
-            # Loop safely to avoid infinite recursion if db is locked or other issues
-            while BlogCategory.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
-                counter += 1
-                candidate = f"{base_slug}-{counter}"
-                if counter > 1000: # Circuit breaker
-                    break 
-            self.slug = candidate
-        super().save(*args, **kwargs)
-
-
-class BlogTag(models.Model):
-    name = models.CharField(max_length=80, unique=True)
-    slug = models.SlugField(max_length=120, unique=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            base_slug = slugify(self.name) or "tag"
-            candidate = base_slug
-            counter = 1
-            while BlogTag.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
-                counter += 1
-                candidate = f"{base_slug}-{counter}"
-            self.slug = candidate
-        super().save(*args, **kwargs)
-
-
 class Blog(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
-    categories = models.ManyToManyField("BlogCategory", blank=True, related_name="blogs")
-    tags = models.ManyToManyField("BlogTag", blank=True, related_name="blogs")
-    summary = models.TextField(blank=True)
-    content = models.TextField()
+    summary = RichTextUploadingField(blank=True)
+    content = RichTextUploadingField(blank=True)
     author_name = models.CharField(max_length=120, blank=True)
     author_title = models.CharField(max_length=120, blank=True)
     cover_image = models.ImageField(upload_to="blog_covers/", blank=True)

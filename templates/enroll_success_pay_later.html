@@ -15,33 +15,64 @@
     </div>
 </section>
 
-<section class="enrollment-success" style="padding: 120px 0;">
+<section class="enrollment-success" style="padding: 110px 0;">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
-                <div class="enrollment-success__content text-center">
-                    <div class="icon-box" style="margin-bottom: 30px;">
-                        <i class="fas fa-check-circle" style="font-size: 80px; color: #28a745;"></i>
-                    </div>
-                    <h3 class="enrollment-success__title" style="margin-bottom: 20px;">Thank You, {{ student_name }}!</h3>
-                    <p class="enrollment-success__text" style="font-size: 18px; margin-bottom: 30px;">
-                        Your enrollment for <strong>{{ course.title }}</strong> has been received.
-                    </p>
-                    
-                    <div class="enrollment-details" style="background-color: #f9f9f9; padding: 30px; border-radius: 8px; text-align: left; margin-bottom: 30px;">
-                        <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Payment Details</h4>
-                        <p><strong>Invoice Number:</strong> {{ invoice.number }}</p>
-                        <p><strong>Amount Due:</strong> ${{ invoice.total_amount|floatformat:2 }}</p>
-                        <p><strong>Payment Status:</strong> Pay Later / Pay in Person</p>
-                        
-                        <div class="alert alert-info" style="margin-top: 20px;">
-                            <p>Please visit our office to complete your payment or contact us to arrange an alternative payment method.</p>
-                            <p><strong>Office Address:</strong> 123 Driving School Lane, City, Province</p>
-                            <p><strong>Phone:</strong> (555) 123-4567</p>
+                <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+                    <div class="card-body p-0">
+                        <div class="p-4 p-md-5 text-center" style="background: linear-gradient(135deg, rgba(111,190,68,0.12), rgba(111,190,68,0.02));">
+                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 92px; height: 92px; border-radius: 50%; background: rgba(40,167,69,0.12); margin-bottom: 18px;">
+                                <i class="fas fa-check-circle" style="font-size: 54px; color: #28a745;"></i>
+                            </div>
+                            <h3 class="enrollment-success__title" style="margin-bottom: 10px;">Thank You, {{ student_name }}!</h3>
+                            <p class="enrollment-success__text" style="font-size: 18px; margin: 0;">
+                                Your enrollment for <strong>{{ course.title }}</strong> has been received.
+                            </p>
+                        </div>
+
+                        <div class="p-4 p-md-5">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                <h4 class="mb-0" style="font-size: 20px;">Payment Details</h4>
+                                <span class="badge bg-warning text-dark" style="padding: 8px 12px; border-radius: 999px;">Pay Later</span>
+                            </div>
+
+                            <div class="border rounded-3 p-3 p-md-4" style="background-color: #f9f9f9;">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-muted" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;">Invoice Number</div>
+                                        <div class="fw-semibold" style="font-size: 16px;">{{ invoice.number }}</div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-muted" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;">Amount Due</div>
+                                        <div class="fw-bold" style="font-size: 18px;">${{ invoice.total_amount|floatformat:2 }}</div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="text-muted" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;">Payment Status</div>
+                                        <div class="fw-semibold" style="font-size: 16px;">Pay Later / Pay in Person</div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mt-4 mb-0 d-flex align-items-start gap-3" role="alert" style="border-radius: 12px;">
+                                    <div class="flex-shrink-0" style="font-size: 22px; line-height: 1;">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold" style="font-size: 16px; margin-bottom: 4px;">Ready to Continue?</div>
+                                        <div style="font-size: 14px;">Call <a href="tel:+16478891708" class="fw-semibold" style="text-decoration: underline;">+1 (647) 889-1708</a> to Confirm Payment &amp; Lesson Time</div>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <a href="tel:+16478891708" class="drivschol-btn drivschol-btn--base2" style="padding: 10px 16px; white-space: nowrap;">Call Now</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                                <a href="{% url 'index_page' %}" class="drivschol-btn drivschol-btn--base">Return to Home</a>
+                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">View Courses</a>
+                            </div>
                         </div>
                     </div>
-                    
-                    <a href="{% url 'index_page' %}" class="drivschol-btn drivschol-btn--base">Return to Home</a>
                 </div>
             </div>
         </div>

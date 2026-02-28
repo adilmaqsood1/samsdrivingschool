@@ -84,11 +84,11 @@
                             <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
                             <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
                         </div>
-                        <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p>
+                        {% comment %} <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p> {% endcomment %}
                     </div>
                     <ul class="topbar-one__right">
-                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
-                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:sdsburlington@gmail.com"> sdsburlington@gmail.com</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">Serving Milton & Burlington areas</a></li>
+                        <li class="topbar-one__right-text"><i class="icon-envelope" aria-hidden="true"></i><a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
                     </ul>
                 </div>
             </div>
@@ -123,14 +123,12 @@
                                     <div class="blog-card__image-item2">
                                         {% if blog.cover_image %}
                                         <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}">
-                                        {% else %}
-                                        <img src="{% static 'assets/images/blog/blog-l-1-4.jpg' %}" alt="{{ blog.title }}">
                                         {% endif %}
                                     </div>
                                     <div class="blog-card__date">
                                         <h2 class="blog-card__date__month">{{ blog.published_at|date:"d" }}</h2>
                                         <span class="blog-card__date__year">{{ blog.published_at|date:"F Y" }}</span>
-                                        <img class="date__shape" src="{% static 'assets/images/shapes/date.png' %}" alt>
+                                        <img class="date__shape" src="{% static '/images/date.png' %}" alt>
                                     </div>
                                 </div><!-- /.blog-card__image -->
 
@@ -140,74 +138,49 @@
                                     </ul>
 
                                     <h3 class="blog-card__title">{{ blog.title }}</h3>
-                                    <p class="blog-card-two__text">{{ blog.content }}</p>
+                                    {% if blog.summary %}
+                                    <div class="blog-card-two__text">{{ blog.summary|safe }}</div>
+                                    {% endif %}
+                                    <div class="blog-card-two__text">{{ blog.content|safe }}</div>
                                 </div><!-- /.blog-card-two__content -->
 
                             </div><!-- /.blog-card -->
 
-                            <div class="blog-details__meta">
-                                <div class="blog-details__tags">
-                                    <h4 class="blog-details__tags__title">Post In: </h4><!-- /.blog-details__tags__title -->
-                                    <div class="sidebar__tags">
-                                        <a href="#">Driving</a>
-                                        <a href="#">Development</a>
-                                    </div><!-- /.sidebar__projects -->
-                                </div><!-- /.blog-details__tags -->
-
-                                <div class="blog-details__tags">
-                                    <h4 class="blog-details__tags__title">Tags: </h4><!-- /.blog-details__tags__title -->
-                                    <div class="sidebar__tags2">
-                                        <a href="#">Safty</a> <span> , </span> <a href="#">Learning</a>
-                                    </div><!-- /.sidebar__projects -->
-                                </div><!-- /.blog-details__tags -->
-                            </div><!-- /.blog-details__meta -->
-
                         </div><!-- /.blog-details -->
 
-                        <div class="comments-one">
-                            <h3 class="comments-one__title">2 comments</h3><!-- /.comments-one__title -->
+                        <div class="comments-one" id="comments">
+                            <h3 class="comments-one__title">{{ comments|length }} comments</h3><!-- /.comments-one__title -->
                             <ul class="list-unstyled comments-one__list">
+                                {% for comment in comments %}
                                 <li class="comments-one__card">
-                                    <div class="comments-one__card__image">
-                                        <img src="assets/images/blog/blog-comment-1-1.jpg" alt="">
-                                    </div><!-- /.comments-one__card__image -->
                                     <div class="comments-one__card__content">
-                                        <h3 class="comments-one__card__title">David Shon</h3><!-- /.comments-one__card__title -->
-                                        <p class="comments-one__card__text">Nam vel lacus eu nisl bibendum accumsan vitae vitae nibh. Nam nec eros id magna hendrerit sagittis. Nullam sed mi non odio feugiat volutpat sit amet nec elit.
-                                        </p><!-- /.comments-one__card__text -->
-                                        <div class="comments-one__card__btn">
-                                            <a href="#" class="drivschol-btn comments-one__card__reply"><span>Reply</span></a>
-                                        </div><!-- /.comments-one__card__btn -->
+                                        <h3 class="comments-one__card__title">{{ comment.name }}</h3><!-- /.comments-one__card__title -->
+                                        <p class="comments-one__card__text">{{ comment.body }}</p><!-- /.comments-one__card__text -->
                                     </div><!-- /.comments-one__card__content -->
                                 </li><!-- /.comments-one__card -->
+                                {% empty %}
                                 <li class="comments-one__card">
-                                    <div class="comments-one__card__image">
-                                        <img src="assets/images/blog/blog-comment-1-2.jpg" alt="">
-                                    </div><!-- /.comments-one__card__image -->
                                     <div class="comments-one__card__content">
-                                        <h3 class="comments-one__card__title">Jhon Watchson</h3><!-- /.comments-one__card__title -->
-                                        <p class="comments-one__card__text">Nam vel lacus eu nisl bibendum accumsan vitae vitae nibh. Nam nec eros id magna hendrerit sagittis. Nullam sed mi non odio feugiat volutpat sit amet nec elit.
-                                        </p><!-- /.comments-one__card__text -->
-                                        <div class="comments-one__card__btn">
-                                            <a href="#" class="drivschol-btn comments-one__card__reply"><span>Reply</span></a>
-                                        </div><!-- /.comments-one__card__btn -->
+                                        <p class="comments-one__card__text">No comments yet.</p><!-- /.comments-one__card__text -->
                                     </div><!-- /.comments-one__card__content -->
                                 </li><!-- /.comments-one__card -->
+                                {% endfor %}
                             </ul><!-- /.list-unstyled comments-one__list -->
                         </div><!-- /.comments-one -->
 
                         <div class="comments-form">
                             <h3 class="comments-form__title">Leave A Comments</h3><!-- /.comments-form__title -->
-                            <form class="comments-form__form contact-form-validated form-one">
+                            <form action="{% url 'blog_comment_create' slug=blog.slug %}" method="post" class="comments-form__form form-one">
+                                {% csrf_token %}
                                 <div class="form-one__group">
                                     <div class="form-one__control">
-                                        <input type="text" name="name" placeholder="Your name">
+                                        <input type="text" name="name" placeholder="Your name" value="{{ comment_form.name.value|default:'' }}" required>
                                     </div><!-- /.form-one__control -->
                                     <div class="form-one__control">
-                                        <input type="email" name="email" placeholder="Email address">
+                                        <input type="email" name="email" placeholder="Email address" value="{{ comment_form.email.value|default:'' }}">
                                     </div><!-- /.form-one__control -->
                                     <div class="form-one__control form-one__control__full">
-                                        <textarea name="message" placeholder="Write  a message"></textarea><!-- /# -->
+                                        <textarea name="body" placeholder="Write  a message" required>{{ comment_form.body.value|default:'' }}</textarea><!-- /# -->
                                     </div><!-- /.form-one__control -->
                                     <div class="form-one__control form-one__control__full">
                                         <button type="submit" class="drivschol-btn drivschol-btn--base2"><span>Submit A Comments</span></button>
@@ -222,11 +195,11 @@
                             <aside class="widget-area">
 
                                 <div class="sidebar__single--search wow fadeInUp" data-wow-delay='300ms'>
-                                    <form action="#" class="sidebar__search">
+                                    <form action="{% url 'blog_page' %}" method="get" class="sidebar__search">
                                         <button type="submit" aria-label="search submit">
                                             <span><i class="icon-search"></i></span>
                                         </button>
-                                        <input type="text" placeholder="Type Here">
+                                        <input type="text" name="q" placeholder="Type Here">
                                     </form><!-- /.sidebar__search -->
                                 </div><!-- /.sidebar__single -->
 
@@ -238,8 +211,6 @@
                                             <div class="sidebar__posts__image">
                                                 {% if post.cover_image %}
                                                 <img src="{{ post.cover_image.url }}" alt="{{ post.title }}">
-                                                {% else %}
-                                                <img src="{% static 'assets/images/blog/lp-1-1.jpg' %}" alt="{{ post.title }}">
                                                 {% endif %}
                                             </div>
                                             <div class="sidebar__posts__content">
@@ -258,53 +229,23 @@
                                 </div><!-- /.sidebar__single -->
 
                                 <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
-                                    <h4 class="sidebar__title">Categories</h4><!-- /.sidebar__title -->
-                                    <ul class="sidebar__categories list-unstyled">
-                                        <li class="sidebar__categories__item"><a href="#">Web Development</a></li>
-                                        <li class="sidebar__categories__item"><a href="#">Social Marketing</a></li>
-                                        <li class="sidebar__categories__item"><a href="#">Technology</a></li>
-                                        <li class="sidebar__categories__item"><a href="#">Business & Finance</a></li>
-                                        <li class="sidebar__categories__item"><a href="#">Digital Solution</a></li>
-                                    </ul><!-- /.sidebar__categories list-unstyled -->
-                                </div><!-- /.sidebar__single -->
-
-                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
-                                    <h4 class="sidebar__title">Tags</h4><!-- /.sidebar__title -->
-                                    <div class="sidebar__tags">
-                                        <a class="sidebar__tag__item" href="#">Marketing</a>
-                                        <a class="sidebar__tag__item" href="#">Development</a>
-                                        <a class="sidebar__tag__item" href="#">Digital</a>
-                                        <a class="sidebar__tag__item" href="#">Design</a>
-                                    </div><!-- /.sidebar__tags -->
-                                </div><!-- /.sidebar__single -->
-
-                                <div class="sidebar__single wow fadeInUp" data-wow-delay='300ms'>
                                     <h4 class="sidebar__title">Comments</h4><!-- /.sidebar__title -->
                                     <ul class="sidebar__comments list-unstyled">
+                                        {% for comment in recent_comments %}
                                         <li class="sidebar__comments__item">
                                             <div class="sidebar__comments__icon">
                                                 <i class="icon-chat-1"></i>
                                             </div><!-- /.sidebar__comments__icon -->
-                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
+                                            <h6 class="sidebar__comments__title"><a href="{% url 'blog_details' slug=comment.blog.slug %}#comments">{{ comment.body|truncatewords:10 }}</a></h6><!-- /.sidebar__comments__title -->
                                         </li>
+                                        {% empty %}
                                         <li class="sidebar__comments__item">
                                             <div class="sidebar__comments__icon">
                                                 <i class="icon-chat-1"></i>
                                             </div><!-- /.sidebar__comments__icon -->
-                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
+                                            <h6 class="sidebar__comments__title"><span>No comments yet.</span></h6><!-- /.sidebar__comments__title -->
                                         </li>
-                                        <li class="sidebar__comments__item">
-                                            <div class="sidebar__comments__icon">
-                                                <i class="icon-chat-1"></i>
-                                            </div><!-- /.sidebar__comments__icon -->
-                                            <h6 class="sidebar__comments__title"><a href="#">Watson Doe on Template: variations of Lorem available, but</a></h6><!-- /.sidebar__comments__title -->
-                                        </li>
-                                        <li class="sidebar__comments__item">
-                                            <div class="sidebar__comments__icon">
-                                                <i class="icon-chat-1"></i>
-                                            </div><!-- /.sidebar__comments__icon -->
-                                            <h6 class="sidebar__comments__title"><a href="#">There are many variations of Lorem available Here</a></h6><!-- /.sidebar__comments__title -->
-                                        </li>
+                                        {% endfor %}
                                     </ul><!-- /.sidebar__comments list-unstyled -->
                                 </div><!-- /.sidebar__single -->
 

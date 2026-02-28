@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 import dj_database_url
 import pymysql
@@ -23,6 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ckeditor",
+    "ckeditor_uploader",
     "crm",
 ]
 
@@ -57,8 +60,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "samsdriving.wsgi.application"
 
-if not DEBUG:
-    DATABASES = {
+# if not DEBUG:
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'samsdriving_sams',        # your database name
@@ -67,15 +70,15 @@ if not DEBUG:
             'HOST': 'localhost',
             'PORT': '3306',
         }
-    }
+}
 
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -99,6 +102,8 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+CKEDITOR_UPLOAD_PATH = "ckeditor/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -139,7 +144,22 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-GOOGLE_CALENDAR_EMBED_URL = "https://calendar.google.com/calendar/embed?src=7b9fe324b71fedec82b15990f4e64b212cc34942ed3910a2ef799f83a2b1af97%40group.calendar.google.com&ctz=Asia%2FKarachi"
-GOOGLE_SERVICE_ACCOUNT_FILE = "drive-487316-d8f1315e9274.json"
-GOOGLE_CALENDAR_ID = "7b9fe324b71fedec82b15990f4e64b212cc34942ed3910a2ef799f83a2b1af97@group.calendar.google.com"
-GOOGLE_CALENDAR_TIME_ZONE = "Asia/Karachi"
+
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
+GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
+GOOGLE_OAUTH_AUTH_URI = os.environ.get("GOOGLE_OAUTH_AUTH_URI", "https://accounts.google.com/o/oauth2/auth")
+GOOGLE_OAUTH_TOKEN_URI = os.environ.get("GOOGLE_OAUTH_TOKEN_URI", "https://oauth2.googleapis.com/token")
+GOOGLE_OAUTH_SCOPES = (os.environ.get("GOOGLE_OAUTH_SCOPES", "") or "https://www.googleapis.com/auth/calendar").split()
+GOOGLE_OAUTH_CLIENT_SECRET_FILE = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET_FILE", "")
+
+if GOOGLE_OAUTH_CLIENT_SECRET_FILE and (not GOOGLE_OAUTH_CLIENT_ID or not GOOGLE_OAUTH_CLIENT_SECRET):
+    _secret_file_path = GOOGLE_OAUTH_CLIENT_SECRET_FILE.strip().strip("`").strip().strip('"').strip("'")
+    try:
+        if os.path.exists(_secret_file_path):
+            with open(_secret_file_path, "r", encoding="utf-8") as f:
+                _raw = json.load(f)
+            _web = _raw.get("web") or _raw.get("installed") or {}
+            GOOGLE_OAUTH_CLIENT_ID = GOOGLE_OAUTH_CLIENT_ID or (_web.get("client_id") or "")
+            GOOGLE_OAUTH_CLIENT_SECRET = GOOGLE_OAUTH_CLIENT_SECRET or (_web.get("client_secret") or "")
+    except Exception:
+        pass
