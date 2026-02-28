@@ -49,20 +49,61 @@ def get_dashboard_data():
     # Charts Helper
     def prepare_chart(qs, label_field, value_field, count_field="id", limit=None, is_date=False, date_format="%b %Y"):
         if is_date:
-            rows = qs.annotate(key=label_field).values("key").annotate(value=value_field).order_by("key")
-        else:
-            rows = qs.values(label_field).annotate(value=value_field).order_by(f"-value")
-            if limit:
-                rows = rows[:limit]
-        
+            try:
+                rows = qs.annotate(key=label_field).values("key").annotate(value=value_field).order_by("key")
+                labels = []
+                values = []
+                for row in rows:
+                    key = row["key"]
+                    if key:
+                        labels.append(key.strftime(date_format))
+                        values.append(float(row["value"] or 0))
+                return json.dumps(labels), json.dumps(values)
+            except Exception:
+                date_expr = getattr(label_field, "source_expressions", None)
+                date_field = None
+                if date_expr and len(date_expr) > 0:
+                    date_field = getattr(date_expr[0], "name", None)
+                is_month = isinstance(label_field, TruncMonth)
+                items = list(qs.values_list(date_field))
+                bucket = {}
+                for it in items:
+                    dt = it[0]
+                    if not dt:
+                        continue
+                    dt_local = timezone.localtime(dt) if timezone.is_aware(dt) else dt
+                    if is_month:
+                        k = dt_local.replace(day=1, hour=0, minute=0, second=0, microsecond=0).date()
+                    else:
+                        k = dt_local.date()
+                    bucket[k] = bucket.get(k, 0) + 1 if isinstance(value_field, Count) else bucket.get(k, 0)
+                if isinstance(value_field, Sum):
+                    val_expr = getattr(value_field, "source_expressions", None)
+                    val_field = None
+                    if val_expr and len(val_expr) > 0:
+                        val_field = getattr(val_expr[0], "name", None)
+                    items = list(qs.values_list(date_field, val_field))
+                    bucket = {}
+                    for dt, amt in items:
+                        if not dt:
+                            continue
+                        dt_local = timezone.localtime(dt) if timezone.is_aware(dt) else dt
+                        if is_month:
+                            k = dt_local.replace(day=1, hour=0, minute=0, second=0, microsecond=0).date()
+                        else:
+                            k = dt_local.date()
+                        bucket[k] = bucket.get(k, 0) + float(amt or 0)
+                keys = sorted(bucket.keys())
+                labels = [k.strftime(date_format) for k in keys]
+                values = [float(bucket[k]) for k in keys]
+                return json.dumps(labels), json.dumps(values)
+        rows = qs.values(label_field).annotate(value=value_field).order_by(f"-value")
+        if limit:
+            rows = rows[:limit]
         labels = []
         values = []
         for row in rows:
-            key = row["key"] if is_date else row[label_field]
-            if is_date and key:
-                labels.append(key.strftime(date_format))
-            else:
-                labels.append(str(key or "Unknown"))
+            labels.append(str(row[label_field] or "Unknown"))
             values.append(float(row["value"] or 0))
         return json.dumps(labels), json.dumps(values)
 
@@ -103,8 +144,17 @@ def get_dashboard_data():
     start = timezone.now()
     end = start + timedelta(days=7)
     lessons_qs = Lesson.objects.filter(start_time__gte=start, start_time__lt=end, status="scheduled")
-    rows = lessons_qs.annotate(day=TruncDay("start_time")).values("day").annotate(count=Count("id")).order_by("day")
-    counts_by_day = {row["day"].date(): row["count"] for row in rows if row["day"]}
+    try:
+        rows = lessons_qs.annotate(day=TruncDay("start_time")).values("day").annotate(count=Count("id")).order_by("day")
+        counts_by_day = {row["day"].date(): row["count"] for row in rows if row["day"]}
+    except Exception:
+        counts_by_day = {}
+        for dt in lessons_qs.values_list("start_time", flat=True):
+            if not dt:
+                continue
+            dt_local = timezone.localtime(dt) if timezone.is_aware(dt) else dt
+            k = dt_local.date()
+            counts_by_day[k] = counts_by_day.get(k, 0) + 1
     days = [timezone.localdate(start) + timedelta(days=i) for i in range(7)]
     next_7_labels = [d.strftime("%a %d") for d in days]
     next_7_values = [counts_by_day.get(d, 0) for d in days]
