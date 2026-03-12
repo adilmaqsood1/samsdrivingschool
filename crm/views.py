@@ -291,13 +291,21 @@ def blog_grid_right_page(request):
     tag_slug = (request.GET.get("tag") or "").strip()
     if q:
         blogs = blogs.filter(Q(title__icontains=q) | Q(summary__icontains=q) | Q(content__icontains=q))
-    if category_slug:
-        blogs = blogs.filter(categories__slug=category_slug)
-    if tag_slug:
-        blogs = blogs.filter(tags__slug=tag_slug)
+
+    blog_field_names = {f.name for f in Blog._meta.get_fields()}
+    categories = []
+    tags = []
+    if "categories" in blog_field_names:
+        category_model = Blog._meta.get_field("categories").related_model
+        categories = category_model.objects.order_by("name")
+        if category_slug:
+            blogs = blogs.filter(categories__slug=category_slug)
+    if "tags" in blog_field_names:
+        tag_model = Blog._meta.get_field("tags").related_model
+        tags = tag_model.objects.order_by("name")
+        if tag_slug:
+            blogs = blogs.filter(tags__slug=tag_slug)
     latest_blogs = blogs[:3]
-    categories = BlogCategory.objects.order_by("name")
-    tags = BlogTag.objects.order_by("name")
     comments = (
         BlogComment.objects.filter(is_approved=True, blog__is_published=True)
         .select_related("blog")
