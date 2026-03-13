@@ -121,6 +121,14 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "info@samsdriving.ca")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Wajdaan2004!")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() == "true"
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").lower() == "true"
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    if EMAIL_PORT == 465:
+        EMAIL_USE_TLS = False
+    elif EMAIL_PORT == 587:
+        EMAIL_USE_SSL = False
+    else:
+        EMAIL_USE_SSL = False
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "20"))
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "info@samsdriving.ca")
 ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", "info@samsdriving.ca")
 

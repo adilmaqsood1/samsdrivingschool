@@ -1,6 +1,7 @@
 import stripe
 import json
 import uuid
+import logging
 from datetime import timedelta
 from urllib.parse import urlencode
 from urllib import request as urlrequest
@@ -48,6 +49,43 @@ from .models import (
     CalendarAccount,
 )
 
+
+logger = logging.getLogger(__name__)
+
+
+def _queue_and_send_email(*, recipient_email, subject, body, to_lead=None, to_student=None):
+    if not recipient_email:
+        return 0
+    scheduled = ScheduledEmail.objects.create(
+        recipient_email=recipient_email,
+        subject=subject,
+        body=body,
+        scheduled_for=timezone.now(),
+        channel="email",
+        to_lead=to_lead,
+        to_student=to_student,
+        status="scheduled",
+    )
+    try:
+        html_message = body if body.strip().startswith("<") else None
+        send_mail(
+            subject,
+            body if not html_message else "",
+            getattr(settings, "DEFAULT_FROM_EMAIL", None),
+            [recipient_email],
+            fail_silently=False,
+            html_message=html_message,
+        )
+    except Exception as exc:
+        scheduled.last_error = str(exc)
+        scheduled.save(update_fields=["last_error"])
+        logger.exception("Email send failed (queued for retry): %s", subject)
+        return 0
+    scheduled.status = "sent"
+    scheduled.sent_at = timezone.now()
+    scheduled.last_error = ""
+    scheduled.save(update_fields=["status", "sent_at", "last_error"])
+    return 1
 
 
 def template_page(request, template_name):
@@ -430,26 +468,7 @@ def lead_capture(request):
             "message": message,
         }
         ack_html = get_template("emails/contact_ack.html").render(ack_context)
-        
-        sent_count = send_mail(
-            ack_subject, 
-            "", 
-            None, 
-            [email], 
-            fail_silently=True, 
-            html_message=ack_html
-        )
-        
-        ScheduledEmail.objects.create(
-            recipient_email=email,
-            subject=ack_subject,
-            body=ack_html, # Store HTML body
-            scheduled_for=timezone.now(),
-            channel="email",
-            to_lead=lead,
-            status="sent" if sent_count > 0 else "scheduled",
-            sent_at=timezone.now() if sent_count > 0 else None,
-        )
+        _queue_and_send_email(recipient_email=email, subject=ack_subject, body=ack_html, to_lead=lead)
 
     notification_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
     if notification_email:
@@ -462,25 +481,7 @@ def lead_capture(request):
             "message": message,
         }
         admin_html = get_template("emails/contact_admin_notification.html").render(admin_context)
-        
-        sent_count = send_mail(
-            admin_subject, 
-            "", 
-            None, 
-            [notification_email], 
-            fail_silently=True, 
-            html_message=admin_html
-        )
-        
-        ScheduledEmail.objects.create(
-            recipient_email=notification_email,
-            subject=admin_subject,
-            body=admin_html,
-            scheduled_for=timezone.now(),
-            channel="email",
-            status="sent" if sent_count > 0 else "scheduled",
-            sent_at=timezone.now() if sent_count > 0 else None,
-        )
+        _queue_and_send_email(recipient_email=notification_email, subject=admin_subject, body=admin_html)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
 
 
@@ -566,12 +567,10 @@ def enroll_request(request):
         notes=data.get("notes", ""),
     )
     if settings.ENROLLMENT_NOTIFICATION_EMAIL:
-        ScheduledEmail.objects.create(
+        _queue_and_send_email(
             recipient_email=settings.ENROLLMENT_NOTIFICATION_EMAIL,
             subject="New Enrollment Request",
             body=f"{data['name']} requested {data.get('package','')} {data.get('preferred_location','')}",
-            scheduled_for=timezone.now(),
-            channel="email",
         )
     return HttpResponseRedirect(reverse("course_details_page"))
 
@@ -600,12 +599,10 @@ def lesson_request(request):
         notes=data.get("notes", ""),
     )
     if settings.ENROLLMENT_NOTIFICATION_EMAIL:
-        ScheduledEmail.objects.create(
+        _queue_and_send_email(
             recipient_email=settings.ENROLLMENT_NOTIFICATION_EMAIL,
             subject="New Lesson Request",
             body=f"{data['name']} requested a lesson on {data.get('preferred_date','')} {data.get('preferred_time','')}",
-            scheduled_for=timezone.now(),
-            channel="email",
         )
     return HttpResponseRedirect(reverse("course_details_page"))
 
@@ -670,7 +667,7 @@ def stripe_checkout(request, invoice_id):
                 "quantity": 1,
             }
         ],
-        success_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/success/{invoice.id}/",
+        success_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/success/{invoice.id}/?session_id={{CHECKOUT_SESSION_ID}}",
         cancel_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/cancel/{invoice.id}/",
         metadata={"invoice_id": str(invoice.id)},
     )
@@ -680,6 +677,18 @@ def stripe_checkout(request, invoice_id):
 
 
 def stripe_success(request, invoice_id):
+    session_id = (request.GET.get("session_id") or "").strip()
+    if session_id and getattr(settings, "STRIPE_SECRET_KEY", ""):
+        try:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            session = stripe.checkout.Session.retrieve(session_id)
+            session_invoice_id = (session.get("metadata") or {}).get("invoice_id")
+            payment_status = session.get("payment_status")
+            payment_intent_id = session.get("payment_intent")
+            if session_invoice_id and str(session_invoice_id) == str(invoice_id) and payment_status == "paid":
+                _mark_invoice_paid(invoice_id, payment_intent_id, session_id)
+        except Exception:
+            logger.exception("Stripe success handler failed for invoice_id=%s", invoice_id)
     return HttpResponseRedirect(reverse("course_page"))
 
 
@@ -701,6 +710,7 @@ def stripe_webhook(request):
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
     except Exception:
+        logger.exception("Stripe webhook signature verification failed")
         return JsonResponse({"status": "invalid"}, status=400)
     event_type = event.get("type")
     data_object = event.get("data", {}).get("object", {})
@@ -728,83 +738,54 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
     if session_id:
         invoice.stripe_checkout_session_id = session_id
     invoice.save(update_fields=["status", "stripe_payment_intent_id", "stripe_checkout_session_id"])
-    if payment_intent_id:
-        existing = Payment.objects.filter(stripe_payment_intent_id=payment_intent_id).first()
-        if not existing:
-            Payment.objects.create(
-                invoice=invoice,
-                amount=invoice.total_amount,
-                paid_at=timezone.now(),
-                method="stripe",
-                stripe_payment_intent_id=payment_intent_id,
-                status="completed",
-            )
-            
-            # Send purchase confirmation emails
-            student = invoice.enrollment.student
-            course_name = invoice.enrollment.session.course.name if invoice.enrollment and invoice.enrollment.session else "Driving Course"
-            
-            if student and student.email:
-                user_subject = "Payment Confirmation - Sams Driving School"
-                user_context = {
-                    "student_name": f"{student.first_name} {student.last_name}".strip(),
-                    "course_name": course_name,
-                    "invoice_number": invoice.number,
-                    "amount": f"{invoice.total_amount:.2f}",
-                }
-                user_html = get_template("emails/purchase_success_user.html").render(user_context)
-                
-                sent_count = send_mail(
-                    user_subject,
-                    "",
-                    None,
-                    [student.email],
-                    fail_silently=True,
-                    html_message=user_html
-                )
-                
-                ScheduledEmail.objects.create(
-                    recipient_email=student.email,
-                    subject=user_subject,
-                    body=user_html,
-                    scheduled_for=timezone.now(),
-                    channel="email",
-                    to_student=student,
-                    status="sent" if sent_count > 0 else "scheduled",
-                    sent_at=timezone.now() if sent_count > 0 else None,
-                )
-            
-            # Admin notification
-            admin_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
-            if admin_email:
-                admin_subject = f"New Payment Received - Invoice {invoice.number}"
-                admin_context = {
-                    "student_name": f"{student.first_name} {student.last_name}".strip() if student else "Unknown",
-                    "student_email": student.email if student else "Unknown",
-                    "invoice_number": invoice.number,
-                    "amount": f"{invoice.total_amount:.2f}",
-                    "course_name": course_name,
-                }
-                admin_html = get_template("emails/purchase_success_admin.html").render(admin_context)
-                
-                sent_count = send_mail(
-                    admin_subject,
-                    "",
-                    None,
-                    [admin_email],
-                    fail_silently=True,
-                    html_message=admin_html
-                )
-                
-                ScheduledEmail.objects.create(
-                    recipient_email=admin_email,
-                    subject=admin_subject,
-                    body=admin_html,
-                    scheduled_for=timezone.now(),
-                    channel="email",
-                    status="sent" if sent_count > 0 else "scheduled",
-                    sent_at=timezone.now() if sent_count > 0 else None,
-                )
+    if not payment_intent_id:
+        return
+
+    Payment.objects.get_or_create(
+        stripe_payment_intent_id=payment_intent_id,
+        defaults={
+            "invoice": invoice,
+            "amount": invoice.total_amount,
+            "paid_at": timezone.now(),
+            "method": "stripe",
+            "status": "completed",
+        },
+    )
+
+    student = invoice.enrollment.student
+    course_name = invoice.enrollment.session.course.name if invoice.enrollment and invoice.enrollment.session else "Driving Course"
+
+    if student and student.email:
+        user_subject = "Payment Confirmation - Sams Driving School"
+        user_context = {
+            "student_name": f"{student.first_name} {student.last_name}".strip(),
+            "course_name": course_name,
+            "invoice_number": invoice.number,
+            "amount": f"{invoice.total_amount:.2f}",
+        }
+        user_html = get_template("emails/purchase_success_user.html").render(user_context)
+        exists = ScheduledEmail.objects.filter(
+            recipient_email=student.email, subject=user_subject, body=user_html, channel="email"
+        ).exclude(status="cancelled").exists()
+        if not exists:
+            _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_html, to_student=student)
+
+    admin_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
+    if admin_email:
+        admin_subject = f"New Payment Received - Invoice {invoice.number}"
+        admin_context = {
+            "student_name": f"{student.first_name} {student.last_name}".strip() if student else "Unknown",
+            "student_email": student.email if student else "Unknown",
+            "invoice_number": invoice.number,
+            "amount": f"{invoice.total_amount:.2f}",
+            "course_name": course_name,
+        }
+        admin_html = get_template("emails/purchase_success_admin.html").render(admin_context)
+        exists = ScheduledEmail.objects.filter(
+            recipient_email=admin_email, subject=admin_subject, body=admin_html, channel="email"
+        ).exclude(status="cancelled").exists()
+        if not exists:
+            _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_html)
 
 
 @login_required
