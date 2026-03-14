@@ -39,6 +39,7 @@ from .models import (
     StaffProfile,
     Notification,
     NotificationReceipt,
+    HomeHeroSlide,
     Blog,
     BlogComment,
     Testimonial,
@@ -178,7 +179,7 @@ class StudentAdmin(ExportCsvMixin, admin.ModelAdmin):
 class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ("name", "slug", "course_type", "price", "active")
     list_filter = ("course_type", "active")
-    search_fields = ("name", "slug", "summary", "description")
+    search_fields = ("name", "slug", "summary")
     prepopulated_fields = {"slug": ("name",)}
 
 
@@ -235,6 +236,14 @@ class BlogAdmin(ExportCsvMixin, admin.ModelAdmin):
     search_fields = ("title", "summary", "content", "author_name")
     prepopulated_fields = {"slug": ("title",)}
     inlines = [BlogCommentInline]
+
+
+@admin.register(HomeHeroSlide)
+class HomeHeroSlideAdmin(ExportCsvMixin, admin.ModelAdmin):
+    list_display = ("title_line_1", "is_active", "display_order", "updated_at")
+    list_filter = ("is_active", "updated_at")
+    search_fields = ("title_line_1", "title_line_2", "title_line_3", "button_text", "button_url")
+    list_editable = ("is_active", "display_order")
 
 
 # BlogTag hidden (less necessary)

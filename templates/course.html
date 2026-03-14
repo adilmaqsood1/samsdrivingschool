@@ -98,17 +98,6 @@
         {% include 'includes/header.html' %}
         <!-- Header End-->
         {% block content %}
-        <section class="page-header">
-            <div class="page-header__bg" style="background-image: url(assets/images/backgrounds/page-header-bg-1-1.jpg);"></div>
-            <!-- /.page-header__bg -->
-            <div class="container">
-                <h2 class="page-header__title">Courses</h2>
-                <ul class="drivschol-breadcrumb list-unstyled">
-                    <li><a href="{% url 'index_page' %}">Home</a></li>
-                    <li><span>Courses</span></li>
-                </ul><!-- /.thm-breadcrumb list-unstyled -->
-            </div><!-- /.container -->
-        </section><!-- /.page-header -->
 
 
         <section class="course-two course-two--page">
@@ -118,7 +107,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="course-card wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
                             <a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="course-card__image">
-                                <img src="{% if course.image %}{{ course.image }}{% else %}assets/samslogo.png{% endif %}" alt="{{ course.title }}">
+                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}assets/samslogo.png{% endif %}" alt="{{ course.title }}">
                             </a><!-- /.team-card__image -->
                             <div class="course-card__content">
                                 <div class="course-card__thumbnail">
@@ -128,7 +117,7 @@
                                         <span class="course-card__meta-class">{{ course.price_label|upper }}</span>
                                     </div>
                                     <h3 class="course-card__title"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">{{ course.title }}</a></h3><!-- /.course-card__title -->
-                                    <p class="course-card__designation">{{ course.summary }}</p><!-- /.course-card__designation -->
+                                    <p class="course-card__designation">{{ course.summary|truncatechars:120 }}</p><!-- /.course-card__designation -->
 
                                 </div><!-- /.course-card__hover -->
 
@@ -138,7 +127,7 @@
                                             <img src="assets/samslogo.png" alt="course-card__author-image">
                                         </div>
                                         <div class="course-card__author-content">
-                                            <h5 class="course-card__author-name"><a href="#">SDS Team</a></h5>
+                                            <h5 class="course-card__author-name text-white ">SDS Team</h5>
                                             <p class="course-card__author-designation">Certified Instructor</p>
                                         </div>
                                     </div>
@@ -265,7 +254,7 @@
                                     <ul class="list-unstyled footer-widget__info">
                                         <li> <i class="icon-map-pin" aria-hidden="true"></i> <a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
                                         <li> <i class="icon-telephone-call-1" aria-hidden="true"></i> <a href="tel:+16478891708">647-889-1708</a></li>
-                                        <li> <i class="icon-envelope" aria-hidden="true"></i> <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a></li>
+                                        <li> <i class="icon-envelope" aria-hidden="true"></i> <a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
                                     </ul><!-- /.list-unstyled -->
                                 </div>
 
@@ -304,7 +293,7 @@
             <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
 
             <div class="logo-box">
-                <a href="{% url 'home' %}" aria-label="logo image"><img src="assets/images/logo-light.png" width="155" alt="logo drivschol"></a>
+                <a href="{% url 'home' %}" aria-label="logo image"><img src="assets/samslogo.png" width="155" alt="logo Sams Driving School"></a>
             </div>
             <!-- /.logo-box -->
             <div class="mobile-nav__container"></div>
@@ -313,7 +302,7 @@
             <ul class="mobile-nav__contact list-unstyled">
                 <li>
                     <i class="fa fa-envelope"></i>
-                    <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a>
+                    <a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a>
                 </li>
                 <li>
                     <i class="fa fa-phone-alt"></i>

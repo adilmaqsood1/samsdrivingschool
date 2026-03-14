@@ -3,6 +3,7 @@ import json
 import uuid
 import logging
 from datetime import timedelta
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from urllib.parse import urlencode
 from urllib import request as urlrequest
 from django.conf import settings
@@ -47,10 +48,42 @@ from .models import (
     CourseSession,
     Enrollment,
     CalendarAccount,
+    HomeHeroSlide,
 )
 
 
 logger = logging.getLogger(__name__)
+
+def _course_total_with_hst(course):
+    def _parse_decimal(value):
+        if value is None:
+            return None
+        if isinstance(value, Decimal):
+            return value
+        if isinstance(value, (int, float)):
+            return Decimal(str(value))
+        if isinstance(value, str):
+            cleaned = value.strip().replace("$", "").replace(",", "")
+            for token in ("+HST", "HST"):
+                cleaned = cleaned.replace(token, "")
+            cleaned = cleaned.strip()
+            if not cleaned:
+                return None
+            return Decimal(cleaned)
+        return None
+
+    try:
+        fees_total = None
+        if hasattr(course, "fees_calc"):
+            fees_total = _parse_decimal((course.fees_calc or {}).get("total"))
+        if fees_total is not None:
+            return fees_total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    except (InvalidOperation, TypeError, ValueError):
+        pass
+
+    base = Decimal(getattr(course, "price", 0) or 0).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    hst_amount = (base * Decimal("0.13")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return (base + hst_amount).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def _queue_and_send_email(*, recipient_email, subject, body, to_lead=None, to_student=None):
@@ -104,7 +137,15 @@ def index_page(request):
     home_blogs = Blog.objects.filter(is_published=True).order_by("-published_at")[:6]
     testimonials = Testimonial.objects.filter(is_published=True).order_by("display_order", "-updated_at")[:12]
     courses = Course.objects.filter(active=True).exclude(slug="").order_by("display_order", "name")
-    return render(request, "index.html", {"home_blogs": home_blogs, "testimonials": testimonials, "courses": courses})
+    try:
+        hero_slides = HomeHeroSlide.objects.filter(is_active=True).order_by("display_order", "-updated_at")[:10]
+    except Exception:
+        hero_slides = []
+    return render(
+        request,
+        "index.html",
+        {"home_blogs": home_blogs, "testimonials": testimonials, "courses": courses, "hero_slides": hero_slides},
+    )
 
 
 def about_page(request):
@@ -254,10 +295,7 @@ def process_enrollment(request):
     
     # Create Invoice
     import random
-    try:
-        total_amount = float((course.fees or {}).get("total") or course.price)
-    except Exception:
-        total_amount = float(course.price)
+    total_amount = _course_total_with_hst(course)
     
     invoice = None
     max_retries = 5
@@ -295,12 +333,54 @@ def process_enrollment(request):
     
     payment_method = request.POST.get("payment_method", "stripe")
     if payment_method == "pay_later":
-        # Update enrollment status? Maybe keep it pending.
-        # Render success page
+        student_name = f"{first_name} {last_name}".strip() or "Student"
+        course_name = course.title
+        amount_due = f"{invoice.total_amount:.2f}"
+
+        if student and student.email:
+            user_subject = "Enrollment Received (Pay in Office) - Sams Driving School"
+            user_body = (
+                f"<h2>Enrollment Received</h2>"
+                f"<p>Hi {student_name},</p>"
+                f"<p>Thanks for enrolling in <strong>{course_name}</strong>.</p>"
+                f"<p>You selected <strong>Pay in Office / Pay Later</strong>. Your enrollment is received and pending payment.</p>"
+                f"<h3>Invoice</h3>"
+                f"<ul>"
+                f"<li><strong>Invoice #:</strong> {invoice.number}</li>"
+                f"<li><strong>Amount Due:</strong> ${amount_due}</li>"
+                f"</ul>"
+                f"<p>To complete payment and confirm your lesson time, please call <a href=\"tel:+16478891708\">+1 (647) 889-1708</a>.</p>"
+                f"<p>Regards,<br/>Sams Driving School</p>"
+            )
+            exists = ScheduledEmail.objects.filter(
+                recipient_email=student.email, subject=user_subject, body=user_body, channel="email"
+            ).exclude(status="cancelled").exists()
+            if not exists:
+                _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_body, to_student=student)
+
+        admin_email = getattr(settings, "ENROLLMENT_NOTIFICATION_EMAIL", "")
+        if admin_email:
+            admin_subject = f"New Pay-in-Office Enrollment - Invoice {invoice.number}"
+            admin_body = (
+                f"<h2>New Enrollment (Pay in Office)</h2>"
+                f"<ul>"
+                f"<li><strong>Student:</strong> {student_name}</li>"
+                f"<li><strong>Email:</strong> {student.email if student else email}</li>"
+                f"<li><strong>Course:</strong> {course_name}</li>"
+                f"<li><strong>Invoice #:</strong> {invoice.number}</li>"
+                f"<li><strong>Amount Due:</strong> ${amount_due}</li>"
+                f"</ul>"
+            )
+            exists = ScheduledEmail.objects.filter(
+                recipient_email=admin_email, subject=admin_subject, body=admin_body, channel="email"
+            ).exclude(status="cancelled").exists()
+            if not exists:
+                _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_body)
+
         return render(request, "enroll_success_pay_later.html", {
             "invoice": invoice, 
             "course": course,
-            "student_name": f"{first_name} {last_name}".strip()
+            "student_name": student_name
         })
     
     # Redirect to Stripe Checkout
@@ -316,7 +396,7 @@ def requests_get_or_create_course(course_data):
         defaults={
             "price": float(course_data["price_display"]),
             "course_type": "bde" if "BDE" in course_data["title"] else "refresher",
-            "description": course_data["summary"]
+            "summary": course_data.get("summary", "") or ""
         }
     )
     return course, created

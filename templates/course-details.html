@@ -99,18 +99,7 @@
         {% include 'includes/header.html' %}
         <!-- Header End-->
         {% block content %}
-        <section class="page-header">
-            <div class="page-header__bg" style="background-image: url(assets/images/backgrounds/page-header-bg-1-1.jpg);"></div>
-            <!-- /.page-header__bg -->
-            <div class="container">
-                <h2 class="page-header__title">Course Details</h2>
-                <ul class="drivschol-breadcrumb list-unstyled">
-                    <li><a href="{% url 'index_page' %}">Home</a></li>
-                    <li><span>Course Details</span></li>
-                </ul><!-- /.thm-breadcrumb list-unstyled -->
-            </div><!-- /.container -->
-        </section><!-- /.page-header -->
-
+        
         <section class="course-details-one">
 
             <div class="container">
@@ -124,7 +113,7 @@
                                         <img src="assets/samslogo.png" alt="course-details-one__inner__top__left__author">
                                     </div>
                                     <div class="course-details-one__inner__top__left__content">
-                                        <h5 class="course-details-one__inner__top__left__content__name"><a href="{% url 'course_page' %}">SDS Team</a></h5>
+                                        <h5 class="course-details-one__inner__top__left__content__name text-white">SDS Team</h5>
                                         <p class="course-details-one__inner__top__left__content__designation">Certified Instructor</p>
                                     </div>
                                 </div>
@@ -146,19 +135,15 @@
         
                                 <h3 class="course-details__title wow fadeInUp" data-wow-delay='300ms'>{{ course.title }}</h3><!-- /.course-details__title -->
                                 <div class="course-details__text wow fadeInUp" data-wow-delay='400ms'>{{ course.summary }}</div><!-- /.course-details__text -->
-                                {% if course.overview %}
-                                <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>{{ course.overview|safe }}</div><!-- /.course-details__text -->
-                                {% else %}
                                 {% for paragraph in course.details %}
                                 <div class="course-details__text wow fadeInUp" data-wow-delay='500ms'>{{ paragraph }}</div><!-- /.course-details__text -->
                                 {% endfor %}
-                                {% endif %}
                             </div><!-- /.course-details__single -->
 
                             <div class="course-details__single course-details__single__two">
                                 <div class="course-details__single__image wow fadeInUp" data-wow-delay='300ms'>
                                     <div class="benefit__image">
-                                        <img src="assets/images/about.jpg" alt="course-details__image">
+                                        <img src="{% if course.image_src %}{{ course.image_src }}{% else %}assets/images/about.jpg{% endif %}" alt="course-details__image">
                                     </div><!-- /.benefit__image -->
                                 </div><!-- / -->
                                 <div class="course-details__benefit wow fadeInUp" data-wow-delay='500ms'>
@@ -232,43 +217,34 @@
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
                                             <span><i class="fa fa-check-circle"></i> Regular Fees</span>
-                                            <span class="fw-semibold">{{ course.fees.regular }}</span>
+                                            <span class="fw-semibold">{{ course.fees_calc.regular }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
                                             <span><i class="fa fa-check-circle"></i> Promotion Fees</span>
-                                            <span class="badge bg-success">Save {{ course.fees.promotion_savings }}</span>
+                                            <span class="badge bg-success">Save {{ course.fees_calc.promotion_savings }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
                                             <span><i class="fa fa-check-circle"></i> Pay Only</span>
-                                            <span class="fw-semibold">{{ course.fees.pay_only }}</span>
+                                            <span class="fw-semibold">{{ course.fees_calc.pay_only }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-2">
-                                            <span><i class="fa fa-check-circle"></i> HST ({{ course.fees.hst_rate_percent }})</span>
-                                            <span class="fw-semibold">${{ course.fees.hst_amount }}</span>
+                                            <span><i class="fa fa-check-circle"></i> HST ({{ course.fees_calc.hst_rate_percent }})</span>
+                                            <span class="fw-semibold">${{ course.fees_calc.hst_amount }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center border rounded-3 px-3 py-3 bg-dark text-white">
                                             <span><i class="fa fa-check-circle"></i> Total Fees</span>
-                                            <span class="fw-bold fs-5">${{ course.fees.total }}</span>
+                                            <span class="fw-bold fs-5">${{ course.fees_calc.total }}</span>
                                         </div>
                                     </div>
                                 </div>
-                                {% if course.policies %}
-                                <div class="alert alert-warning mt-4 wow fadeInUp" data-wow-delay='500ms' role="alert">
-                                    <ul class="mb-0 ps-3">
-                                        {% for item in course.policies %}
-                                        <li>{{ item }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                {% endif %}
                             </div><!-- /.course-details__single-->
 
                         </div><!-- /.course-details -->
@@ -278,16 +254,16 @@
                             <div class="course-sidebar__single__two">
                                 <h3 class="course-sidebar__single__two__title">Course Features</h3><!-- /.course-sidebar__title -->
                                 <ul class="list-unstyled course-sidebar__nav">
-                                    {% for feature in course.features %}
+                                    {% for feature in course.features_calc %}
                                     <li class="course-sidebar__nav__item">
-                                        <h6 class="course-sidebar__nav__item__left"><i class="course-sidebar__nav__item__icon {% if forloop.counter == 1 %}icon-training{% elif forloop.counter == 2 %}icon-video-lesson{% else %}icon-education_2{% endif %}"></i> {{ feature.label }}:</h6><!-- /.course-sidebar__nav__item__ -->
+                                        <h6 class="course-sidebar__nav__item__left "><i class="course-sidebar__nav__item__icon {% if forloop.counter == 1 %}icon-training{% elif forloop.counter == 2 %}icon-video-lesson{% else %}icon-education_2{% endif %}"></i></h6><!-- /.course-sidebar__nav__item__ -->
                                         <span class="course-sidebar__nav__item__right"> {{ feature.value }}</span><!-- /.course-sidebar__nav__text -->
                                     </li><!-- /.course-sidebar__nav__item -->
                                     {% endfor %}
                                 </ul><!-- /.list-unstyled course-sidebar__nav -->
                             </div><!-- /.course-sidebar__single -->
 
-                            <div class="course-sidebar__single">
+                            {% comment %} <div class="course-sidebar__single">
                                 <h3 class="course-sidebar__title">Latest Course</h3><!-- /.course-sidebar__title -->
                                 <ul class="course-sidebar__nav__two list-unstyled">
                                     {% for other in other_courses %}
@@ -304,7 +280,7 @@
                                     </li>
                                     {% endfor %}
                                 </ul>
-                            </div><!-- /.course-sidebar__single -->
+                            </div><!-- /.course-sidebar__single --> {% endcomment %}
 
                             <div class="course-sidebar__single">
                                 <div class="course-sidebar__image text-center">
@@ -1851,7 +1827,7 @@
                                     <ul class="list-unstyled footer-widget__info">
                                         <li> <i class="icon-map-pin" aria-hidden="true"></i> <a href="https://www.google.com/maps">23-460 Brant Street, Burlington, Ontario L7R 4B6</a></li>
                                         <li> <i class="icon-telephone-call-1" aria-hidden="true"></i> <a href="tel:+16478891708">647-889-1708</a></li>
-                                        <li> <i class="icon-envelope" aria-hidden="true"></i> <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a></li>
+                                        <li> <i class="icon-envelope" aria-hidden="true"></i> <a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a></li>
                                     </ul><!-- /.list-unstyled -->
                                 </div>
 
@@ -1890,7 +1866,7 @@
             <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
 
             <div class="logo-box">
-                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/images/logo-light.png" width="155" alt="logo drivschol"></a>
+                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/samslogo.png" width="155" alt="logo Sams Driving School"></a>
             </div>
             <!-- /.logo-box -->
             <div class="mobile-nav__container"></div>
@@ -1899,7 +1875,7 @@
             <ul class="mobile-nav__contact list-unstyled">
                 <li>
                     <i class="fa fa-envelope"></i>
-                    <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a>
+                    <a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a>
                 </li>
                 <li>
                     <i class="fa fa-phone-alt"></i>

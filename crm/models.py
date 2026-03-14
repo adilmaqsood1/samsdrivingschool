@@ -1,5 +1,6 @@
 import uuid
 from datetime import timedelta
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
@@ -140,10 +141,8 @@ class Course(models.Model):
     ]
     name = models.CharField(max_length=150)
     slug = models.SlugField(max_length=180, unique=True, blank=True)
-    image = models.CharField(max_length=255, blank=True)
+    image = models.ImageField(upload_to="upload/courses/", blank=True)
     summary = models.TextField(blank=True)
-    description = RichTextUploadingField(blank=True)
-    overview = RichTextUploadingField(blank=True)
     session = models.CharField(max_length=200, blank=True)
     course_type = models.CharField(max_length=30, choices=COURSE_TYPES, default="bde")
     hours_theory = models.PositiveIntegerField(default=0)
@@ -157,7 +156,6 @@ class Course(models.Model):
     program_options = models.JSONField(default=list, blank=True)
     g1_restrictions = models.JSONField(default=list, blank=True)
     fees = models.JSONField(default=dict, blank=True)
-    policies = models.JSONField(default=list, blank=True)
     features = models.JSONField(default=list, blank=True)
     display_order = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
@@ -168,6 +166,113 @@ class Course(models.Model):
     @property
     def title(self):
         return self.name
+
+    @property
+    def image_src(self):
+        if not self.image:
+            return ""
+        name = getattr(self.image, "name", "") or ""
+        if name.startswith(("http://", "https://")):
+            return name
+        if name.startswith(("assets/", "/assets/")):
+            return name.lstrip("/")
+        try:
+            return self.image.url
+        except Exception:
+            return name
+
+    @property
+    def fees_calc(self):
+        def _parse_decimal(value):
+            if value is None:
+                return None
+            if isinstance(value, Decimal):
+                return value
+            if isinstance(value, (int, float)):
+                return Decimal(str(value))
+            if isinstance(value, str):
+                cleaned = value.strip().replace("$", "").replace(",", "")
+                for token in ("+HST", "HST"):
+                    cleaned = cleaned.replace(token, "")
+                cleaned = cleaned.strip()
+                if not cleaned:
+                    return None
+                return Decimal(cleaned)
+            return None
+
+        base = Decimal(self.price or 0).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        rate = Decimal("0.13")
+        hst_amount = (base * rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        total = (base + hst_amount).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+        fees = self.fees if isinstance(self.fees, dict) else {}
+        raw_total = fees.get("total")
+        raw_hst = fees.get("hst_amount")
+
+        try:
+            parsed_total = _parse_decimal(raw_total)
+        except (InvalidOperation, TypeError, ValueError):
+            parsed_total = None
+        try:
+            parsed_hst = _parse_decimal(raw_hst)
+        except (InvalidOperation, TypeError, ValueError):
+            parsed_hst = None
+
+        effective_total = (parsed_total if parsed_total is not None else total).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+        effective_hst = (parsed_hst if parsed_hst is not None else hst_amount).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        return {
+            "regular": fees.get("regular") or f"${base:.2f} +HST",
+            "promotion_savings": fees.get("promotion_savings") or "0$ +HST",
+            "pay_only": fees.get("pay_only") or f"${base:.2f} +HST",
+            "hst_rate_percent": fees.get("hst_rate_percent") or "13%",
+            "hst_amount": f"{effective_hst:.2f}",
+            "total": f"{effective_total:.2f}",
+        }
+
+    @property
+    def features_calc(self):
+        raw = self.features
+        normalized = []
+
+        def _add(label, value):
+            label = (label or "").strip()
+            value = (value or "").strip()
+            if not label or not value:
+                return
+            normalized.append({"label": label, "value": value})
+
+        if isinstance(raw, dict):
+            for k, v in raw.items():
+                _add(str(k), str(v))
+        elif isinstance(raw, (list, tuple)):
+            for item in raw:
+                if isinstance(item, dict):
+                    label = item.get("label") or item.get("title") or item.get("name") or ""
+                    value = item.get("value") or item.get("text") or item.get("subtitle") or ""
+                    _add(str(label), str(value))
+                elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                    _add(str(item[0]), str(item[1]))
+                elif isinstance(item, str):
+                    _add("Feature", item)
+
+        if normalized:
+            return normalized
+
+        if self.session:
+            _add("Session", self.session)
+        if self.hours_theory:
+            _add("Theory", f"{self.hours_theory} Hours")
+        if self.hours_homework:
+            _add("Homework", f"{self.hours_homework} Hours")
+        if self.hours_incar:
+            _add("In-Car", f"{self.hours_incar} Hours")
+
+        return normalized
 
     @property
     def price_display(self):
@@ -771,6 +876,52 @@ class BlogComment(models.Model):
 
     def __str__(self):
         return f"{self.blog.title} - {self.name}"
+
+
+class HomeHeroSlide(models.Model):
+    title_line_1 = models.CharField(max_length=120)
+    title_line_2 = models.CharField(max_length=120, blank=True)
+    title_line_3 = models.CharField(max_length=120, blank=True)
+    button_text = models.CharField(max_length=60, default="View Courses")
+    button_url = models.CharField(max_length=300, blank=True)
+    background_image = models.ImageField(upload_to="upload/hero/", blank=True)
+    background_asset = models.CharField(max_length=255, blank=True, default="assets/images/backgrounds/slider-1-1.png")
+    layer_image = models.ImageField(upload_to="upload/hero_layers/", blank=True)
+    layer_asset = models.CharField(max_length=255, blank=True)
+    is_active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["display_order", "-updated_at"]
+
+    def __str__(self):
+        return self.title_line_1
+
+    @property
+    def background_src(self):
+        if self.background_image:
+            try:
+                return self.background_image.url
+            except Exception:
+                pass
+        asset = (self.background_asset or "").strip()
+        if asset.startswith(("http://", "https://")):
+            return asset
+        return asset.lstrip("/")
+
+    @property
+    def layer_src(self):
+        if self.layer_image:
+            try:
+                return self.layer_image.url
+            except Exception:
+                pass
+        asset = (self.layer_asset or "").strip()
+        if asset.startswith(("http://", "https://")):
+            return asset
+        return asset.lstrip("/")
 
 
 class Testimonial(models.Model):

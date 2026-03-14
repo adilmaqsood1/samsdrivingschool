@@ -116,9 +116,10 @@
 			"dotsData": true,
 			"margin": 0
 			}'>
-	                <div class="item" data-dot="<button>01</button>">
+	                {% for slide in hero_slides %}
+	                <div class="item" data-dot="<button>{{ forloop.counter|stringformat:'02d' }}</button>">
 	                    <div class="main-slider-one__item">
-	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
+	                        <div class="main-slider-one__bg" style="background-image: url({% if slide.background_src %}{{ slide.background_src }}{% else %}assets/images/backgrounds/slider-1-1.png{% endif %});"></div>
 	                        <div class="main-slider-one__shape-one">
 	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
 	                        </div>
@@ -132,83 +133,22 @@
 	                        <div class="container">
 	                            <div class="main-slider-one__content">
 	                                <h2 class="main-slider-one__title">
-	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
-	                                    <span class="main-slider-one__title__anim">to learn</span>
-	                                    <span class="main-slider-one__title__anim">Driving?</span>
+	                                    <span class="main-slider-one__title__anim">{{ slide.title_line_1 }}</span>
+	                                    {% if slide.title_line_2 %}<span class="main-slider-one__title__anim">{{ slide.title_line_2 }}</span>{% endif %}
+	                                    {% if slide.title_line_3 %}<span class="main-slider-one__title__anim">{{ slide.title_line_3 }}</span>{% endif %}
 	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
 	                                </h2><!-- slider-title -->
 	                                <div class="main-slider-one__btn">
-	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
+	                                    <a href="{% if slide.button_url %}{{ slide.button_url }}{% else %}{% url 'course_page' %}{% endif %}" class="drivschol-btn drivschol-btn--base"><span>{{ slide.button_text }}</span></a>
 	                                </div><!-- slider-btn -->
 	                            </div>
 	                        </div>
 	                        <div class="main-slider-one__layer">
-	                            <img src="assets/images/backgrounds/slider-1-layer-1.png" alt="drivschol">
+	                            <img src="{% if slide.layer_src %}{{ slide.layer_src }}{% else %}assets/images/backgrounds/slider-1-layer-1.png{% endif %}" alt="drivschol">
 	                        </div>
 	                    </div>
 	                </div>
-	                <div class="item" data-dot="<button>02</button>">
-	                    <div class="main-slider-one__item">
-	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
-	                        <div class="main-slider-one__shape-one">
-	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-two">
-	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-border">
-	                            <span class="main-slider-one__shape-border__one"></span>
-	                            <span class="main-slider-one__shape-border__two"></span>
-	                        </div>
-	                        <div class="container">
-	                            <div class="main-slider-one__content">
-	                                <h2 class="main-slider-one__title">
-	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
-	                                    <span class="main-slider-one__title__anim">for a Car for the</span>
-	                                    <span class="main-slider-one__title__anim">Driving Test?</span>
-	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
-	                                </h2><!-- slider-title -->
-	                                <div class="main-slider-one__btn">
-	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
-	                                </div><!-- slider-btn -->
-	                            </div>
-	                        </div>
-	                        <div class="main-slider-one__layer">
-	                            <img src="assets/images/backgrounds/slider-1-layer-2.png" alt="drivschol">
-	                        </div>
-	                    </div>
-	                </div>
-	                <div class="item" data-dot="<button>03</button>">
-	                    <div class="main-slider-one__item">
-	                        <div class="main-slider-one__bg" style="background-image: url(assets/images/backgrounds/slider-1-1.png);"></div>
-	                        <div class="main-slider-one__shape-one">
-	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-two">
-	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-border">
-	                            <span class="main-slider-one__shape-border__one"></span>
-	                            <span class="main-slider-one__shape-border__two"></span>
-	                        </div>
-	                        <div class="container">
-	                            <div class="main-slider-one__content">
-	                                <h2 class="main-slider-one__title">
-	                                    <span class="main-slider-one__title__anim">Are You Looking</span>
-	                                    <span class="main-slider-one__title__anim">to master</span>
-	                                    <span class="main-slider-one__title__anim">Driving?</span>
-	                                    <span class="main-slider-one__title__image"><img src="assets/images/shapes/vactor.svg" alt="drivschol"></span>
-	                                </h2><!-- slider-title -->
-	                                <div class="main-slider-one__btn">
-	                                    <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base"><span>View Courses</span></a>
-	                                </div><!-- slider-btn -->
-	                            </div>
-	                        </div>
-	                        <div class="main-slider-one__layer">
-	                            <img src="assets/images/backgrounds/slider-1-layer-3.png" alt="drivschol">
-	                        </div>
-	                    </div>
-	                </div>
+	                {% endfor %}
 	            </div>
 	            <a href="#services" class="main-slider-one__trigger"><span class="icon-video"></span></a>
 	        </section>
@@ -334,7 +274,7 @@
 	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='{% if forloop.counter0 == 0 %}000ms{% elif forloop.counter0 == 1 %}400ms{% else %}000ms{% endif %}'>
 
 	                            <div class="service-card__image">
-	                                <img src="{% if course.image %}{{ course.image }}{% else %}assets/cousre.png{% endif %}" alt="{{ course.title }}">
+	                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}assets/cousre.png{% endif %}" alt="{{ course.title }}">
 	                            </div><!-- /.blog-card__image -->
 
 	                            <div class="service-card__content">
@@ -1195,7 +1135,7 @@
 	            <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
 
 	            <div class="logo-box">
-	                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/images/logo-light.png" width="155" alt="logo drivschol"></a>
+	                <a href="{% url 'index_page' %}" aria-label="logo image"><img src="assets/samslogo.png" width="155" alt="logo Sams Driving School"></a>
 	            </div>
 	            <!-- /.logo-box -->
 	            <div class="mobile-nav__container"></div>
@@ -1204,7 +1144,7 @@
 	            <ul class="mobile-nav__contact list-unstyled">
 	                <li>
 	                    <i class="fa fa-envelope"></i>
-	                    <a href="mailto:sdsburlington@gmail.com">sdsburlington@gmail.com</a>
+	                    <a href="mailto:info@samsdriving.ca">info@samsdriving.ca</a>
 	                </li>
 	                <li>
 	                    <i class="fa fa-phone-alt"></i>
