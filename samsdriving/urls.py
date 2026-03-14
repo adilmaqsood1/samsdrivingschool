@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve as static_serve
 from crm import views as crm_views
 
 
@@ -30,4 +30,7 @@ urlpatterns = [
 ]
 
 if settings.MEDIA_URL and settings.MEDIA_ROOT:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    _media_prefix = settings.MEDIA_URL.lstrip("/").rstrip("/")
+    urlpatterns += [
+        re_path(rf"^{_media_prefix}/(?P<path>.*)$", static_serve, {"document_root": settings.MEDIA_ROOT}),
+    ]
