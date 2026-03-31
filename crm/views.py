@@ -10,12 +10,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
+from django.utils.html import strip_tags
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -101,14 +103,20 @@ def _queue_and_send_email(*, recipient_email, subject, body, to_lead=None, to_st
     )
     try:
         html_message = body if body.strip().startswith("<") else None
-        send_mail(
-            subject,
-            body if not html_message else "",
-            getattr(settings, "DEFAULT_FROM_EMAIL", None),
-            [recipient_email],
-            fail_silently=False,
-            html_message=html_message,
-        )
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "") or getattr(settings, "EMAIL_HOST_USER", "")
+        if html_message:
+            text_body = strip_tags(html_message).strip() or "Payment/Enrollment update from Sams Driving School."
+            message = EmailMultiAlternatives(subject, text_body, from_email, [recipient_email])
+            message.attach_alternative(html_message, "text/html")
+            message.send(fail_silently=False)
+        else:
+            send_mail(
+                subject,
+                body,
+                from_email,
+                [recipient_email],
+                fail_silently=False,
+            )
     except Exception as exc:
         scheduled.last_error = str(exc)
         scheduled.save(update_fields=["last_error"])

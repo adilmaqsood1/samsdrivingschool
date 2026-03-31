@@ -3,8 +3,10 @@ from datetime import timedelta
 from urllib import request as urlrequest
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.utils.html import strip_tags
 
 from crm.models import ScheduledEmail, CommunicationLog, Lesson, ReminderLog
 
@@ -116,8 +118,14 @@ class Command(BaseCommand):
                     
                     # Check if body looks like HTML (starts with <)
                     html_message = body if body.strip().startswith("<") else None
-                    
-                    send_mail(subject, body if not html_message else "", None, [recipient], fail_silently=False, html_message=html_message)
+                    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "") or getattr(settings, "EMAIL_HOST_USER", "")
+                    if html_message:
+                        text_body = strip_tags(html_message).strip() or "Message from Sams Driving School."
+                        message = EmailMultiAlternatives(subject, text_body, from_email, [recipient])
+                        message.attach_alternative(html_message, "text/html")
+                        message.send(fail_silently=False)
+                    else:
+                        send_mail(subject, body, from_email, [recipient], fail_silently=False)
                 
                 scheduled.status = "sent"
                 scheduled.sent_at = timezone.now()
@@ -132,6 +140,6 @@ class Command(BaseCommand):
                     sent_at=scheduled.sent_at,
                 )
             except Exception as exc:
-                scheduled.status = "failed"
+                scheduled.status = "scheduled" if scheduled.attempts < 5 else "failed"
                 scheduled.last_error = str(exc)
                 scheduled.save(update_fields=["status", "last_error", "attempts"])

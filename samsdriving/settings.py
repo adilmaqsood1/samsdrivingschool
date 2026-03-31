@@ -128,6 +128,12 @@ if EMAIL_USE_TLS and EMAIL_USE_SSL:
         EMAIL_USE_SSL = False
     else:
         EMAIL_USE_SSL = False
+if EMAIL_PORT == 465 and not EMAIL_USE_SSL:
+    EMAIL_USE_SSL = True
+    EMAIL_USE_TLS = False
+if EMAIL_PORT == 587 and not EMAIL_USE_TLS:
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "20"))
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "info@samsdriving.ca")
 ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", "info@samsdriving.ca")
