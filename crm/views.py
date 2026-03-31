@@ -353,8 +353,8 @@ def process_enrollment(request):
                 f"<p>Regards,<br/>Sams Driving School</p>"
             )
             exists = ScheduledEmail.objects.filter(
-                recipient_email=student.email, subject=user_subject, body=user_body, channel="email"
-            ).exclude(status="cancelled").exists()
+                recipient_email=student.email, subject=user_subject, body=user_body, channel="email", status="sent"
+            ).exists()
             if not exists:
                 _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_body, to_student=student)
 
@@ -372,8 +372,8 @@ def process_enrollment(request):
                 f"</ul>"
             )
             exists = ScheduledEmail.objects.filter(
-                recipient_email=admin_email, subject=admin_subject, body=admin_body, channel="email"
-            ).exclude(status="cancelled").exists()
+                recipient_email=admin_email, subject=admin_subject, body=admin_body, channel="email", status="sent"
+            ).exists()
             if not exists:
                 _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_body)
 
@@ -747,9 +747,10 @@ def stripe_checkout(request, invoice_id):
                 "quantity": 1,
             }
         ],
-        success_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/success/{invoice.id}/?session_id={{CHECKOUT_SESSION_ID}}",
+        success_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/success/{invoice.id}/",
         cancel_url=f"{settings.SITE_URL.rstrip('/')}/crm/stripe/cancel/{invoice.id}/",
         metadata={"invoice_id": str(invoice.id)},
+        payment_intent_data={"metadata": {"invoice_id": str(invoice.id)}},
     )
     invoice.stripe_checkout_session_id = session.id
     invoice.save(update_fields=["stripe_checkout_session_id"])
@@ -757,10 +758,15 @@ def stripe_checkout(request, invoice_id):
 
 
 def stripe_success(request, invoice_id):
-    session_id = (request.GET.get("session_id") or "").strip()
-    if session_id and getattr(settings, "STRIPE_SECRET_KEY", ""):
+    invoice = Invoice.objects.select_related("enrollment__student").filter(id=invoice_id).first()
+    if not invoice:
+        raise Http404()
+    if getattr(settings, "STRIPE_SECRET_KEY", ""):
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
+            session_id = (request.GET.get("session_id") or "").strip() or (invoice.stripe_checkout_session_id or "")
+            if not session_id:
+                return HttpResponseRedirect(reverse("course_page"))
             session = stripe.checkout.Session.retrieve(session_id)
             session_invoice_id = (session.get("metadata") or {}).get("invoice_id")
             payment_status = session.get("payment_status")
@@ -845,8 +851,8 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
         }
         user_html = get_template("emails/purchase_success_user.html").render(user_context)
         exists = ScheduledEmail.objects.filter(
-            recipient_email=student.email, subject=user_subject, body=user_html, channel="email"
-        ).exclude(status="cancelled").exists()
+            recipient_email=student.email, subject=user_subject, body=user_html, channel="email", status="sent"
+        ).exists()
         if not exists:
             _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_html, to_student=student)
 
@@ -862,8 +868,8 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
         }
         admin_html = get_template("emails/purchase_success_admin.html").render(admin_context)
         exists = ScheduledEmail.objects.filter(
-            recipient_email=admin_email, subject=admin_subject, body=admin_html, channel="email"
-        ).exclude(status="cancelled").exists()
+            recipient_email=admin_email, subject=admin_subject, body=admin_html, channel="email", status="sent"
+        ).exists()
         if not exists:
             _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_html)
 
