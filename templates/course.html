@@ -113,7 +113,7 @@
                                 <div class="course-card__thumbnail">
                                     <a class="course-card__session"> <i class="icon-training"></i> <span>{{ course.session }}</span></a> <!-- ./course-card__session -->
                                     <div class="course-card__meta"><!-- ./course-card__meta -->
-                                        <h4 class="course-card__meta-price"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">{{ course.title }}${{ course.price_display }}</a></h4>
+                                        <h4 class="course-card__meta-price"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">${{ course.price_display }}</a></h4>
                                         <span class="course-card__meta-class">{{ course.price_label|upper }}</span>
                                     </div>
                                     <h3 class="course-card__title"><a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}">{{ course.title }}</a></h3><!-- /.course-card__title -->
