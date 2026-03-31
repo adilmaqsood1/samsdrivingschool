@@ -27,6 +27,10 @@ urlpatterns = [
     path("blogs/<slug:slug>/", crm_views.blog_details_right_page, name="blog_details"),
     path("blogs/<slug:slug>/comment/", crm_views.blog_comment_create, name="blog_comment_create"),
     path("contact/", crm_views.contact_page, name="contact_page"),
+    path("stripe/checkout/<int:invoice_id>/", crm_views.stripe_checkout, name="stripe_checkout_public"),
+    path("stripe/success/<int:invoice_id>/", crm_views.stripe_success, name="stripe_success_public"),
+    path("stripe/cancel/<int:invoice_id>/", crm_views.stripe_cancel, name="stripe_cancel_public"),
+    path("stripe/webhook/", crm_views.stripe_webhook, name="stripe_webhook_public"),
 ]
 
 if settings.MEDIA_URL and settings.MEDIA_ROOT:

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from utils.gcalendar import get_calendar_service, upsert_event
@@ -347,9 +348,10 @@ class InvoiceAdmin(ExportCsvMixin, admin.ModelAdmin):
                         "quantity": 1,
                     }
                 ],
-                success_url=f"{settings.SITE_URL}/crm/stripe/success/{invoice.id}/",
-                cancel_url=f"{settings.SITE_URL}/crm/stripe/cancel/{invoice.id}/",
+                success_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_success_public', args=[invoice.id])}",
+                cancel_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_cancel_public', args=[invoice.id])}",
                 metadata={"invoice_id": str(invoice.id)},
+                payment_intent_data={"metadata": {"invoice_id": str(invoice.id)}},
             )
             invoice.stripe_checkout_session_id = session.id
             invoice.save(update_fields=["stripe_checkout_session_id"])
