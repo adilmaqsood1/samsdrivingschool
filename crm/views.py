@@ -766,16 +766,35 @@ def stripe_success(request, invoice_id):
             stripe.api_key = settings.STRIPE_SECRET_KEY
             session_id = (request.GET.get("session_id") or "").strip() or (invoice.stripe_checkout_session_id or "")
             if not session_id:
-                return HttpResponseRedirect(reverse("course_page"))
+                return render(
+                    request,
+                    "payment_success.html",
+                    {
+                        "invoice": invoice,
+                        "student_name": f"{invoice.enrollment.student.first_name} {invoice.enrollment.student.last_name}".strip()
+                        if invoice.enrollment and invoice.enrollment.student
+                        else "Student",
+                    },
+                )
             session = stripe.checkout.Session.retrieve(session_id)
             session_invoice_id = (session.get("metadata") or {}).get("invoice_id")
             payment_status = session.get("payment_status")
             payment_intent_id = session.get("payment_intent")
-            if session_invoice_id and str(session_invoice_id) == str(invoice_id) and payment_status == "paid":
+            invoice_matches = not session_invoice_id or str(session_invoice_id) == str(invoice_id)
+            if invoice_matches and payment_status == "paid":
                 _mark_invoice_paid(invoice_id, payment_intent_id, session_id)
         except Exception:
             logger.exception("Stripe success handler failed for invoice_id=%s", invoice_id)
-    return HttpResponseRedirect(reverse("course_page"))
+    return render(
+        request,
+        "payment_success.html",
+        {
+            "invoice": invoice,
+            "student_name": f"{invoice.enrollment.student.first_name} {invoice.enrollment.student.last_name}".strip()
+            if invoice.enrollment and invoice.enrollment.student
+            else "Student",
+        },
+    )
 
 
 def stripe_cancel(request, invoice_id):
@@ -824,19 +843,19 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
     if session_id:
         invoice.stripe_checkout_session_id = session_id
     invoice.save(update_fields=["status", "stripe_payment_intent_id", "stripe_checkout_session_id"])
-    if not payment_intent_id:
-        return
-
-    Payment.objects.get_or_create(
-        stripe_payment_intent_id=payment_intent_id,
-        defaults={
-            "invoice": invoice,
-            "amount": invoice.total_amount,
-            "paid_at": timezone.now(),
-            "method": "stripe",
-            "status": "completed",
-        },
-    )
+    payment_lookup = Payment.objects.filter(invoice=invoice, method="stripe", status="completed")
+    if payment_intent_id:
+        payment_lookup = payment_lookup.filter(stripe_payment_intent_id=payment_intent_id)
+    payment_exists = payment_lookup.exists()
+    if not payment_exists:
+        Payment.objects.create(
+            invoice=invoice,
+            amount=invoice.total_amount,
+            paid_at=timezone.now(),
+            method="stripe",
+            stripe_payment_intent_id=payment_intent_id or "",
+            status="completed",
+        )
 
     student = invoice.enrollment.student
     course_name = invoice.enrollment.session.course.name if invoice.enrollment and invoice.enrollment.session else "Driving Course"

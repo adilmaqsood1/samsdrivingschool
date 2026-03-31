@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}Payment Successful - Sams Driving{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header__bg" style="background-image: url({% static 'assets/images/backgrounds/page-header-bg-1-1.jpg' %});"></div>
+    <div class="container">
+        <h2 class="page-header__title">Payment Successful</h2>
+        <ul class="drivschol-breadcrumb list-unstyled">
+            <li><a href="{% url 'index_page' %}">Home</a></li>
+            <li><span>Payment</span></li>
+        </ul>
+    </div>
+</section>
+
+<section class="enrollment-success" style="padding: 110px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+                    <div class="card-body p-0">
+                        <div class="p-4 p-md-5 text-center" style="background: linear-gradient(135deg, rgba(111,190,68,0.12), rgba(111,190,68,0.02));">
+                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 92px; height: 92px; border-radius: 50%; background: rgba(40,167,69,0.12); margin-bottom: 18px;">
+                                <i class="fas fa-check-circle" style="font-size: 54px; color: #28a745;"></i>
+                            </div>
+                            <h3 class="enrollment-success__title" style="margin-bottom: 10px;">Thank You, {{ student_name }}!</h3>
+                            <p class="enrollment-success__text" style="font-size: 18px; margin: 0;">
+                                Your payment has been received successfully.
+                            </p>
+                        </div>
+
+                        <div class="p-4 p-md-5">
+                            <div class="border rounded-3 p-3 p-md-4" style="background-color: #f9f9f9;">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-muted" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;">Invoice Number</div>
+                                        <div class="fw-semibold" style="font-size: 16px;">{{ invoice.number }}</div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-muted" style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;">Amount Paid</div>
+                                        <div class="fw-bold" style="font-size: 18px;">${{ invoice.total_amount|floatformat:2 }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success mt-4 mb-0" role="alert" style="border-radius: 12px;">
+                                    Thank you for your order. Someone from our team will be in contact with you within the next 24 hours.
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                                <a href="{% url 'index_page' %}" class="drivschol-btn drivschol-btn--base">Return to Home</a>
+                                <a href="{% url 'course_page' %}" class="drivschol-btn drivschol-btn--base2">View Courses</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
