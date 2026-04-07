@@ -182,7 +182,7 @@ class CourseAdminForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = "__all__"
+        fields = ("name", "slug", "summary", "course_type", "price", "active")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -212,13 +212,11 @@ class CourseAdminForm(forms.ModelForm):
 
 @admin.register(Course)
 class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
+    list_display = ("name", "slug", "course_type", "price", "active")
     list_filter = ("course_type", "active")
     form = CourseAdminForm
     search_fields = ("name", "slug", "summary")
     prepopulated_fields = {"slug": ("name",)}
-
-
-    fields = ("name", "summary", "price", "promotion_savings")
 
 
 @admin.register(CourseSession)
