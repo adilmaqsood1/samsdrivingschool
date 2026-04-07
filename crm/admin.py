@@ -1,5 +1,6 @@
 import csv
 import stripe
+from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.files.base import ContentFile
@@ -182,6 +183,30 @@ class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ("course_type", "active")
     search_fields = ("name", "slug", "summary")
     prepopulated_fields = {"slug": ("name",)}
+    fields = ("name", "summary", "price", "promotion_savings")
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj=obj, **kwargs)
+
+        if "promotion_savings" not in form.base_fields:
+            form.base_fields["promotion_savings"] = forms.CharField(required=False, label="Offer / Save Badge")
+
+        if obj:
+            fees = obj.fees if isinstance(obj.fees, dict) else {}
+            current = fees.get("promotion_savings", "")
+            if current and current != "0$ +HST":
+                form.base_fields["promotion_savings"].initial = current
+        return form
+
+    def save_model(self, request, obj, form, change):
+        promo = (form.cleaned_data.get("promotion_savings") or "").strip()
+        fees = obj.fees if isinstance(obj.fees, dict) else {}
+        if promo:
+            fees["promotion_savings"] = promo
+        else:
+            fees.pop("promotion_savings", None)
+        obj.fees = fees
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(CourseSession)
