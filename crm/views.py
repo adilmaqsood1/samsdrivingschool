@@ -346,7 +346,7 @@ def process_enrollment(request):
         amount_due = f"{invoice.total_amount:.2f}"
 
         if student and student.email:
-            user_subject = "Enrollment Received (Pay in Office) - Sams Driving School"
+            user_subject = f"Enrollment Received (Pay in Office) - Invoice {invoice.number} - Sams Driving School"
             user_body = (
                 f"<h2>Enrollment Received</h2>"
                 f"<p>Hi {student_name},</p>"
@@ -361,7 +361,7 @@ def process_enrollment(request):
                 f"<p>Regards,<br/>Sams Driving School</p>"
             )
             exists = ScheduledEmail.objects.filter(
-                recipient_email=student.email, subject=user_subject, body=user_body, channel="email", status="sent"
+                recipient_email=student.email, subject=user_subject, channel="email", status="sent"
             ).exists()
             if not exists:
                 _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_body, to_student=student)
@@ -380,7 +380,7 @@ def process_enrollment(request):
                 f"</ul>"
             )
             exists = ScheduledEmail.objects.filter(
-                recipient_email=admin_email, subject=admin_subject, body=admin_body, channel="email", status="sent"
+                recipient_email=admin_email, subject=admin_subject, channel="email", status="sent"
             ).exists()
             if not exists:
                 _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_body)
@@ -869,7 +869,7 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
     course_name = invoice.enrollment.session.course.name if invoice.enrollment and invoice.enrollment.session else "Driving Course"
 
     if student and student.email:
-        user_subject = "Payment Confirmation - Sams Driving School"
+        user_subject = f"Payment Confirmation - Invoice {invoice.number} - Sams Driving School"
         user_context = {
             "student_name": f"{student.first_name} {student.last_name}".strip(),
             "course_name": course_name,
@@ -878,7 +878,7 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
         }
         user_html = get_template("emails/purchase_success_user.html").render(user_context)
         exists = ScheduledEmail.objects.filter(
-            recipient_email=student.email, subject=user_subject, body=user_html, channel="email", status="sent"
+            recipient_email=student.email, subject=user_subject, channel="email", status="sent"
         ).exists()
         if not exists:
             _queue_and_send_email(recipient_email=student.email, subject=user_subject, body=user_html, to_student=student)
@@ -895,7 +895,7 @@ def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
         }
         admin_html = get_template("emails/purchase_success_admin.html").render(admin_context)
         exists = ScheduledEmail.objects.filter(
-            recipient_email=admin_email, subject=admin_subject, body=admin_html, channel="email", status="sent"
+            recipient_email=admin_email, subject=admin_subject, channel="email", status="sent"
         ).exists()
         if not exists:
             _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_html)

@@ -60,8 +60,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "samsdriving.wsgi.application"
 
-if not DEBUG:
-    DATABASES = {
+# if not DEBUG:
+
+DATABASES = {
         "default": {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'samsdriving_sams',        # your database name
@@ -69,16 +70,20 @@ if not DEBUG:
             'PASSWORD': 'Samsdrive123@',
             'HOST': 'localhost',
             'PORT': '3306',
+            "OPTIONS": {
+                "charset": "utf8mb4",
+                "init_command": "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+            },
         }
     }
     
-else:
-        DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+# else:
+#         DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
