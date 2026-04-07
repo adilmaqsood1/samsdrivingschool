@@ -177,36 +177,48 @@ class StudentAdmin(ExportCsvMixin, admin.ModelAdmin):
     inlines = [StudentDocumentInline]
 
 
-@admin.register(Course)
-class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("name", "slug", "course_type", "price", "active")
-    list_filter = ("course_type", "active")
-    search_fields = ("name", "slug", "summary")
-    prepopulated_fields = {"slug": ("name",)}
-    fields = ("name", "summary", "price", "promotion_savings")
+class CourseAdminForm(forms.ModelForm):
+    promotion_savings = forms.CharField(required=False, label="Offer / Save Badge")
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj=obj, **kwargs)
+    class Meta:
+        model = Course
+        fields = "__all__"
 
-        if "promotion_savings" not in form.base_fields:
-            form.base_fields["promotion_savings"] = forms.CharField(required=False, label="Offer / Save Badge")
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        obj = getattr(self, "instance", None)
         if obj:
             fees = obj.fees if isinstance(obj.fees, dict) else {}
             current = fees.get("promotion_savings", "")
             if current and current != "0$ +HST":
-                form.base_fields["promotion_savings"].initial = current
-        return form
+                self.fields["promotion_savings"].initial = current
 
-    def save_model(self, request, obj, form, change):
-        promo = (form.cleaned_data.get("promotion_savings") or "").strip()
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        promo = (self.cleaned_data.get("promotion_savings") or "").strip()
         fees = obj.fees if isinstance(obj.fees, dict) else {}
         if promo:
             fees["promotion_savings"] = promo
         else:
             fees.pop("promotion_savings", None)
         obj.fees = fees
-        super().save_model(request, obj, form, change)
+
+        if commit:
+            obj.save()
+            self.save_m2m()
+        return obj
+
+
+
+@admin.register(Course)
+class CourseAdmin(ExportCsvMixin, admin.ModelAdmin):
+    list_filter = ("course_type", "active")
+    form = CourseAdminForm
+    search_fields = ("name", "slug", "summary")
+    prepopulated_fields = {"slug": ("name",)}
+
+
+    fields = ("name", "summary", "price", "promotion_savings")
 
 
 @admin.register(CourseSession)
