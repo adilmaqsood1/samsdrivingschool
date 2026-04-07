@@ -132,9 +132,7 @@
 .main-header__logo::before,
 .main-header__logo::after,
 .main-header__logo,
-.main-header__right::after {
-  background-color: var(--drivschol-black3);
-}
+
 
 .course-one {
   background-color: var(--drivschol-black3);

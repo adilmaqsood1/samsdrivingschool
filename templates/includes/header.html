@@ -1,11 +1,11 @@
         <header class="main-header sticky-header sticky-header--normal">
             <div class="container-fluid">
                 <div class="main-header__inner">
-                    <div class="main-header__logo">
+                    {% comment %} <div class="main-header__logo"> {% endcomment %}
                         <a href="{% url 'index_page' %}">
-                            <img src="assets/samslogo.png" alt="Sams Driving School" width="49">
+                            <img src="assets/samslogo.png" alt="Sams Driving School" width="115">
                         </a>
-                    </div><!-- /.main-header__logo -->
+                    {% comment %} </div> {% endcomment %}
                     <nav class="main-header__nav main-menu">
                         <ul class="main-menu__list">
 
@@ -30,11 +30,7 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="info-item">
-                            <a href="#" class="search-toggler info-item__btn">
-                                <i class="icon-search"></i><span class="sr-only">Search</span>
-                            </a>
-                        </div>
+                        
                         {% comment %} <div class="info-item">
                             <a href="{% url 'login_page' %}" class="info-item__btn">Login</a>
                         </div> {% endcomment %}

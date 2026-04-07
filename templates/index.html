@@ -66,7 +66,7 @@
 
 	    <!-- Preloader Start-->
 	    <div class="preloader">
-	        <div class="preloader__image" style="background-image: url(assets/samslogo.png);"></div>
+	        <div class="preloader__image" style="background-image: url(assets/samslogo.png); background-size: 150px auto;"></div>
 	    </div>
 	    <!-- Preloader End-->
 
@@ -85,7 +85,7 @@
 	                            <a href="https://pinterest.com"><i class="icon-pinterest" aria-hidden="true"></i></a>
 	                            <a href="https://instagram.com"><i class="icon-Instagram" aria-hidden="true"></i></a>
 	                        </div>
-	                        {% comment %} <p class="topbar-one__text">Mon to Sat: 8.00 am - 7.00 pm</p> {% endcomment %}
+	                        <p class="topbar-one__text" style="font-size: 22px; font-weight: 800; letter-spacing: 0.2px;">Sam's Driving School</p>
 	                    </div>
 	                    <ul class="topbar-one__right">
 	                        <li class="topbar-one__right-text"><i class="icon-map-pin" aria-hidden="true"></i><a href="https://www.google.com/maps">Serving Milton & Burlington areas</a></li>
@@ -93,7 +93,7 @@
 	                    </ul>
 	                </div>
 	            </div>
-	        </div>
+	        </div> 
 	        <!-- Topbar Start-->
 
 	        <!-- Header Start-->
@@ -119,17 +119,6 @@
 	                {% for slide in hero_slides %}
 	                <div class="item" data-dot="<button>{{ forloop.counter|stringformat:'02d' }}</button>">
 	                    <div class="main-slider-one__item">
-	                        <div class="main-slider-one__bg" style="background-image: url({% if slide.background_src %}{{ slide.background_src }}{% else %}assets/images/backgrounds/slider-1-1.png{% endif %});"></div>
-	                        <div class="main-slider-one__shape-one">
-	                            <img src="assets/images/backgrounds/slider-1-shape-1.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-two">
-	                            <img src="assets/images/backgrounds/slider-1-shape-2.png" alt="drivschol">
-	                        </div>
-	                        <div class="main-slider-one__shape-border">
-	                            <span class="main-slider-one__shape-border__one"></span>
-	                            <span class="main-slider-one__shape-border__two"></span>
-	                        </div>
 	                        <div class="container">
 	                            <div class="main-slider-one__content">
 	                                <h2 class="main-slider-one__title">
@@ -143,12 +132,12 @@
 	                                </div><!-- slider-btn -->
 	                            </div>
 	                        </div>
-	                        <div class="main-slider-one__layer">
-	                            <img src="{% if slide.layer_src %}{{ slide.layer_src }}{% else %}assets/images/backgrounds/slider-1-layer-1.png{% endif %}" alt="drivschol">
-	                        </div>
 	                    </div>
 	                </div>
 	                {% endfor %}
+	            </div>
+	            <div style="position: absolute; right: 30px; top: 0; bottom: 0; width: 50%; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; z-index: 2; pointer-events: none;">
+	                <img src="assets/car.png" alt="drivschol" style="height: auto; display: block; max-width: none; width: 115%; transform: translateX(-20px);">
 	            </div>
 	            <a href="#services" class="main-slider-one__trigger"><span class="icon-video"></span></a>
 	        </section>
@@ -283,7 +272,7 @@
 	                            </div><!-- /.blog-card__content -->
 
 	                            <div class="service-card__bth">
-	                                <a href="{% if course.slug %}{% url 'course_details_page' course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="drivschol-btn drivschol-btn--base2">Read More <i class="fas fa-plus"></i></a>
+	                                <a href="{% if course.slug %}{% url 'enroll_page' course_slug=course.slug %}{% else %}{% url 'course_page' %}{% endif %}" class="drivschol-btn drivschol-btn--base2">Enroll Now <i class="fas fa-plus"></i></a>
 	                            </div>
 
 	                        </div><!-- /.blog-card -->
