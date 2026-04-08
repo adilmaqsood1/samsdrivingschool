@@ -1,5 +1,7 @@
 import csv
-import stripe
+import json
+import uuid
+from urllib import request as urlrequest
 from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
@@ -354,47 +356,70 @@ class LessonAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 @admin.register(Invoice)
 class InvoiceAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("number", "enrollment", "issue_date", "due_date", "total_amount", "status", "stripe_checkout_session_id")
+    list_display = ("number", "enrollment", "issue_date", "due_date", "total_amount", "status", "square_payment_link_id", "square_order_id")
     list_filter = ("status",)
     search_fields = ("number",)
-    actions = ["create_stripe_checkout"]
+    actions = ["create_square_checkout"]
 
-    def create_stripe_checkout(self, request, queryset):
-        if not settings.STRIPE_SECRET_KEY:
-            self.message_user(request, "Stripe secret key is not configured.", level=messages.ERROR)
+    def create_square_checkout(self, request, queryset):
+        if not getattr(settings, "SQUARE_ACCESS_TOKEN", "") or not getattr(settings, "SQUARE_LOCATION_ID", ""):
+            self.message_user(request, "Square settings are not configured.", level=messages.ERROR)
             return
-        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        base_url = "https://connect.squareup.com"
+        if getattr(settings, "SQUARE_ENVIRONMENT", "production").lower() == "sandbox":
+            base_url = "https://connect.squareupsandbox.com"
+
         checkout_links = []
         for invoice in queryset:
+            success_url = f"{settings.SITE_URL.rstrip('/')}{reverse('square_success_public', args=[invoice.id])}"
+            cents = int((invoice.total_amount or 0) * 100)
+            payload = {
+                "idempotency_key": str(uuid.uuid4()),
+                "quick_pay": {
+                    "name": f"Invoice {invoice.number}",
+                    "price_money": {"amount": cents, "currency": "CAD"},
+                    "location_id": settings.SQUARE_LOCATION_ID,
+                },
+                "checkout_options": {"redirect_url": success_url},
+                "description": f"Invoice {invoice.number} (id={invoice.id})",
+            }
+
             customer_email = ""
             if invoice.enrollment and invoice.enrollment.student:
                 customer_email = invoice.enrollment.student.email or ""
-            session = stripe.checkout.Session.create(
-                mode="payment",
-                payment_method_types=["card"],
-                customer_email=customer_email or None,
-                line_items=[
-                    {
-                        "price_data": {
-                            "currency": "cad",
-                            "product_data": {"name": f"Invoice {invoice.number}"},
-                            "unit_amount": int(invoice.total_amount * 100),
-                        },
-                        "quantity": 1,
-                    }
-                ],
-                success_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_success_public', args=[invoice.id])}",
-                cancel_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_cancel_public', args=[invoice.id])}",
-                metadata={"invoice_id": str(invoice.id)},
-                payment_intent_data={"metadata": {"invoice_id": str(invoice.id)}},
+            if customer_email:
+                payload["pre_populated_data"] = {"buyer_email": customer_email}
+
+            req = urlrequest.Request(
+                f"{base_url}/v2/online-checkout/payment-links",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {settings.SQUARE_ACCESS_TOKEN}",
+                    "Content-Type": "application/json",
+                    "Square-Version": getattr(settings, "SQUARE_VERSION", "2022-08-17"),
+                },
+                method="POST",
             )
-            invoice.stripe_checkout_session_id = session.id
-            invoice.save(update_fields=["stripe_checkout_session_id"])
-            checkout_links.append(f'<a href="{session.url}" target="_blank">Invoice {invoice.number} checkout</a>')
+            try:
+                with urlrequest.urlopen(req, timeout=20) as resp:
+                    raw = resp.read().decode("utf-8")
+                data = json.loads(raw or "{}")
+            except Exception as exc:
+                self.message_user(request, f"Square checkout creation failed for invoice {invoice.number}: {exc}", level=messages.ERROR)
+                continue
+
+            payment_link = data.get("payment_link") or {}
+            url = payment_link.get("url") or ""
+            invoice.square_payment_link_id = payment_link.get("id") or ""
+            invoice.square_order_id = payment_link.get("order_id") or ""
+            invoice.save(update_fields=["square_payment_link_id", "square_order_id"])
+            if url:
+                checkout_links.append(f'<a href="{url}" target="_blank">Invoice {invoice.number} checkout</a>')
         if checkout_links:
             self.message_user(request, mark_safe("<br/>".join(checkout_links)), level=messages.SUCCESS)
 
-    create_stripe_checkout.short_description = "Create Stripe checkout sessions"
+    create_square_checkout.short_description = "Create Square checkout links"
 
 
 @admin.register(PaymentPlan)
@@ -406,7 +431,7 @@ class PaymentPlanAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ("invoice", "amount", "paid_at", "method", "status", "stripe_payment_intent_id")
+    list_display = ("invoice", "amount", "paid_at", "method", "status", "square_payment_id", "reference")
     list_filter = ("method", "status")
 
 

@@ -1,7 +1,7 @@
 Django>=4.2,<5.0
 django-jet-reboot
 django-ckeditor>=6.7,<7.0
-stripe
+squareup>=44.0.0
 APScheduler
 whitenoise>=6.6,<7.0
 dj-database-url>=2.2,<3.0

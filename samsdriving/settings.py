@@ -60,9 +60,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "samsdriving.wsgi.application"
 
-# if not DEBUG:
+if not DEBUG:
 
-DATABASES = {
+    DATABASES = {
         "default": {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'samsdriving_sams',        # your database name
@@ -77,13 +77,13 @@ DATABASES = {
         }
     }
     
-# else:
-#         DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": BASE_DIR / "db.sqlite3",
-#         }
-#     }
+else:
+        DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -159,9 +159,12 @@ CSRF_TRUSTED_ORIGINS = [
 
 SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
 
-STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+SQUARE_ENVIRONMENT = os.environ.get("SQUARE_ENVIRONMENT", "production").lower()
+SQUARE_APPLICATION_ID = os.environ.get("SQUARE_APPLICATION_ID", "")
+SQUARE_ACCESS_TOKEN = os.environ.get("SQUARE_ACCESS_TOKEN", "")
+SQUARE_LOCATION_ID = os.environ.get("SQUARE_LOCATION_ID", "")
+SQUARE_WEBHOOK_SIGNATURE_KEY = os.environ.get("SQUARE_WEBHOOK_SIGNATURE_KEY", "")
+SQUARE_VERSION = os.environ.get("SQUARE_VERSION", "2022-08-17")
 
 
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")

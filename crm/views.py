@@ -1,4 +1,6 @@
-import stripe
+import base64
+import hashlib
+import hmac
 import json
 import uuid
 import logging
@@ -392,7 +394,7 @@ def process_enrollment(request):
         })
     
     # Redirect to Stripe Checkout
-    return HttpResponseRedirect(reverse("stripe_checkout", args=[invoice.id]))
+    return HttpResponseRedirect(reverse("square_checkout", args=[invoice.id]))
 
 
 def requests_get_or_create_course(course_data):
@@ -733,66 +735,66 @@ def calendar_feed(request, token):
     return HttpResponse("\r\n".join(lines), content_type="text/calendar; charset=utf-8")
 
 
-def stripe_checkout(request, invoice_id):
+def square_checkout(request, invoice_id):
     invoice = Invoice.objects.select_related("enrollment__student").filter(id=invoice_id).first()
     if not invoice:
         raise Http404()
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    customer_email = ""
+    if not getattr(settings, "SQUARE_ACCESS_TOKEN", "") or not getattr(settings, "SQUARE_LOCATION_ID", ""):
+        raise Http404()
+
+    base_url = "https://connect.squareup.com"
+    if getattr(settings, "SQUARE_ENVIRONMENT", "production").lower() == "sandbox":
+        base_url = "https://connect.squareupsandbox.com"
+
+    success_url = f"{settings.SITE_URL.rstrip('/')}{reverse('square_success_public', args=[invoice.id])}"
+
+    cents = int((invoice.total_amount or 0) * 100)
+    payload = {
+        "idempotency_key": str(uuid.uuid4()),
+        "quick_pay": {
+            "name": f"Invoice {invoice.number}",
+            "price_money": {"amount": cents, "currency": "CAD"},
+            "location_id": settings.SQUARE_LOCATION_ID,
+        },
+        "checkout_options": {"redirect_url": success_url},
+        "description": f"Invoice {invoice.number} (id={invoice.id})",
+    }
+
+    student_email = ""
     if invoice.enrollment and invoice.enrollment.student:
-        customer_email = invoice.enrollment.student.email or ""
-    session = stripe.checkout.Session.create(
-        mode="payment",
-        payment_method_types=["card"],
-        customer_email=customer_email or None,
-        line_items=[
-            {
-                "price_data": {
-                    "currency": "cad",
-                    "product_data": {"name": f"Invoice {invoice.number}"},
-                    "unit_amount": int(invoice.total_amount * 100),
-                },
-                "quantity": 1,
-            }
-        ],
-        success_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_success_public', args=[invoice.id])}",
-        cancel_url=f"{settings.SITE_URL.rstrip('/')}{reverse('stripe_cancel_public', args=[invoice.id])}",
-        metadata={"invoice_id": str(invoice.id)},
-        payment_intent_data={"metadata": {"invoice_id": str(invoice.id)}},
+        student_email = invoice.enrollment.student.email or ""
+    if student_email:
+        payload["pre_populated_data"] = {"buyer_email": student_email}
+
+    req = urlrequest.Request(
+        f"{base_url}/v2/online-checkout/payment-links",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {settings.SQUARE_ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+            "Square-Version": getattr(settings, "SQUARE_VERSION", "2022-08-17"),
+        },
+        method="POST",
     )
-    invoice.stripe_checkout_session_id = session.id
-    invoice.save(update_fields=["stripe_checkout_session_id"])
-    return HttpResponseRedirect(session.url)
+    try:
+        with urlrequest.urlopen(req, timeout=20) as resp:
+            raw = resp.read().decode("utf-8")
+        data = json.loads(raw or "{}")
+    except Exception:
+        logger.exception("Square payment link creation failed for invoice_id=%s", invoice_id)
+        raise Http404()
+
+    payment_link = data.get("payment_link") or {}
+    invoice.square_payment_link_id = payment_link.get("id") or ""
+    invoice.square_order_id = payment_link.get("order_id") or ""
+    invoice.save(update_fields=["square_payment_link_id", "square_order_id"])
+    return HttpResponseRedirect(payment_link.get("url") or reverse("square_success_public", args=[invoice.id]))
 
 
-def stripe_success(request, invoice_id):
+def square_success(request, invoice_id):
     invoice = Invoice.objects.select_related("enrollment__student").filter(id=invoice_id).first()
     if not invoice:
         raise Http404()
-    if getattr(settings, "STRIPE_SECRET_KEY", ""):
-        try:
-            stripe.api_key = settings.STRIPE_SECRET_KEY
-            session_id = (request.GET.get("session_id") or "").strip() or (invoice.stripe_checkout_session_id or "")
-            if not session_id:
-                return render(
-                    request,
-                    "payment_success.html",
-                    {
-                        "invoice": invoice,
-                        "student_name": f"{invoice.enrollment.student.first_name} {invoice.enrollment.student.last_name}".strip()
-                        if invoice.enrollment and invoice.enrollment.student
-                        else "Student",
-                    },
-                )
-            session = stripe.checkout.Session.retrieve(session_id)
-            session_invoice_id = (session.get("metadata") or {}).get("invoice_id")
-            payment_status = session.get("payment_status")
-            payment_intent_id = session.get("payment_intent")
-            invoice_matches = not session_invoice_id or str(session_invoice_id) == str(invoice_id)
-            if invoice_matches and payment_status == "paid":
-                _mark_invoice_paid(invoice_id, payment_intent_id, session_id)
-        except Exception:
-            logger.exception("Stripe success handler failed for invoice_id=%s", invoice_id)
     return render(
         request,
         "payment_success.html",
@@ -805,7 +807,7 @@ def stripe_success(request, invoice_id):
     )
 
 
-def stripe_cancel(request, invoice_id):
+def square_cancel(request, invoice_id):
     invoice = Invoice.objects.select_related("enrollment__session__course").filter(id=invoice_id).first()
     if invoice and invoice.enrollment and invoice.enrollment.session and invoice.enrollment.session.course:
         course_slug = invoice.enrollment.session.course.slug
@@ -816,52 +818,90 @@ def stripe_cancel(request, invoice_id):
 
 
 @csrf_exempt
-def stripe_webhook(request):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    payload = request.body
-    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+def square_webhook(request):
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
+        payload_text = (request.body or b"").decode("utf-8")
     except Exception:
-        logger.exception("Stripe webhook signature verification failed")
         return JsonResponse({"status": "invalid"}, status=400)
-    event_type = event.get("type")
-    data_object = event.get("data", {}).get("object", {})
-    if event_type == "checkout.session.completed":
-        invoice_id = data_object.get("metadata", {}).get("invoice_id")
-        payment_intent_id = data_object.get("payment_intent")
-        session_id = data_object.get("id")
-        _mark_invoice_paid(invoice_id, payment_intent_id, session_id)
-    if event_type == "payment_intent.succeeded":
-        invoice_id = data_object.get("metadata", {}).get("invoice_id")
-        payment_intent_id = data_object.get("id")
-        _mark_invoice_paid(invoice_id, payment_intent_id, "")
+
+    signature_key = getattr(settings, "SQUARE_WEBHOOK_SIGNATURE_KEY", "") or ""
+    if signature_key:
+        signature_header = request.headers.get("x-square-hmacsha256-signature", "") or request.META.get("HTTP_X_SQUARE_HMACSHA256_SIGNATURE", "")
+        candidates = []
+        try:
+            candidates.append(request.build_absolute_uri().split("?", 1)[0])
+        except Exception:
+            pass
+        candidates.append(f"{settings.SITE_URL.rstrip('/')}{request.path}")
+
+        is_valid = False
+        for notification_url in candidates:
+            mac = hmac.new(signature_key.encode("utf-8"), (notification_url + payload_text).encode("utf-8"), hashlib.sha256).digest()
+            expected = base64.b64encode(mac).decode("utf-8")
+            if hmac.compare_digest(expected, signature_header):
+                is_valid = True
+                break
+        if not is_valid:
+            return JsonResponse({"status": "invalid"}, status=400)
+
+    try:
+        event = json.loads(payload_text or "{}")
+    except Exception:
+        return JsonResponse({"status": "invalid"}, status=400)
+
+    event_type = (event.get("type") or "").strip()
+    payment = (((event.get("data") or {}).get("object") or {}).get("payment") or {})
+    if event_type in ("payment.updated", "payment.created"):
+        if (payment.get("status") or "").upper() == "COMPLETED":
+            order_id = payment.get("order_id") or ""
+            payment_id = payment.get("id") or ""
+            if order_id:
+                invoice = Invoice.objects.filter(square_order_id=order_id).first()
+                if invoice:
+                    _mark_invoice_paid_square(invoice.id, payment_id=payment_id, order_id=order_id)
+
     return JsonResponse({"status": "ok"})
 
 
-def _mark_invoice_paid(invoice_id, payment_intent_id, session_id):
+def stripe_checkout(request, invoice_id):
+    return square_checkout(request, invoice_id)
+
+
+def stripe_success(request, invoice_id):
+    return square_success(request, invoice_id)
+
+
+def stripe_cancel(request, invoice_id):
+    return square_cancel(request, invoice_id)
+
+
+def stripe_webhook(request):
+    return square_webhook(request)
+
+
+def _mark_invoice_paid_square(invoice_id, *, payment_id, order_id):
     if not invoice_id:
         return
     invoice = Invoice.objects.filter(id=invoice_id).first()
     if not invoice:
         return
     invoice.status = "paid"
-    if payment_intent_id:
-        invoice.stripe_payment_intent_id = payment_intent_id
-    if session_id:
-        invoice.stripe_checkout_session_id = session_id
-    invoice.save(update_fields=["status", "stripe_payment_intent_id", "stripe_checkout_session_id"])
-    payment_lookup = Payment.objects.filter(invoice=invoice, method="stripe", status="completed")
-    if payment_intent_id:
-        payment_lookup = payment_lookup.filter(stripe_payment_intent_id=payment_intent_id)
+    if payment_id:
+        invoice.square_payment_id = payment_id
+    if order_id:
+        invoice.square_order_id = order_id
+    invoice.save(update_fields=["status", "square_payment_id", "square_order_id"])
+    payment_lookup = Payment.objects.filter(invoice=invoice, method="square", status="completed")
+    if payment_id:
+        payment_lookup = payment_lookup.filter(square_payment_id=payment_id)
     payment_exists = payment_lookup.exists()
     if not payment_exists:
         Payment.objects.create(
             invoice=invoice,
             amount=invoice.total_amount,
             paid_at=timezone.now(),
-            method="stripe",
-            stripe_payment_intent_id=payment_intent_id or "",
+            method="square",
+            square_payment_id=payment_id or "",
             status="completed",
         )
 
