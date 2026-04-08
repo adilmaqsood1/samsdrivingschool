@@ -8,6 +8,27 @@ pymysql.install_as_MySQLdb()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def _load_env_file(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                raw = (line or "").strip()
+                if not raw or raw.startswith("#") or "=" not in raw:
+                    continue
+                key, value = raw.split("=", 1)
+                key = (key or "").strip()
+                value = (value or "").strip()
+                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
+                if key and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        return
+
+
+_load_env_file(BASE_DIR / ".env")
+
 DEBUG = False
 
 SECRET_KEY = "django-insecure-6ioo9m4d=1%5!2u0v8a7n1ydqz3k2l1x1_9s4l5n3t7q6t8e0"

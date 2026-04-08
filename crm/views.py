@@ -8,6 +8,7 @@ from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from urllib.parse import urlencode
 from urllib import request as urlrequest
+from urllib import error as urlerror
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -394,7 +395,7 @@ def process_enrollment(request):
         })
     
     # Redirect to Stripe Checkout
-    return HttpResponseRedirect(reverse("square_checkout", args=[invoice.id]))
+    return HttpResponseRedirect(reverse("square_checkout_public", args=[invoice.id]))
 
 
 def requests_get_or_create_course(course_data):
@@ -740,7 +741,7 @@ def square_checkout(request, invoice_id):
     if not invoice:
         raise Http404()
     if not getattr(settings, "SQUARE_ACCESS_TOKEN", "") or not getattr(settings, "SQUARE_LOCATION_ID", ""):
-        raise Http404()
+        return HttpResponse("Payment gateway is not configured.", status=500)
 
     base_url = "https://connect.squareup.com"
     if getattr(settings, "SQUARE_ENVIRONMENT", "production").lower() == "sandbox":
@@ -780,9 +781,21 @@ def square_checkout(request, invoice_id):
         with urlrequest.urlopen(req, timeout=20) as resp:
             raw = resp.read().decode("utf-8")
         data = json.loads(raw or "{}")
+    except urlerror.HTTPError as exc:
+        try:
+            details = exc.read().decode("utf-8")
+        except Exception:
+            details = ""
+        logger.error(
+            "Square payment link creation failed for invoice_id=%s status=%s body=%s",
+            invoice_id,
+            getattr(exc, "code", ""),
+            details,
+        )
+        return HttpResponse("Could not start payment. Please try again later.", status=502)
     except Exception:
         logger.exception("Square payment link creation failed for invoice_id=%s", invoice_id)
-        raise Http404()
+        return HttpResponse("Could not start payment. Please try again later.", status=502)
 
     payment_link = data.get("payment_link") or {}
     invoice.square_payment_link_id = payment_link.get("id") or ""

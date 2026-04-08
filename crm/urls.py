@@ -28,9 +28,5 @@ urlpatterns = [
     path("square/success/<int:invoice_id>/", views.square_success, name="square_success"),
     path("square/cancel/<int:invoice_id>/", views.square_cancel, name="square_cancel"),
     path("square/webhook/", views.square_webhook, name="square_webhook"),
-    path("stripe/checkout/<int:invoice_id>/", views.stripe_checkout, name="stripe_checkout"),
-    path("stripe/success/<int:invoice_id>/", views.stripe_success, name="stripe_success"),
-    path("stripe/cancel/<int:invoice_id>/", views.stripe_cancel, name="stripe_cancel"),
-    path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
     re_path(r"^(?P<template_name>[^/]+\.html)$", views.template_page, name="template_page"),
 ]
