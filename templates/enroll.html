@@ -16,6 +16,7 @@
                         <h3 class="enrollment-form__title" style="margin-bottom: 30px;">Registration Form</h3>
                         <form action="{% url 'process_enrollment' %}" method="post" class="contact-one__form">
                             {% csrf_token %}
+                            {% include "partials/antispam_fields.html" %}
                             <input type="hidden" name="course_slug" value="{{ course_slug }}">
                             
                             <div class="row">

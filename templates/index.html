@@ -948,6 +948,7 @@
 	                    <div class="col-xl-6 col-lg-7 wow slideInRight">
 	                        <form class="form-one team-form-one__form contact-form-validated " action="{% url 'lead_capture' %}" method="post" novalidate="novalidate">
 	                            {% csrf_token %}
+	                            {% include "partials/antispam_fields.html" %}
 	                            <div class="sec-title   wow fadeInUp" data-wow-duration='300ms'>
 
 	                                <h6 class="sec-title__tagline">

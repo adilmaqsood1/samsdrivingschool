@@ -1,0 +1,19 @@
+{% comment %}
+Spam defense for public forms. Include this just inside every public <form>,
+after {% csrf_token %}. Pairs with crm/antispam.py + crm.context_processors.
+{% endcomment %}
+
+{# Honeypot: hidden from humans by CSS, tempting to bots. Must stay empty. #}
+<div aria-hidden="true" style="position:absolute!important;left:-9999px!important;top:-9999px!important;height:0;width:0;overflow:hidden;">
+  <label>Leave this field empty
+    <input type="text" name="{{ antispam_honeypot_field }}" tabindex="-1" autocomplete="off">
+  </label>
+</div>
+
+{# Signed timestamp planted at render time; the server rejects instant or stale posts. #}
+<input type="hidden" name="{{ antispam_timestamp_field }}" value="{{ antispam_timestamp }}">
+
+{% if turnstile_site_key %}
+  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}

@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
+from . import antispam
 from .forms import (
     LeadForm,
     StudentRegistrationForm,
@@ -217,7 +218,10 @@ def enroll_page(request, course_slug):
 def process_enrollment(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("course_page"))
-    
+
+    if not antispam.evaluate(request).ok:
+        return HttpResponseRedirect(reverse("course_page"))
+
     course_slug = request.POST.get("course_slug")
     if not course_slug:
         raise Http404()
@@ -486,6 +490,9 @@ def blog_comment_create(request, slug):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("blog_details", args=[blog.slug]))
 
+    if not antispam.evaluate(request).ok:
+        return HttpResponseRedirect(f"{reverse('blog_details', args=[blog.slug])}#comments")
+
     form = BlogCommentForm(request.POST)
     if form.is_valid():
         BlogComment.objects.create(
@@ -493,7 +500,7 @@ def blog_comment_create(request, slug):
             name=form.cleaned_data["name"],
             email=form.cleaned_data.get("email") or "",
             body=form.cleaned_data["body"],
-            is_approved=True,
+            is_approved=not getattr(settings, "ANTISPAM_ENABLED", True),
         )
         return HttpResponseRedirect(f"{reverse('blog_details', args=[blog.slug])}#comments")
 
@@ -526,6 +533,11 @@ def contact_page(request):
 def lead_capture(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("contact_page"))
+    _contact_redirect = HttpResponseRedirect(
+        request.META.get("HTTP_REFERER") or reverse("contact_page")
+    )
+    if not antispam.evaluate(request).ok:
+        return _contact_redirect
     form = LeadForm(request.POST)
     if not form.is_valid():
         return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
@@ -618,6 +630,8 @@ def logout_view(request):
 def enroll_request(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("course_page"))
+    if not antispam.evaluate(request).ok:
+        return HttpResponseRedirect(reverse("course_details_default_page"))
     data = {
         "name": request.POST.get("name", "").strip(),
         "email": request.POST.get("email", "").strip(),
@@ -663,15 +677,17 @@ def enroll_request(request):
             subject="New Enrollment Request",
             body=f"{data['name']} requested {data.get('package','')} {data.get('preferred_location','')}",
         )
-    return HttpResponseRedirect(reverse("course_details_page"))
+    return HttpResponseRedirect(reverse("course_details_default_page"))
 
 
 def lesson_request(request):
     if request.method != "POST":
-        return HttpResponseRedirect(reverse("course_details_page"))
+        return HttpResponseRedirect(reverse("course_details_default_page"))
+    if not antispam.evaluate(request).ok:
+        return HttpResponseRedirect(reverse("course_details_default_page"))
     form = LessonRequestForm(request.POST)
     if not form.is_valid():
-        return HttpResponseRedirect(reverse("course_details_page"))
+        return HttpResponseRedirect(reverse("course_details_default_page"))
     data = form.cleaned_data
     LessonRequest.objects.create(
         name=data["name"],
@@ -695,7 +711,7 @@ def lesson_request(request):
             subject="New Lesson Request",
             body=f"{data['name']} requested a lesson on {data.get('preferred_date','')} {data.get('preferred_time','')}",
         )
-    return HttpResponseRedirect(reverse("course_details_page"))
+    return HttpResponseRedirect(reverse("course_details_default_page"))
 
 
 def calendar_feed(request, token):

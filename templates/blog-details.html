@@ -172,6 +172,7 @@
                             <h3 class="comments-form__title">Leave A Comments</h3><!-- /.comments-form__title -->
                             <form action="{% url 'blog_comment_create' slug=blog.slug %}" method="post" class="comments-form__form form-one">
                                 {% csrf_token %}
+                                {% include "partials/antispam_fields.html" %}
                                 <div class="form-one__group">
                                     <div class="form-one__control">
                                         <input type="text" name="name" placeholder="Your name" value="{{ comment_form.name.value|default:'' }}" required>

@@ -130,6 +130,7 @@
 
                     <form class="contact-one__form contact-form-validated form-one" action="{% url 'lead_capture' %}" method="post">
                         {% csrf_token %}
+                        {% include "partials/antispam_fields.html" %}
                         <div class="form-one__group wow fadeInUp" data-wow-delay='300ms'>
                             <div class="contact-one__form__control">
                                 <input type="text" name="name" placeholder="Your Name">

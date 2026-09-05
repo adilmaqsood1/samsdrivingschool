@@ -74,6 +74,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "crm.context_processors.antispam_context",
             ],
         },
     },
@@ -166,6 +167,21 @@ ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", 
 
 SMS_WEBHOOK_URL = os.environ.get("SMS_WEBHOOK_URL", "")
 SMS_WEBHOOK_TOKEN = os.environ.get("SMS_WEBHOOK_TOKEN", "")
+
+
+# --- Public-form spam defense (see crm/antispam.py) ---
+# Master switch. Honeypot + timing + rate-limit always run when enabled;
+# Turnstile only runs when TURNSTILE_SECRET_KEY is also set.
+ANTISPAM_ENABLED = os.environ.get("ANTISPAM_ENABLED", "True").lower() == "true"
+
+# Cloudflare Turnstile keys (dash.cloudflare.com -> Turnstile -> Add widget).
+# Free plan, no DNS change required. Leave blank to run local checks only.
+TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "")
+
+# Set True only if a trusted reverse proxy sets X-Forwarded-For; otherwise
+# the rate limiter reads REMOTE_ADDR.
+ANTISPAM_TRUST_XFF = os.environ.get("ANTISPAM_TRUST_XFF", "False").lower() == "true"
 
 
 CSRF_TRUSTED_ORIGINS = [
