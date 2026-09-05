@@ -13,8 +13,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
@@ -215,6 +217,100 @@ def enroll_page(request, course_slug):
     return render(request, "enroll.html", {"course": course, "course_slug": course.slug})
 
 
+def _valid_email(value):
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        validate_email(value)
+    except ValidationError:
+        return None
+    return value
+
+
+def _get_or_create_student(*, first_name, last_name, email, phone, address, city, province, postal_code, user=None):
+    """Find a Student by email (or by user) and update it; otherwise create.
+
+    Re-submissions of the same enrollment form must not create duplicates.
+    """
+    if user is not None and getattr(user, "is_authenticated", False):
+        student = Student.objects.filter(user=user).first()
+        if student:
+            return student, False
+    if email:
+        student = Student.objects.filter(email__iexact=email).first()
+        if student:
+            updated = []
+            if first_name and student.first_name != first_name:
+                student.first_name = first_name; updated.append("first_name")
+            if last_name and not student.last_name and last_name:
+                student.last_name = last_name; updated.append("last_name")
+            if phone and not student.phone:
+                student.phone = phone; updated.append("phone")
+            if address and not student.address_line1:
+                student.address_line1 = address; updated.append("address_line1")
+            if city and not student.city:
+                student.city = city; updated.append("city")
+            if province and not student.province:
+                student.province = province; updated.append("province")
+            if postal_code and not student.postal_code:
+                student.postal_code = postal_code; updated.append("postal_code")
+            if updated:
+                student.save(update_fields=updated)
+            return student, False
+    student = Student.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        email=email or "",
+        phone=phone,
+        address_line1=address,
+        city=city,
+        province=province,
+        postal_code=postal_code,
+    )
+    return student, True
+
+
+# Location string that identifies the single reusable "no scheduled session"
+# placeholder CourseSession per course. Kept stable so get_or_create matches it.
+PLACEHOLDER_SESSION_LOCATION = "Unscheduled — website enrollments"
+
+
+def _session_for_enrollment(course):
+    """Return a CourseSession to attach a website enrollment to.
+
+    Prefer a real session the admin has opened for the course. If none exists,
+    fall back to a single reusable placeholder per course (clearly labelled,
+    ``enrollment_open=False``) so online enrollments are never turned away when
+    the client has not scheduled a session. The admin can reassign the
+    Enrollment to a real session later, or just work from the placeholder.
+    """
+    real = (
+        CourseSession.objects.filter(course=course, enrollment_open=True)
+        .order_by("start_date")
+        .first()
+    )
+    if real:
+        return real
+    placeholder, _created = CourseSession.objects.get_or_create(
+        course=course,
+        location=PLACEHOLDER_SESSION_LOCATION,
+        defaults={
+            "start_date": timezone.now().date(),
+            "delivery_mode": (
+                "online" if "online" in (course.session or "").lower() else "in_class"
+            ),
+            "enrollment_open": False,
+            "schedule_details": (
+                "Auto-created to hold website enrollments received while no "
+                "scheduled session was open. Reassign these enrollments to a "
+                "real session once one is scheduled."
+            ),
+        },
+    )
+    return placeholder
+
+
 def process_enrollment(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("course_page"))
@@ -226,97 +322,98 @@ def process_enrollment(request):
     if not course_slug:
         raise Http404()
     course = get_object_or_404(Course, slug=course_slug, active=True)
-        
+
     first_name = request.POST.get("first_name", "").strip()
     last_name = request.POST.get("last_name", "").strip()
-    email = request.POST.get("email", "").strip()
+    email = _valid_email(request.POST.get("email", "")) or ""
     phone = request.POST.get("phone", "").strip()
     address = request.POST.get("address", "").strip()
     city = request.POST.get("city", "").strip()
     province = request.POST.get("province", "").strip()
     postal_code = request.POST.get("postal_code", "").strip()
     notes = request.POST.get("notes", "").strip()
-    
-    # Create or update student
-    student = None
-    if request.user.is_authenticated:
-        student = Student.objects.filter(user=request.user).first()
-        
-    if not student:
-        # Check by email
-        student = Student.objects.filter(email=email).first()
-        
-    if not student:
-        # Create new student (without user account for now)
-        student = Student.objects.create(
+
+    # Reject incomplete submissions outright. Earlier code silently fabricated
+    # placeholder emails, which polluted the Lead pipeline.
+    if not email:
+        return HttpResponseRedirect(reverse("enroll_page", args=[course.slug]))
+
+    # Every Enrollment needs a CourseSession. Use a real open session if the
+    # client has scheduled one, otherwise attach to a reusable per-course
+    # placeholder so the enrollment and its invoice still go through. The
+    # client can fix the record in the admin later if needed.
+    db_session = _session_for_enrollment(course)
+
+    student, _created = _get_or_create_student(
+        first_name=first_name or "Website Visitor",
+        last_name=last_name,
+        email=email,
+        phone=phone,
+        address=address,
+        city=city,
+        province=province,
+        postal_code=postal_code,
+        user=request.user if request.user.is_authenticated else None,
+    )
+
+    # Enrollment Request for admin tracking (idempotent: skip if already pending).
+    enrollment_request, _er_created = EnrollmentRequest.objects.get_or_create(
+        name=f"{first_name} {last_name}".strip() or student.first_name,
+        email=email,
+        defaults={
+            "phone": phone,
+            "package": course.enroll_package or course.title,
+            "preferred_location": f"{city}, {province}",
+            "notes": notes,
+        },
+    )
+
+    # Lead record (idempotent: update notes on existing lead with this email).
+    lead = Lead.objects.filter(email__iexact=email).first()
+    if lead:
+        lead.first_name = lead.first_name or first_name
+        lead.last_name = lead.last_name or last_name
+        lead.phone = lead.phone or phone
+        lead.interest = lead.interest or course.title
+        if notes:
+            lead.notes = (lead.notes + "\n---\n" + notes).strip() if lead.notes else notes
+        lead.save()
+    else:
+        lead = Lead.objects.create(
             first_name=first_name,
             last_name=last_name,
             email=email,
             phone=phone,
-            address_line1=address,
-            city=city,
-            province=province,
-            postal_code=postal_code,
+            status="new",
+            interest=course.title,
+            notes=notes,
         )
-    
-    # Create Enrollment Request (for admin tracking)
-    EnrollmentRequest.objects.create(
-        name=f"{first_name} {last_name}",
-        email=email,
-        phone=phone,
-        package=course.enroll_package or course.title,
-        preferred_location=f"{city}, {province}",
-        notes=notes,
-    )
-    
-    # Create Lead
-    Lead.objects.create(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        phone=phone,
-        status="new",
-        interest=course.title,
-        notes=notes,
-    )
-    
-    # Create Enrollment record (pending)
-    # We need a CourseSession, but for now we might not have one selected.
-    # Let's check if we can create an Enrollment without a session or pick a default/dummy one.
-    # The Enrollment model requires a session.
-    # For simplicity, we'll try to find an open session for this course type or create a placeholder.
-    # Or, given the constraints, we might skip Enrollment creation and go straight to Invoice 
-    # if Invoice doesn't strictly require Enrollment (let's check Invoice model).
-    # Invoice requires Enrollment.
-    
-    # So we need a Course and CourseSession in DB matching the catalog.
-    # This might be a bit complex if DB is empty.
-    # Let's try to find or create a placeholder Course and Session.
-    
-    db_session = CourseSession.objects.filter(course=course, enrollment_open=True).first()
-    if not db_session:
-        db_session = CourseSession.objects.create(
-            course=course,
-            start_date=timezone.now().date(),
-            location="Online/TBD",
-            delivery_mode="online" if "online" in (course.session or "").lower() else "in_class"
-        )
-        
-    enrollment = Enrollment.objects.create(
+
+    enrollment, _enr_created = Enrollment.objects.get_or_create(
         student=student,
         session=db_session,
-        status="pending"
+        defaults={"status": "pending"},
     )
-    
-    # Create Invoice
-    import random
+
     total_amount = _course_total_with_hst(course)
-    
-    invoice = None
-    max_retries = 5
-    for _ in range(max_retries):
-        invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-        if not Invoice.objects.filter(number=invoice_number).exists():
+
+    # If this enrollment already has a draft or issued invoice, reuse it
+    # instead of issuing another one. Resubmissions of the same enrollment
+    # must not produce duplicate invoices.
+    existing_invoice = (
+        Invoice.objects.filter(enrollment=enrollment, status__in=["draft", "issued"])
+        .order_by("-issue_date", "-id")
+        .first()
+    )
+    if existing_invoice:
+        invoice = existing_invoice
+    else:
+        # Create Invoice with a unique number. UUID-based; collisions handled
+        # by retrying inside the atomic block.
+        invoice = None
+        max_retries = 5
+        for _ in range(max_retries):
+            invoice_number = f"INV-{timezone.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
             try:
                 with transaction.atomic():
                     invoice = Invoice.objects.create(
@@ -325,32 +422,22 @@ def process_enrollment(request):
                         issue_date=timezone.now().date(),
                         total_amount=total_amount,
                         status="draft",
-                        notes=f"Enrollment for {course.title}"
+                        notes=f"Enrollment for {course.title}",
                     )
                 break
             except IntegrityError:
                 continue
-            except Exception:
-                continue
-    
-    if not invoice:
-        # Fallback to UUID if random fails repeatedly
-        import uuid
-        invoice_number = f"INV-{uuid.uuid4().hex[:12].upper()}"
-        invoice = Invoice.objects.create(
-            enrollment=enrollment,
-            number=invoice_number,
-            issue_date=timezone.now().date(),
-            total_amount=total_amount,
-            status="draft",
-            notes=f"Enrollment for {course.title}"
-        )
-    
-    payment_method = request.POST.get("payment_method", "stripe")
+        if not invoice:
+            return HttpResponse("Could not generate an invoice number; please try again.", status=500)
+
+    payment_method = request.POST.get("payment_method", "square")
     if payment_method == "pay_later":
         student_name = f"{first_name} {last_name}".strip() or "Student"
         course_name = course.title
         amount_due = f"{invoice.total_amount:.2f}"
+
+        school_phone = getattr(settings, "SCHOOL_PHONE", "") or ""
+        school_phone_display = getattr(settings, "SCHOOL_PHONE_DISPLAY", school_phone) or school_phone
 
         if student and student.email:
             user_subject = f"Enrollment Received (Pay in Office) - Invoice {invoice.number} - Sams Driving School"
@@ -364,7 +451,8 @@ def process_enrollment(request):
                 f"<li><strong>Invoice #:</strong> {invoice.number}</li>"
                 f"<li><strong>Amount Due:</strong> ${amount_due}</li>"
                 f"</ul>"
-                f"<p>To complete payment and confirm your lesson time, please call <a href=\"tel:+16478891708\">+1 (647) 889-1708</a>.</p>"
+                f"<p>To complete payment and confirm your lesson time, please call "
+                f"<a href=\"tel:{school_phone}\">{school_phone_display}</a>.</p>"
                 f"<p>Regards,<br/>Sams Driving School</p>"
             )
             exists = ScheduledEmail.objects.filter(
@@ -393,12 +481,13 @@ def process_enrollment(request):
                 _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_body)
 
         return render(request, "enroll_success_pay_later.html", {
-            "invoice": invoice, 
+            "invoice": invoice,
             "course": course,
-            "student_name": student_name
+            "student_name": student_name,
         })
-    
-    # Redirect to Stripe Checkout
+
+    # Redirect to Square Checkout (the payment-method value is informational;
+    # the only branch we special-case is pay_later, everything else pays now).
     return HttpResponseRedirect(reverse("square_checkout_public", args=[invoice.id]))
 
 
@@ -549,17 +638,33 @@ def lead_capture(request):
     parts = name.split()
     first_name = parts[0] if parts else ""
     last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
-    lead = Lead.objects.create(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        phone=phone,
-        status="new",
-        source="Website Contact Form",
-        interest=subject,
-        notes=message,
-    )
-    if message:
+    # Idempotent upsert: dedupe by email so resubmits update the existing
+    # lead instead of creating duplicate rows (same shape as process_enrollment).
+    with transaction.atomic():
+        lead, created = Lead.objects.select_for_update().get_or_create(
+            email=email,
+            defaults={
+                "first_name": first_name,
+                "last_name": last_name,
+                "phone": phone,
+                "status": "new",
+                "source": "Website Contact Form",
+                "interest": subject,
+                "notes": message,
+            },
+        )
+        if not created:
+            # Update mutable fields; never regress status.
+            lead.first_name = first_name or lead.first_name
+            lead.last_name = last_name or lead.last_name
+            if phone:
+                lead.phone = phone
+            if subject:
+                lead.interest = subject
+            if message:
+                lead.notes = message
+            lead.save()
+    if message and (created or not lead.notes):
         LeadNote.objects.create(lead=lead, note=message)
 
     # Send acknowledgement to lead (HTML)

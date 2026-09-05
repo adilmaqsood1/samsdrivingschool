@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path
 from . import views
 
 
@@ -24,9 +24,7 @@ urlpatterns = [
     path("google-calendar/connect/", views.google_calendar_connect, name="google_calendar_connect"),
     path("google-calendar/callback/", views.google_calendar_callback, name="google_calendar_callback"),
     path("google-calendar/disconnect/", views.google_calendar_disconnect, name="google_calendar_disconnect"),
-    path("square/checkout/<int:invoice_id>/", views.square_checkout, name="square_checkout"),
-    path("square/success/<int:invoice_id>/", views.square_success, name="square_success"),
-    path("square/cancel/<int:invoice_id>/", views.square_cancel, name="square_cancel"),
-    path("square/webhook/", views.square_webhook, name="square_webhook"),
-    re_path(r"^(?P<template_name>[^/]+\.html)$", views.template_page, name="template_page"),
+    # NOTE: the legacy /square/... and /stripe/... URLs are registered at the
+    # project root in samsdriving/urls.py (not under the /crm/ include) and
+    # remain the source of truth for payment flows.
 ]
