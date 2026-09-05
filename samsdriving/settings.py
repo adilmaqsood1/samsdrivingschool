@@ -117,6 +117,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "crm.context_processors.antispam_context",
+                "crm.context_processors.analytics_context",
             ],
         },
     },
@@ -231,6 +232,29 @@ TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "")
 # Set True only if a trusted reverse proxy sets X-Forwarded-For; otherwise
 # the rate limiter reads REMOTE_ADDR.
 ANTISPAM_TRUST_XFF = os.environ.get("ANTISPAM_TRUST_XFF", "False").lower() == "true"
+
+
+# --- Analytics & conversion tracking (see crm/analytics.py) ---
+# GA4 web stream. Client-side gtag.js always loads when the measurement id is
+# set. Server-side purchase reporting (GA4 Measurement Protocol) additionally
+# needs GA4_API_SECRET (GA4 Admin -> Data Streams -> stream -> Measurement
+# Protocol API secrets). Both degrade to no-op when unset.
+GA4_MEASUREMENT_ID = os.environ.get("GA4_MEASUREMENT_ID", "G-S0NPLVBWSS")
+GA4_API_SECRET = os.environ.get("GA4_API_SECRET", "")
+
+# Google Ads conversion tracking. GOOGLE_ADS_CONVERSION_ID looks like
+# "AW-123456789"; the labels come from each conversion action in Google Ads
+# (Goals -> Conversions -> <action> -> Tag setup -> "Use Google tag").
+GOOGLE_ADS_CONVERSION_ID = os.environ.get("GOOGLE_ADS_CONVERSION_ID", "")
+GOOGLE_ADS_PURCHASE_LABEL = os.environ.get("GOOGLE_ADS_PURCHASE_LABEL", "")
+GOOGLE_ADS_LEAD_LABEL = os.environ.get("GOOGLE_ADS_LEAD_LABEL", "")
+
+# When "1", server-side Measurement Protocol hits go to GA4's debug endpoint
+# and validation problems are logged instead of silently accepted.
+ANALYTICS_DEBUG = os.environ.get("ANALYTICS_DEBUG", "") == "1"
+
+# Reporting currency for purchase/lead values sent to GA4 and Google Ads.
+ANALYTICS_CURRENCY = os.environ.get("ANALYTICS_CURRENCY", "CAD")
 
 
 CSRF_TRUSTED_ORIGINS = [

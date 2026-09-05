@@ -46,3 +46,12 @@ LOGGING = {
 ANTISPAM_ENABLED = True
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
+
+# Analytics: known values; server-side MP stays disabled (no API secret) so
+# no test hits the network unless it patches analytics explicitly.
+GA4_MEASUREMENT_ID = "G-TEST0000"
+GA4_API_SECRET = ""
+GOOGLE_ADS_CONVERSION_ID = "AW-TEST123"
+GOOGLE_ADS_PURCHASE_LABEL = "purchaseLabel"
+GOOGLE_ADS_LEAD_LABEL = "leadLabel"
+ANALYTICS_DEBUG = False

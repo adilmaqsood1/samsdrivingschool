@@ -556,6 +556,13 @@ class Invoice(models.Model):
     square_payment_link_id = models.CharField(max_length=200, blank=True)
     square_order_id = models.CharField(max_length=200, blank=True)
     square_payment_id = models.CharField(max_length=200, blank=True)
+    # GA4 client id captured from the buyer's _ga cookie at checkout start,
+    # so the server-side purchase event (fired from the Square webhook) can
+    # be stitched to the browsing session that led to the sale.
+    ga_client_id = models.CharField(max_length=64, blank=True)
+    # Set once the server-side GA4 purchase event has been accepted, so
+    # webhook retries never double-report.
+    ga_purchase_reported = models.BooleanField(default=False)
 
     def __str__(self):
         return self.number
