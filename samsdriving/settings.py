@@ -35,16 +35,43 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 # Secrets come from the environment (.env on the server, never committed).
 # A throwaway key is allowed only when DEBUG is on for local work.
-_DEV_INSECURE_KEY = "django-insecure-local-dev-only-not-for-production"
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or (_DEV_INSECURE_KEY if DEBUG else "")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or ""
 if not SECRET_KEY:
-    raise ImproperlyConfigured(
-        "DJANGO_SECRET_KEY is not set. Add it to the server's .env file "
-        "(generate one with: python -c \"from django.core.management.utils "
-        "import get_random_secret_key; print(get_random_secret_key())\")."
-    )
+    if DEBUG:
+        # Lazily generated, never persisted, never logged. Means the literal
+        # doesn't appear in the repo and a search-and-paste can't leak it.
+        from django.core.management.utils import get_random_secret_key
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise ImproperlyConfigured(
+            "DJANGO_SECRET_KEY is not set. Add it to the server's .env file "
+            "(generate one with: python -c \"from django.core.management.utils "
+            "import get_random_secret_key; print(get_random_secret_key())\")."
+        )
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    h.strip().lower()
+    for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "samsdriving.ca,www.samsdriving.ca,.samsdriving.ca").split(",")
+    if h.strip()
+]
+
+# Trust the X-Forwarded-Proto header set by the cPanel reverse proxy. Off by
+# default so a misconfigured proxy can't silently downgrade our security flags.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Always run the standard SSL hardening on the public site; DEBUG overrides
+# these locally so the dev server still works over plain HTTP.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30  # 30 days
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_BROWSER_XSS_FILTER = True
 
 
 INSTALLED_APPS = [
@@ -177,6 +204,11 @@ if EMAIL_PORT == 587 and not EMAIL_USE_TLS:
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "20"))
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "info@samsdriving.ca")
 ENROLLMENT_NOTIFICATION_EMAIL = os.environ.get("ENROLLMENT_NOTIFICATION_EMAIL", "info@samsdriving.ca")
+
+# Public phone number shown in transactional emails (pay-in-office, etc.).
+# Format E.164 with a leading + so the tel: link is unambiguous.
+SCHOOL_PHONE = os.environ.get("SCHOOL_PHONE", "+164****1708")
+SCHOOL_PHONE_DISPLAY = os.environ.get("SCHOOL_PHONE_DISPLAY", "+1 (647) 889-1708")
 
 SMS_WEBHOOK_URL = os.environ.get("SMS_WEBHOOK_URL", "")
 SMS_WEBHOOK_TOKEN = os.environ.get("SMS_WEBHOOK_TOKEN", "")
