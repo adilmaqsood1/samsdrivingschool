@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
+    path("captcha/refresh/", views.captcha_refresh, name="captcha_refresh"),
     path("lead/", views.lead_capture, name="lead_capture"),
     path("register/", views.register, name="register"),
     path("login/", views.login_view, name="login"),

@@ -33,6 +33,7 @@ from .forms import (
     LessonRequestForm,
     BlogCommentForm,
 )
+from .anti_bot import generate_captcha_challenge, verify_lead_submission
 from .models import (
     Lead,
     LeadNote,
@@ -152,10 +153,19 @@ def index_page(request):
         hero_slides = HomeHeroSlide.objects.filter(is_active=True).order_by("display_order", "-updated_at")[:10]
     except Exception:
         hero_slides = []
+    captcha = generate_captcha_challenge()
+    turnstile_site_key = getattr(settings, "CLOUDFLARE_TURNSTILE_SITE_KEY", "")
     return render(
         request,
         "index.html",
-        {"home_blogs": home_blogs, "testimonials": testimonials, "courses": courses, "hero_slides": hero_slides},
+        {
+            "home_blogs": home_blogs,
+            "testimonials": testimonials,
+            "courses": courses,
+            "hero_slides": hero_slides,
+            "captcha": captcha,
+            "turnstile_site_key": turnstile_site_key,
+        },
     )
 
 
@@ -520,15 +530,40 @@ def blog_comment_create(request, slug):
 
 
 def contact_page(request):
-    return render(request, "contact.html")
+    captcha = generate_captcha_challenge()
+    return render(request, "contact.html", {"captcha": captcha})
+
+
+def captcha_refresh(request):
+    captcha = generate_captcha_challenge()
+    return JsonResponse(captcha)
 
 
 def lead_capture(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("contact_page"))
+
+    is_ajax = (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or request.POST.get("is_ajax") == "1"
+        or "application/json" in request.headers.get("Accept", "")
+    )
+
+    # Multi-layered Anti-bot verification (honeypot, rate limit, time-lock, svg captcha)
+    is_valid_bot_check, bot_error = verify_lead_submission(request)
+    if not is_valid_bot_check:
+        if is_ajax:
+            return JsonResponse({"success": False, "error": bot_error}, status=400)
+        messages.error(request, f"Security verification failed: {bot_error}")
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
+
     form = LeadForm(request.POST)
     if not form.is_valid():
+        if is_ajax:
+            return JsonResponse({"success": False, "error": "Please provide valid contact information."}, status=400)
+        messages.error(request, "Please fill in all required fields properly.")
         return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
+
     name = form.cleaned_data.get("name", "").strip()
     email = form.cleaned_data.get("email", "")
     phone = form.cleaned_data.get("phone", "")
@@ -573,6 +608,11 @@ def lead_capture(request):
         }
         admin_html = get_template("emails/contact_admin_notification.html").render(admin_context)
         _queue_and_send_email(recipient_email=notification_email, subject=admin_subject, body=admin_html)
+
+    if is_ajax:
+        return JsonResponse({"success": True, "message": "Thank you! Your message has been sent successfully."})
+
+    messages.success(request, "Thank you! Your message has been sent successfully. We will get back to you shortly.")
     return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
 
 

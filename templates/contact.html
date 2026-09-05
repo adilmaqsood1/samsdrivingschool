@@ -128,31 +128,92 @@
                         </div><!-- /.col-12 -->
                     </div><!-- /.row -->
 
-                    <form class="contact-one__form contact-form-validated form-one" action="{% url 'lead_capture' %}" method="post">
+                    {% if messages %}
+                    <div class="row justify-content-center mb-3">
+                        <div class="col-lg-10">
+                            {% for message in messages %}
+                            <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show text-center" role="alert" style="border-radius: 10px; font-weight: 600;">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div id="contactFormAlert" style="display: none;" class="mb-4"></div>
+
+                    <form class="contact-one__form form-one contact-form-protected" id="contactOneForm" action="{% url 'lead_capture' %}" method="post">
                         {% csrf_token %}
+
+                        <!-- Invisible honeypot traps for automated bots -->
+                        <div class="antibot-hp-box" style="position: absolute !important; left: -9999px !important; top: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; overflow: hidden !important; pointer-events: none !important;" aria-hidden="true">
+                            <label for="website_url">Leave this field blank</label>
+                            <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off" value="">
+                            <label for="company_fax_hp">Leave this field blank</label>
+                            <input type="text" id="company_fax_hp" name="company_fax_hp" tabindex="-1" autocomplete="off" value="">
+                        </div>
+
                         <div class="form-one__group wow fadeInUp" data-wow-delay='300ms'>
                             <div class="contact-one__form__control">
-                                <input type="text" name="name" placeholder="Your Name">
-                            </div><!-- /.form-one__control form-one__control__full -->
+                                <input type="text" name="name" placeholder="Your Name" required>
+                            </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control">
-                                <input type="email" name="email" placeholder="Email Address">
-                            </div><!-- /.form-one__control form-one__control__full -->
+                                <input type="email" name="email" placeholder="Email Address" required>
+                            </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control">
                                 <input type="text" name="phone" placeholder="Phone">
-                            </div><!-- /.form-one__control form-one__control__full -->
-
-                            <div class="contact-one__form__control">
-                                <input type="text" name="subject" placeholder="Subject">
-                            </div><!-- /.form-one__control form-one__control__full -->
-
-                            <div class="contact-one__form__control form-one__control__full">
-                                <textarea name="message" placeholder="Write A Message"></textarea><!-- /# -->
                             </div><!-- /.form-one__control -->
 
+                            <div class="contact-one__form__control">
+                                <input type="text" name="subject" placeholder="Subject" required>
+                            </div><!-- /.form-one__control -->
+
+                            <div class="contact-one__form__control form-one__control__full">
+                                <textarea name="message" placeholder="Write A Message" required></textarea>
+                            </div><!-- /.form-one__control -->
+
+                            <!-- Bot Verification Captcha Card -->
+                            <div class="contact-one__form__control form-one__control__full">
+                                <div class="antibot-card" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 22px; text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #6fbe44; color: #fff; border-radius: 50%; font-size: 13px;">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </span>
+                                            <strong style="font-size: 15px; color: #1e293b;">Security Verification <span style="color: #ef4444;">*</span></strong>
+                                        </div>
+                                        <span class="badge" style="background: #e2e8f0; color: #475569; font-weight: 600; font-size: 12px; border-radius: 20px; padding: 5px 12px;">
+                                            <i class="fas fa-lock me-1"></i> Anti-Bot Shield
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="row align-items-center g-3 mt-1">
+                                        <div class="col-sm-auto">
+                                            <div style="display: inline-flex; align-items: center; background: #ffffff; padding: 4px 8px; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                                                <img id="contactCaptchaImg" src="{{ captcha.image }}" alt="Security Verification Code" style="height: 48px; border-radius: 6px; display: block; user-select: none;">
+                                                <button type="button" id="contactCaptchaReload" title="Reload new code" style="background: none; border: none; padding: 8px 10px; cursor: pointer; color: #64748b; margin-left: 4px; border-radius: 6px;" onmouseover="this.style.color='#6fbe44'; this.style.background='#f1f5f9';" onmouseout="this.style.color='#64748b'; this.style.background='transparent';">
+                                                    <i class="fas fa-sync-alt" id="contactCaptchaReloadIcon" style="font-size: 16px; transition: transform 0.4s ease;"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm">
+                                            <input type="text" id="contactCaptchaInput" name="captcha_answer" class="form-control" placeholder="Enter 5 characters shown" required autocomplete="off" maxlength="10" style="height: 58px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0 16px; background: #ffffff;">
+                                            <input type="hidden" id="contactCaptchaToken" name="captcha_token" value="{{ captcha.token }}">
+                                        </div>
+                                    </div>
+                                    <small style="color: #64748b; font-size: 12px; display: block; margin-top: 8px;">
+                                        <i class="fas fa-info-circle me-1"></i> Type the characters shown in the image to verify you are human. Case-insensitive.
+                                    </small>
+                                </div>
+                            </div>
+
                             <div class="contact-one__form__control form-one__control__full text-center">
-                                <button type="submit" class="drivschol-btn drivschol-btn--base2"><span>Send a Message</span></button>
+                                <button type="submit" id="contactSubmitBtn" class="drivschol-btn drivschol-btn--base2">
+                                    <span id="contactSubmitBtnText">Send a Message</span>
+                                </button>
                             </div><!-- /.form-one__control -->
 
                         </div><!-- /.row -->
@@ -491,6 +552,125 @@
 
     <!-- template js -->
     <script src="assets/js/drivschol.js"></script>
+
+    <script>
+    (function() {
+        var reloadBtn = document.getElementById('contactCaptchaReload');
+        var reloadIcon = document.getElementById('contactCaptchaReloadIcon');
+        var captchaImg = document.getElementById('contactCaptchaImg');
+        var captchaToken = document.getElementById('contactCaptchaToken');
+        var captchaInput = document.getElementById('contactCaptchaInput');
+        var form = document.getElementById('contactOneForm');
+        var alertBox = document.getElementById('contactFormAlert');
+        var submitBtn = document.getElementById('contactSubmitBtn');
+        var submitBtnText = document.getElementById('contactSubmitBtnText');
+
+        function refreshCaptcha(callback) {
+            if (reloadIcon) {
+                reloadIcon.style.transform = 'rotate(360deg)';
+            }
+            fetch('{% url "captcha_refresh" %}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.image && data.token) {
+                    captchaImg.src = data.image;
+                    captchaToken.value = data.token;
+                    captchaInput.value = '';
+                }
+                if (callback) callback();
+            })
+            .catch(function(err) {
+                console.error("Failed to refresh captcha", err);
+                if (callback) callback();
+            })
+            .finally(function() {
+                setTimeout(function() {
+                    if (reloadIcon) reloadIcon.style.transform = 'none';
+                }, 400);
+            });
+        }
+
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                refreshCaptcha();
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Check honeypot client-side too
+                var hp1 = document.getElementById('website_url');
+                var hp2 = document.getElementById('company_fax_hp');
+                if ((hp1 && hp1.value) || (hp2 && hp2.value)) {
+                    showAlert('danger', 'Automated activity detected.');
+                    return;
+                }
+
+                if (!captchaInput.value.trim()) {
+                    showAlert('danger', 'Please enter the security verification code shown in the image.');
+                    captchaInput.focus();
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                var originalHtml = submitBtnText.innerHTML;
+                submitBtnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...';
+
+                var formData = new FormData(form);
+                formData.append('is_ajax', '1');
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(function(res) {
+                    return res.json().then(function(data) {
+                        return { ok: res.ok, data: data };
+                    });
+                })
+                .then(function(result) {
+                    if (result.ok && result.data && result.data.success) {
+                        showAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+                        form.reset();
+                        refreshCaptcha();
+                    } else {
+                        var errorMsg = (result.data && result.data.error) ? result.data.error : 'Security check failed. Please try again.';
+                        showAlert('danger', '<i class="fas fa-exclamation-triangle me-2"></i>' + errorMsg);
+                        refreshCaptcha();
+                        captchaInput.focus();
+                    }
+                })
+                .catch(function(err) {
+                    showAlert('danger', 'A network error occurred. Please try again.');
+                    refreshCaptcha();
+                })
+                .finally(function() {
+                    submitBtn.disabled = false;
+                    submitBtnText.innerHTML = originalHtml;
+                });
+            });
+        }
+
+        function showAlert(type, html) {
+            if (!alertBox) return;
+            alertBox.className = 'alert alert-' + type + ' alert-dismissible fade show text-center shadow-sm';
+            alertBox.style.borderRadius = '10px';
+            alertBox.style.fontWeight = '600';
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = html + '<button type="button" class="btn-close" onclick="this.parentElement.style.display=\'none\'"></button>';
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    })();
+    </script>
 </body>
 
 </html>
