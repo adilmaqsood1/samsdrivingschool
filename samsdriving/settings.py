@@ -29,9 +29,20 @@ def _load_env_file(path):
 
 _load_env_file(BASE_DIR / ".env")
 
-DEBUG = False
+from django.core.exceptions import ImproperlyConfigured
 
-SECRET_KEY = "django-insecure-6ioo9m4d=1%5!2u0v8a7n1ydqz3k2l1x1_9s4l5n3t7q6t8e0"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+
+# Secrets come from the environment (.env on the server, never committed).
+# A throwaway key is allowed only when DEBUG is on for local work.
+_DEV_INSECURE_KEY = "django-insecure-local-dev-only-not-for-production"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or (_DEV_INSECURE_KEY if DEBUG else "")
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "DJANGO_SECRET_KEY is not set. Add it to the server's .env file "
+        "(generate one with: python -c \"from django.core.management.utils "
+        "import get_random_secret_key; print(get_random_secret_key())\")."
+    )
 
 ALLOWED_HOSTS = ["*"]
 
@@ -82,30 +93,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "samsdriving.wsgi.application"
 
-if not DEBUG:
-
+if DEBUG:
     DATABASES = {
         "default": {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'samsdriving_sams',        # your database name
-            'USER': 'samsdriving_id_rsa',    # your db user
-            'PASSWORD': 'Samsdrive123@',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("DB_NAME", ""),
+            "USER": os.environ.get("DB_USER", ""),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "3306"),
             "OPTIONS": {
                 "charset": "utf8mb4",
                 "init_command": "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             },
         }
     }
-    
-else:
-        DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+    if not DATABASES["default"]["PASSWORD"]:
+        raise ImproperlyConfigured(
+            "DB_NAME / DB_USER / DB_PASSWORD are not set. Add them to the server's .env file."
+        )
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -145,7 +158,7 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "mail.samsdriving.ca")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "info@samsdriving.ca")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Wajdaan2004!")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() == "true"
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").lower() == "true"
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
