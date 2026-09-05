@@ -55,6 +55,10 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+# Local development hits the site on localhost; add those only under DEBUG.
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1", "[::1]", "testserver"]
+
 # Trust the X-Forwarded-Proto header set by the cPanel reverse proxy. Off by
 # default so a misconfigured proxy can't silently downgrade our security flags.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
