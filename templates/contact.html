@@ -128,6 +128,18 @@
                         </div><!-- /.col-12 -->
                     </div><!-- /.row -->
 
+                    {% if bot_error %}
+                    <div class="row justify-content-center mb-3">
+                        <div class="col-lg-10">
+                            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" style="border-radius: 10px; font-weight: 700; font-size: 16px; border: 2px solid #ef4444; background-color: #fef2f2; color: #991b1b;">
+                                <i class="fas fa-exclamation-triangle me-2" style="color: #ef4444;"></i> Security Check Failed: {{ bot_error }}
+                                <div style="font-size: 13px; font-weight: 500; margin-top: 4px; color: #b91c1c;">Your message was NOT sent. Please enter the verification code below and submit again.</div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% if messages %}
                     <div class="row justify-content-center mb-3">
                         <div class="col-lg-10">
@@ -156,31 +168,31 @@
 
                         <div class="form-one__group wow fadeInUp" data-wow-delay='300ms'>
                             <div class="contact-one__form__control">
-                                <input type="text" name="name" placeholder="Your Name" required>
+                                <input type="text" name="name" placeholder="Your Name" value="{{ prefill.name|default:'' }}" required>
                             </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control">
-                                <input type="email" name="email" placeholder="Email Address" required>
+                                <input type="email" name="email" placeholder="Email Address" value="{{ prefill.email|default:'' }}" required>
                             </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control">
-                                <input type="text" name="phone" placeholder="Phone">
+                                <input type="text" name="phone" placeholder="Phone" value="{{ prefill.phone|default:'' }}">
                             </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control">
-                                <input type="text" name="subject" placeholder="Subject" required>
+                                <input type="text" name="subject" placeholder="Subject" value="{{ prefill.subject|default:'' }}" required>
                             </div><!-- /.form-one__control -->
 
                             <div class="contact-one__form__control form-one__control__full">
-                                <textarea name="message" placeholder="Write A Message" required></textarea>
+                                <textarea name="message" placeholder="Write A Message" required>{{ prefill.message|default:'' }}</textarea>
                             </div><!-- /.form-one__control -->
 
                             <!-- Bot Verification Captcha Card -->
                             <div class="contact-one__form__control form-one__control__full">
-                                <div class="antibot-card" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 22px; text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+                                <div class="antibot-card" style="background: #f8fafc; border: 2px solid {% if bot_error %}#ef4444{% else %}#e2e8f0{% endif %}; border-radius: 12px; padding: 18px 22px; text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
                                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                                         <div class="d-flex align-items-center gap-2">
-                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #6fbe44; color: #fff; border-radius: 50%; font-size: 13px;">
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: {% if bot_error %}#ef4444{% else %}#6fbe44{% endif %}; color: #fff; border-radius: 50%; font-size: 13px;">
                                                 <i class="fas fa-shield-alt"></i>
                                             </span>
                                             <strong style="font-size: 15px; color: #1e293b;">Security Verification <span style="color: #ef4444;">*</span></strong>
@@ -200,12 +212,16 @@
                                             </div>
                                         </div>
                                         <div class="col-sm">
-                                            <input type="text" id="contactCaptchaInput" name="captcha_answer" class="form-control" placeholder="Enter 5 characters shown" required autocomplete="off" maxlength="10" style="height: 58px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0 16px; background: #ffffff;">
+                                            <input type="text" id="contactCaptchaInput" name="captcha_answer" class="form-control" placeholder="Enter 5 characters shown" required autocomplete="off" maxlength="10" style="height: 58px; border-radius: 8px; border: 2px solid {% if bot_error %}#ef4444{% else %}#cbd5e1{% endif %}; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0 16px; background: #ffffff;">
                                             <input type="hidden" id="contactCaptchaToken" name="captcha_token" value="{{ captcha.token }}">
                                         </div>
                                     </div>
-                                    <small style="color: #64748b; font-size: 12px; display: block; margin-top: 8px;">
+                                    <small style="color: {% if bot_error %}#dc2626{% else %}#64748b{% endif %}; font-size: 12px; display: block; margin-top: 8px;">
+                                        {% if bot_error %}
+                                        <i class="fas fa-exclamation-circle me-1"></i> <strong>{{ bot_error }}</strong> Please check the characters shown in the image and enter them correctly.
+                                        {% else %}
                                         <i class="fas fa-info-circle me-1"></i> Type the characters shown in the image to verify you are human. Case-insensitive.
+                                        {% endif %}
                                     </small>
                                 </div>
                             </div>
@@ -218,6 +234,132 @@
 
                         </div><!-- /.row -->
                     </form>
+
+                    <script>
+                    (function() {
+                        function initContactScript() {
+                            var reloadBtn = document.getElementById('contactCaptchaReload');
+                            var reloadIcon = document.getElementById('contactCaptchaReloadIcon');
+                            var captchaImg = document.getElementById('contactCaptchaImg');
+                            var captchaToken = document.getElementById('contactCaptchaToken');
+                            var captchaInput = document.getElementById('contactCaptchaInput');
+                            var form = document.getElementById('contactOneForm');
+                            var alertBox = document.getElementById('contactFormAlert');
+                            var submitBtn = document.getElementById('contactSubmitBtn');
+                            var submitBtnText = document.getElementById('contactSubmitBtnText');
+
+                            function refreshCaptcha(callback) {
+                                if (reloadIcon) {
+                                    reloadIcon.style.transform = 'rotate(360deg)';
+                                }
+                                fetch('{% url "captcha_refresh" %}', {
+                                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                })
+                                .then(function(res) { return res.json(); })
+                                .then(function(data) {
+                                    if (data.image && data.token) {
+                                        captchaImg.src = data.image;
+                                        captchaToken.value = data.token;
+                                        captchaInput.value = '';
+                                    }
+                                    if (callback) callback();
+                                })
+                                .catch(function(err) {
+                                    console.error("Failed to refresh captcha", err);
+                                    if (callback) callback();
+                                })
+                                .finally(function() {
+                                    setTimeout(function() {
+                                        if (reloadIcon) reloadIcon.style.transform = 'none';
+                                    }, 400);
+                                });
+                            }
+
+                            if (reloadBtn) {
+                                reloadBtn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    refreshCaptcha();
+                                });
+                            }
+
+                            if (form) {
+                                form.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+
+                                    var hp1 = document.getElementById('website_url');
+                                    var hp2 = document.getElementById('company_fax_hp');
+                                    if ((hp1 && hp1.value) || (hp2 && hp2.value)) {
+                                        showAlert('danger', 'Automated activity detected.');
+                                        return;
+                                    }
+
+                                    if (!captchaInput.value.trim()) {
+                                        showAlert('danger', 'Please enter the security verification code shown in the image.');
+                                        captchaInput.focus();
+                                        return;
+                                    }
+
+                                    submitBtn.disabled = true;
+                                    var originalHtml = submitBtnText.innerHTML;
+                                    submitBtnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...';
+
+                                    var formData = new FormData(form);
+                                    formData.append('is_ajax', '1');
+
+                                    fetch(form.action, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(function(res) {
+                                        return res.json().then(function(data) {
+                                            return { ok: res.ok, data: data };
+                                        });
+                                    })
+                                    .then(function(result) {
+                                        if (result.ok && result.data && result.data.success) {
+                                            showAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+                                            form.reset();
+                                            refreshCaptcha();
+                                        } else {
+                                            var errorMsg = (result.data && result.data.error) ? result.data.error : 'Security check failed. Please try again.';
+                                            showAlert('danger', '<i class="fas fa-exclamation-triangle me-2"></i><strong>Security Check Failed:</strong> ' + errorMsg);
+                                            refreshCaptcha();
+                                            captchaInput.focus();
+                                        }
+                                    })
+                                    .catch(function(err) {
+                                        showAlert('danger', 'A network error occurred. Please try again.');
+                                        refreshCaptcha();
+                                    })
+                                    .finally(function() {
+                                        submitBtn.disabled = false;
+                                        submitBtnText.innerHTML = originalHtml;
+                                    });
+                                });
+                            }
+
+                            function showAlert(type, html) {
+                                if (!alertBox) return;
+                                alertBox.className = 'alert alert-' + type + ' alert-dismissible fade show text-center shadow-sm';
+                                alertBox.style.borderRadius = '10px';
+                                alertBox.style.fontWeight = '600';
+                                alertBox.style.display = 'block';
+                                alertBox.innerHTML = html + '<button type="button" class="btn-close" onclick="this.parentElement.style.display=\'none\'"></button>';
+                                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initContactScript);
+                        } else {
+                            initContactScript();
+                        }
+                    })();
+                    </script>
                 </div><!-- /.contact-one__inner -->
             </div><!-- /.container -->
         </section><!-- /.contact-one -->
@@ -438,6 +580,201 @@
         </section><!-- /.contact-location -->
 
         <div class="contact-map wow fadeInUp" data-wow-delay='300ms'>
+                    </div><!-- /.row -->
+                </div><!-- /.contact-location__header -->
+
+                <div class="contact-location__inner tabs-box wow fadeInUp" data-wow-delay='300ms'>
+                    <div class="contact-location__inner__filter">
+                        <button data-tab="#burlington" class="contact-location__inner__filter__btn drivschol-btn tab-btn active-btn">Burlington</button><!-- /.contact-location__inner__filter__btn -->
+                        <button data-tab="#milton" class="contact-location__inner__filter__btn drivschol-btn tab-btn">Milton</button><!-- /.contact-location__inner__filter__btn -->
+                        <button data-tab="#gta" class="contact-location__inner__filter__btn drivschol-btn tab-btn">GTA</button><!-- /.contact-location__inner__filter__btn -->
+                    </div><!-- /.contact-location__inner__filter -->
+                    <div class="tabs-content">
+                        <div class="contact-location__inner__item fadeInUp animated tab active-tab" id="burlington">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/buca.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:info@samsdriving.ca" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">info@samsdriving.ca</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">23-460 Brant Street, Burlington, Ontario L7R 4B6</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+
+                        <div class="contact-location__inner__item fadeInUp animated tab" id="milton">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/maca.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:info@samsdriving.ca" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">info@samsdriving.ca</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">Milton location available (by appointment)</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+
+                        <div class="contact-location__inner__item fadeInUp animated tab" id="gta">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__image">
+                                        <img src="assets/gta.png" class="image-fluid" alt="contact-location__inner__item__image">
+                                    </div><!-- /.contact-location__inner__item__image -->
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <div class="contact-location__inner__item__content">
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="tel:+16478891708" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-Call"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Call to Questions</span>
+                                                    <h6 class="contact-location__inner__item__content__info__call">647-889-1708</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="mailto:info@samsdriving.ca" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-envelope"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Send Email</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">info@samsdriving.ca</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__info">
+                                            <a href="https://www.google.com/maps" class="contact-location__inner__item__content__info__btn d-flex align-items-center">
+                                                <div class="contact-location__inner__item__content__info__icon">
+                                                    <i class="icon-map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <span class="contact-location__inner__item__content__info__text">Visit Anytime</span>
+                                                        <h6 class="contact-location__inner__item__content__info__call">Milton & Burlington</h6>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <div class="contact-location__inner__item__content__right">
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Monday - Saturday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">08.00 am - 07.00 pm</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                            <div class="contact-location__inner__item__content__right__item">
+                                                <span class="contact-location__inner__item__content__right__item__day">Sunday</span>
+                                                <p class="contact-location__inner__item__content__right__item__time">By Appointment</p>
+                                            </div><!-- /.contact-location__inner__item__content__right__item -->
+                                        </div><!-- /.contact-location__inner__item__content__right -->
+                                    </div><!-- /.contact-location__inner__item__content -->
+                                </div><!-- /.col-md-6 -->
+                            </div><!-- /.row -->
+                        </div><!-- /.contact-location__inner__item -->
+                    </div><!-- /tabs-content -->
+                </div><!-- /.contact-location__inner -->
+            </div><!-- /.container -->
+        </section><!-- /.contact-location -->
+
+        <div class="contact-map wow fadeInUp" data-wow-delay='300ms'>
             <div class="container-fluid">
                 <div class="google-map google-map__contact">
                     <iframe title="template google map" src="https://www.google.com/maps?q=23-460%20Brant%20Street,%20Burlington,%20Ontario%20L7R%204B6&output=embed" class="map__contact" allowfullscreen></iframe>
@@ -446,9 +783,6 @@
             </div><!-- /.container-fluid -->
         </div><!-- /.contact-map -->
         {% endblock %}
-        
-        {% include 'includes/footer.html' %}
-
     </div><!-- /.page-wrapper -->
 
 

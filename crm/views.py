@@ -549,20 +549,64 @@ def lead_capture(request):
         or "application/json" in request.headers.get("Accept", "")
     )
 
+    name = request.POST.get("name", "").strip()
+    email = request.POST.get("email", "").strip()
+    phone = request.POST.get("phone", "").strip()
+    subject = request.POST.get("subject", "").strip()
+    message = request.POST.get("message", "").strip()
+
     # Multi-layered Anti-bot verification (honeypot, rate limit, time-lock, svg captcha)
     is_valid_bot_check, bot_error = verify_lead_submission(request)
     if not is_valid_bot_check:
         if is_ajax:
             return JsonResponse({"success": False, "error": bot_error}, status=400)
-        messages.error(request, f"Security verification failed: {bot_error}")
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
+        captcha = generate_captcha_challenge()
+        try:
+            messages.error(request, f"Security verification failed: {bot_error}")
+        except Exception:
+            pass
+        return render(
+            request,
+            "contact.html",
+            {
+                "captcha": captcha,
+                "bot_error": bot_error,
+                "prefill": {
+                    "name": name,
+                    "email": email,
+                    "phone": phone,
+                    "subject": subject,
+                    "message": message,
+                },
+            },
+            status=400,
+        )
 
     form = LeadForm(request.POST)
     if not form.is_valid():
         if is_ajax:
             return JsonResponse({"success": False, "error": "Please provide valid contact information."}, status=400)
-        messages.error(request, "Please fill in all required fields properly.")
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
+        captcha = generate_captcha_challenge()
+        try:
+            messages.error(request, "Please fill in all required fields properly.")
+        except Exception:
+            pass
+        return render(
+            request,
+            "contact.html",
+            {
+                "captcha": captcha,
+                "bot_error": "Please fill in all required fields properly.",
+                "prefill": {
+                    "name": name,
+                    "email": email,
+                    "phone": phone,
+                    "subject": subject,
+                    "message": message,
+                },
+            },
+            status=400,
+        )
 
     name = form.cleaned_data.get("name", "").strip()
     email = form.cleaned_data.get("email", "")
