@@ -48,19 +48,33 @@ def _get_oauth_calendar_service(user):
 
 
 def get_calendar_service(user=None):
+    """Return a Google Calendar service for the given user, or None.
+
+    Only OAuth is supported here. The previous version had a service-account
+    fallback that read ``settings.GOOGLE_SERVICE_ACCOUNT_FILE`` (never
+    defined) and fell through to ``BASE_DIR/service_account.json`` (which is
+    gitignored and absent), so any non-OAuth call raised ``FileNotFoundError``
+    instead of returning ``None``. Returning ``None`` lets callers fall back
+    to their own ``service_account.json`` if they need it.
+    """
     if user:
         service = _get_oauth_calendar_service(user)
         if service:
             return service
 
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    service_account_file = getattr(settings, "GOOGLE_SERVICE_ACCOUNT_FILE", None)
-    if not service_account_file:
-        service_account_file = str(Path(settings.BASE_DIR) / "service_account.json")
+    # Optional service-account path: only attempted if the operator has
+    # explicitly configured the file path AND the file exists. Otherwise
+    # return None and let the caller decide.
+    service_account_file = getattr(settings, "GOOGLE_SERVICE_ACCOUNT_FILE", "") or ""
+    if service_account_file and Path(service_account_file).is_file():
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+        credentials = service_account.Credentials.from_service_account_file(
+            service_account_file, scopes=SCOPES
+        )
+        return build("calendar", "v3", credentials=credentials)
 
-    credentials = service_account.Credentials.from_service_account_file(service_account_file, scopes=SCOPES)
-    return build("calendar", "v3", credentials=credentials)
+    return None
 
 
 def upsert_event(service, title, start, end, calendar_id=None, time_zone=None, google_event_id=None):
