@@ -1,4 +1,5 @@
 	{% load static %}
+{% load sams_extras %}
 	<!DOCTYPE html>
 	<!-- language -->
 	<html lang="en">
@@ -241,7 +242,7 @@
 	                        <div class="about-one__item">
 	                            <div class="about-one__item__left">
 	                                <div class="about-one__item__left__img  wow fadeInUp" data-wow-delay="500ms">
-	                                    <img src="assets/images/sams/lesson-in-car.jpg" alt="A Sam's Driving School instructor guiding a student through a lesson" style="border-radius:16px;object-fit:cover;width:100%;aspect-ratio:4/5;">
+	                                    <img src="assets/images/sams/instructor-lesson.jpg" alt="Learning to drive with Sam's Driving School in Milton" style="border-radius:16px;object-fit:cover;width:100%;aspect-ratio:4/5;">
 	                                    <div class="about-one__item__left__img__sub_img">
 	                                        <img src="assets/badge.png" alt="MTO-approved driving instruction">
 	                                        <svg viewBox="0 0 208 169" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -277,13 +278,13 @@
 	                                        <i class="icon-right-arrow sec-title__img"></i>
 	                                    </h6><!-- /.sec-title__tagline -->
 
-	                                    <h3 class="sec-title__title">Professional Driving Lessons in the GTA Since 2005</h3><!-- /.sec-title__title -->
+	                                    <h3 class="sec-title__title">Milton &amp; Burlington's Driving School Since 2005</h3><!-- /.sec-title__title -->
 	                                </div><!-- /.sec-title -->
-	                                <p class="about-one__item__text  wow fadeInUp" data-wow-delay='500ms'>We pride ourselves on delivering a high standard of customer service while maintaining a very high first-time pass rate. Established in 2005, we’ve helped thousands of students build confidence and pass safely with fully-qualified, experienced instructors and dual brake control vehicles.</p><!-- /.about-one__item__text -->
+	                                <p class="about-one__item__text  wow fadeInUp" data-wow-delay='500ms'>Family-run since 2005, Sam’s has helped thousands of new drivers across Milton, Burlington and the GTA pass their road test — most on the first try. You learn in a calm, dual-brake car with a patient, fully-licensed instructor who picks you up and drops you off within 10 km.</p><!-- /.about-one__item__text -->
 	                            </div><!-- /.about-one__item__head -->
 
 	                            <div class="about-one__item__block-contents wow fadeInUp" data-wow-delay="500ms">
-	                                <h3 class="about-one__item__block-contents__text">MTO-approved programs, flexible scheduling, and pickup/drop-off for in-car training within 10km.</h3>
+	                                <h3 class="about-one__item__block-contents__text">MTO-approved BDE certification, evening and weekend lessons, and free pickup and drop-off within 10 km.</h3>
 	                            </div>
 
 	                            <div class="about-one__item__elememt">
@@ -295,7 +296,7 @@
 	                                                    <i class="icon-steering-wheel-1"></i>
 	                                                </div>
 	                                            </div>
-	                                            <h3 class="about-one__item__elememt__single__text">MTO Approved Beginner Driving Online Course</h3>
+	                                            <h3 class="about-one__item__elememt__single__text">MTO-Approved BDE Certificate</h3>
 	                                        </div>
 	                                    </div>
 
@@ -306,7 +307,7 @@
 	                                                    <i class="icon-Instructor"></i>
 	                                                </div>
 	                                            </div>
-	                                            <h3 class="about-one__item__elememt__single__text">Experienced Instructors</h3>
+	                                            <h3 class="about-one__item__elememt__single__text">Patient, Fully-Licensed Instructors</h3>
 	                                        </div>
 	                                    </div>
 
@@ -315,14 +316,14 @@
 
 	                            <!-- /.why-choose-two__text -->
 	                            <div class="about-one__progress  wow fadeInUp" data-wow-delay='500ms'>
-	                                <h4 class="about-one__progress__title">Driving Skill</h4>
+	                                <h4 class="about-one__progress__title">Students Who Pass First Try</h4>
 	                                <div class="about-one__progress__bar">
 	                                    <div class="about-one__progress__inner count-bar" data-percent="80%">
 	                                        <div class="about-one__progress__number count-text">80%</div>
 	                                    </div>
 	                                </div>
 	                            </div><!-- /.skills-item -->
-	                            <a href="{% url 'about_page' %}" class="drivschol-btn drivschol-btn--black  wow fadeInUp" data-wow-delay='500ms'><span>Discover More</span></a>
+	                            <a href="{% url 'about_page' %}" class="drivschol-btn drivschol-btn--black  wow fadeInUp" data-wow-delay='500ms'><span>About Sam's</span></a>
 	                        </div>
 	                    </div><!-- /.col-lg-6 -->
 	                </div><!-- /.row -->
@@ -344,7 +345,7 @@
 	                                <i class="icon-right-arrow sec-title__img"></i>
 	                            </h6><!-- /.sec-title__tagline -->
 
-	                            <h3 class="sec-title__title">We’re Offering the Best <br> Services to You</h3><!-- /.sec-title__title -->
+	                            <h3 class="sec-title__title">MTO-Approved Courses &amp; <br> Road-Test Packages</h3><!-- /.sec-title__title -->
 	                        </div><!-- /.sec-title -->
 	                        <!-- section-title -->
 	                    </div>
@@ -355,7 +356,7 @@
 	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='{% if forloop.counter0 == 0 %}000ms{% elif forloop.counter0 == 1 %}400ms{% else %}000ms{% endif %}'>
 
 	                            <div class="service-card__image">
-	                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}assets/cousre.png{% endif %}" alt="{{ course.title }}">
+	                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}{{ course.title|service_image }}{% endif %}" alt="{{ course.title }}">
 	                            </div><!-- /.blog-card__image -->
 
 	                            <div class="service-card__content">
@@ -556,7 +557,7 @@
 	                    <div class="row align-items-center">
 	                        <div class="col-md-8">
 	                            <div class="cta-three__inner__content  wow fadeInUp" data-wow-delay='500ms'>
-	                                <h3 class="cta-three__inner__content__text">Our Students Pass the Driving Test on the First Try. Start Learning Now</h3><!-- /.cta-three__content__text -->
+	                                <h3 class="cta-three__inner__content__text">Ready to get your licence? Book your first lesson today.</h3><!-- /.cta-three__content__text -->
 	                            </div>
 	                        </div><!-- /.col-md-7 -->
 	                        <div class="col-md-4">
@@ -1002,7 +1003,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-Instructor"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'course_page' %}">Quality Service</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'course_page' %}">Patient 1-on-1 Coaching</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -1010,7 +1011,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-Student"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}"> Experience Teacher</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Licensed, Vetted Instructors</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -1018,7 +1019,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-trust-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">99% Pass Rate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">First-Try Pass Focus</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -1026,7 +1027,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-certificate-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Insurance Certificate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">MTO-Approved &amp; Insured</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                    </div><!-- /.row -->

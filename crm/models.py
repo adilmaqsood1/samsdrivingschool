@@ -892,7 +892,7 @@ class HomeHeroSlide(models.Model):
     button_text = models.CharField(max_length=60, default="View Courses")
     button_url = models.CharField(max_length=300, blank=True)
     background_image = models.ImageField(upload_to="upload/hero/", blank=True)
-    background_asset = models.CharField(max_length=255, blank=True, default="assets/images/sams/hero-student-driver.jpg")
+    background_asset = models.CharField(max_length=255, blank=True, default="assets/images/sams/hero-car-street.jpg")
     layer_image = models.ImageField(upload_to="upload/hero_layers/", blank=True)
     layer_asset = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
