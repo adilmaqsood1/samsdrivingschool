@@ -1,7 +1,8 @@
 	{% load static %}
+{% load sams_extras %}
 	<!DOCTYPE html>
 	<!-- language -->
-	<html lang="zxx">
+	<html lang="en">
 
 	<head>
 	    <!-- ========== Meta Tags ========== -->
@@ -9,8 +10,67 @@
 	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <base href="/">
-	    <meta name="author" content="layerdrops">
-	    <meta name="description" content="Sams Driving school is a modern school based in Calgary, Canada. We offer a range of driving classes, including basic, intermediate, and advanced classes.">
+
+	    {% if ga4_measurement_id or google_ads_conversion_id %}
+	    <!-- Google tag (gtag.js) — GA4 + Google Ads -->
+	    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_measurement_id|default:google_ads_conversion_id }}"></script>
+	    <script>
+	      window.dataLayer = window.dataLayer || [];
+	      function gtag(){dataLayer.push(arguments);}
+	      gtag('js', new Date());
+	      {% if ga4_measurement_id %}gtag('config', '{{ ga4_measurement_id }}');{% endif %}
+	      {% if google_ads_conversion_id %}gtag('config', '{{ google_ads_conversion_id }}');{% endif %}
+	      // Pass gclid through to the checkout redirect so Square-domain
+	      // hops don't lose Google Ads attribution.
+	      gtag('set', 'url_passthrough', true);
+	    </script>
+	    <script>
+	      // Site-wide lead tracking: contact-detail clicks + post-submit signals.
+	      (function () {
+	        var LEAD_EVENT = 'generate_lead';
+	        var ADS_ID = '{{ google_ads_conversion_id }}';
+	        var ADS_LEAD_LABEL = '{{ google_ads_lead_label }}';
+	        var CURRENCY = '{{ analytics_currency }}';
+
+	        function fireLead(method, extra) {
+	          if (typeof gtag !== 'function') return;
+	          var params = Object.assign({ method: method, currency: CURRENCY }, extra || {});
+	          gtag('event', LEAD_EVENT, params);
+	          if (ADS_ID && ADS_LEAD_LABEL) {
+	            gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LEAD_LABEL });
+	          }
+	        }
+	        window.samsFireLead = fireLead;
+
+	        // 1. tel:, mailto: and WhatsApp link clicks.
+	        document.addEventListener('click', function (ev) {
+	          var a = ev.target.closest && ev.target.closest('a[href]');
+	          if (!a) return;
+	          var href = (a.getAttribute('href') || '').toLowerCase();
+	          if (href.indexOf('tel:') === 0) return fireLead('phone');
+	          if (href.indexOf('mailto:') === 0) return fireLead('email');
+	          if (href.indexOf('wa.me') !== -1 || href.indexOf('whatsapp.com') !== -1 ||
+	              href.indexOf('api.whatsapp') !== -1) return fireLead('whatsapp');
+	        }, true);
+
+	        // 2. Form handlers redirect back with ?lead_sent=<type>. Fire once,
+	        //    then strip the param so a refresh doesn't re-count.
+	        try {
+	          var qs = new URLSearchParams(window.location.search);
+	          var sent = qs.get('lead_sent');
+	          if (sent) {
+	            fireLead('form', { lead_type: sent });
+	            qs.delete('lead_sent');
+	            var clean = window.location.pathname + (qs.toString() ? '?' + qs.toString() : '') + window.location.hash;
+	            window.history.replaceState({}, document.title, clean);
+	          }
+	        } catch (e) {}
+	      })();
+	    </script>
+	    {% endif %}
+
+	    <meta name="author" content="Sams Driving School">
+	    <meta name="description" content="Sams Driving School serves Milton, Burlington and the GTA with in-class and in-car driving lessons for beginner to advanced students.">
 
 	    <!-- ======== Page title ============ -->
 	    <title>{% block title %}Sams Driving School{% endblock %}</title>
@@ -99,6 +159,47 @@
 
 	        {% block content %}
 	        <section class="main-slider-one">
+            <style>
+                /* Real Sams Driving School photos behind the hero (set per slide via
+                   background_asset). A dark left-to-right wash keeps the headline and
+                   CTA legible while the car / lesson still reads on the right; near
+                   solid on small screens where the text runs full width. */
+                .main-slider-one__item {
+                    position: relative;
+                    background-color: #0b1a2b;
+                    background-size: cover;
+                    /* Bias the crop toward the top so the car (and its roof sign)
+                       sits in frame rather than being clipped. */
+                    background-position: center 22%;
+                }
+                .main-slider-one__item::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    z-index: 1;
+                    background: linear-gradient(90deg, rgba(8,15,26,0.90) 0%, rgba(8,15,26,0.72) 40%, rgba(8,15,26,0.34) 75%, rgba(8,15,26,0.28) 100%);
+                }
+                .main-slider-one__item > .container { position: relative; z-index: 3; }
+                .main-slider-one__title,
+                .main-slider-one__title__anim { color: #ffffff; }
+                /* Hero CTA: the theme paints the button via ::before (black by
+                   default), which disappears on a dark photo. Repaint it green
+                   and keep the label dark; hover flips to white. */
+                .main-slider-one__btn .drivschol-btn::before { background-color: #6fbe44; }
+                .main-slider-one__btn .drivschol-btn::after { background-color: #ffffff; }
+                .main-slider-one__btn .drivschol-btn,
+                .main-slider-one__btn .drivschol-btn span,
+                .main-slider-one__btn .drivschol-btn:hover,
+                .main-slider-one__btn .drivschol-btn:hover span { color: #0b1a2b; }
+                .main-slider-one__btn .drivschol-btn span { font-weight: 800; }
+                .main-slider-one__btn .drivschol-btn { box-shadow: 0 12px 34px rgba(111,190,68,0.34); }
+                @media (max-width: 991px) {
+                    .main-slider-one__item { background-position: center 20%; }
+                    .main-slider-one__item::before {
+                        background: linear-gradient(90deg, rgba(8,15,26,0.92) 0%, rgba(8,15,26,0.86) 100%);
+                    }
+                }
+            </style>
 	            <div class="main-slider-one__carousel drivschol-owl__carousel owl-carousel" data-owl-options='{
 			"loop": true,
 			"animateOut": "fadeOut",
@@ -115,7 +216,7 @@
 			}'>
 	                {% for slide in hero_slides %}
 	                <div class="item" data-dot="<button>{{ forloop.counter|stringformat:'02d' }}</button>">
-	                    <div class="main-slider-one__item">
+	                    <div class="main-slider-one__item" style="background-image: url('{{ slide.background_src }}');">
 	                        <div class="container">
 	                            <div class="main-slider-one__content">
 	                                <h2 class="main-slider-one__title">
@@ -133,9 +234,6 @@
 	                </div>
 	                {% endfor %}
 	            </div>
-	            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 75%; max-width: 820px; min-width: 220px; display: flex; align-items: flex-end; justify-content: flex-end; overflow: visible; z-index: 1; pointer-events: none; padding-right: clamp(0px, 2vw, 30px); padding-bottom: clamp(8px, 4vh, 60px);">
-	                <img src="https://res.cloudinary.com/dsmgydskc/image/upload/v1775839062/sams-removebg-preview_dodysv.png" alt="drivschol" style="height: auto; display: block; width: clamp(240px, 56vw, 760px); max-width: 100%; transform: translateX(clamp(-10px, -2vw, -30px));">
-	            </div>
 	            <a href="#services" class="main-slider-one__trigger"><span class="icon-video"></span></a>
 	        </section>
 
@@ -146,9 +244,9 @@
 	                        <div class="about-one__item">
 	                            <div class="about-one__item__left">
 	                                <div class="about-one__item__left__img  wow fadeInUp" data-wow-delay="500ms">
-	                                    <img src="assets/getto.png" alt>
+	                                    <img src="assets/images/sams/instructor-lesson.jpg" alt="Learning to drive with Sam's Driving School in Milton" style="border-radius:16px;object-fit:cover;width:100%;aspect-ratio:4/5;">
 	                                    <div class="about-one__item__left__img__sub_img">
-	                                        <img src="assets/badge.png" alt>
+	                                        <img src="assets/badge.png" alt="MTO-approved driving instruction">
 	                                        <svg viewBox="0 0 208 169" fill="none" xmlns="http://www.w3.org/2000/svg">
 	                                            <path d="M1 169V1H208" stroke="#6fbe44" stroke-width="2" />
 	                                            <path d="M17 169V17H208" stroke="#6fbe44" stroke-width="2" />
@@ -182,13 +280,13 @@
 	                                        <i class="icon-right-arrow sec-title__img"></i>
 	                                    </h6><!-- /.sec-title__tagline -->
 
-	                                    <h3 class="sec-title__title">Professional Driving Lessons in the GTA Since 2005</h3><!-- /.sec-title__title -->
+	                                    <h3 class="sec-title__title">Milton &amp; Burlington's Driving School Since 2005</h3><!-- /.sec-title__title -->
 	                                </div><!-- /.sec-title -->
-	                                <p class="about-one__item__text  wow fadeInUp" data-wow-delay='500ms'>We pride ourselves on delivering a high standard of customer service while maintaining a very high first-time pass rate. Established in 2005, we’ve helped thousands of students build confidence and pass safely with fully-qualified, experienced instructors and dual brake control vehicles.</p><!-- /.about-one__item__text -->
+	                                <p class="about-one__item__text  wow fadeInUp" data-wow-delay='500ms'>Family-run since 2005, Sam’s has helped thousands of new drivers across Milton, Burlington and the GTA pass their road test — most on the first try. You learn in a calm, dual-brake car with a patient, fully-licensed instructor who picks you up and drops you off within 10 km.</p><!-- /.about-one__item__text -->
 	                            </div><!-- /.about-one__item__head -->
 
 	                            <div class="about-one__item__block-contents wow fadeInUp" data-wow-delay="500ms">
-	                                <h3 class="about-one__item__block-contents__text">MTO-approved programs, flexible scheduling, and pickup/drop-off for in-car training within 10km.</h3>
+	                                <h3 class="about-one__item__block-contents__text">MTO-approved BDE certification, evening and weekend lessons, and free pickup and drop-off within 10 km.</h3>
 	                            </div>
 
 	                            <div class="about-one__item__elememt">
@@ -200,7 +298,7 @@
 	                                                    <i class="icon-steering-wheel-1"></i>
 	                                                </div>
 	                                            </div>
-	                                            <h3 class="about-one__item__elememt__single__text">MTO Approved Beginner Driving Online Course</h3>
+	                                            <h3 class="about-one__item__elememt__single__text">MTO-Approved BDE Certificate</h3>
 	                                        </div>
 	                                    </div>
 
@@ -211,7 +309,7 @@
 	                                                    <i class="icon-Instructor"></i>
 	                                                </div>
 	                                            </div>
-	                                            <h3 class="about-one__item__elememt__single__text">Experienced Instructors</h3>
+	                                            <h3 class="about-one__item__elememt__single__text">Patient, Fully-Licensed Instructors</h3>
 	                                        </div>
 	                                    </div>
 
@@ -220,14 +318,14 @@
 
 	                            <!-- /.why-choose-two__text -->
 	                            <div class="about-one__progress  wow fadeInUp" data-wow-delay='500ms'>
-	                                <h4 class="about-one__progress__title">Driving Skill</h4>
+	                                <h4 class="about-one__progress__title">Students Who Pass First Try</h4>
 	                                <div class="about-one__progress__bar">
 	                                    <div class="about-one__progress__inner count-bar" data-percent="80%">
 	                                        <div class="about-one__progress__number count-text">80%</div>
 	                                    </div>
 	                                </div>
 	                            </div><!-- /.skills-item -->
-	                            <a href="{% url 'about_page' %}" class="drivschol-btn drivschol-btn--black  wow fadeInUp" data-wow-delay='500ms'><span>Discover More</span></a>
+	                            <a href="{% url 'about_page' %}" class="drivschol-btn drivschol-btn--black  wow fadeInUp" data-wow-delay='500ms'><span>About Sam's</span></a>
 	                        </div>
 	                    </div><!-- /.col-lg-6 -->
 	                </div><!-- /.row -->
@@ -249,7 +347,7 @@
 	                                <i class="icon-right-arrow sec-title__img"></i>
 	                            </h6><!-- /.sec-title__tagline -->
 
-	                            <h3 class="sec-title__title">We’re Offering the Best <br> Services to You</h3><!-- /.sec-title__title -->
+	                            <h3 class="sec-title__title">MTO-Approved Courses &amp; <br> Road-Test Packages</h3><!-- /.sec-title__title -->
 	                        </div><!-- /.sec-title -->
 	                        <!-- section-title -->
 	                    </div>
@@ -260,7 +358,7 @@
 	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='{% if forloop.counter0 == 0 %}000ms{% elif forloop.counter0 == 1 %}400ms{% else %}000ms{% endif %}'>
 
 	                            <div class="service-card__image">
-	                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}assets/cousre.png{% endif %}" alt="{{ course.title }}">
+	                                <img src="{{ course|service_card_image }}" alt="{{ course.title }}">
 	                            </div><!-- /.blog-card__image -->
 
 	                            <div class="service-card__content">
@@ -461,7 +559,7 @@
 	                    <div class="row align-items-center">
 	                        <div class="col-md-8">
 	                            <div class="cta-three__inner__content  wow fadeInUp" data-wow-delay='500ms'>
-	                                <h3 class="cta-three__inner__content__text">Our Students Pass the Driving Test on the First Try. Start Learning Now</h3><!-- /.cta-three__content__text -->
+	                                <h3 class="cta-three__inner__content__text">Ready to get your licence? Book your first lesson today.</h3><!-- /.cta-three__content__text -->
 	                            </div>
 	                        </div><!-- /.col-md-7 -->
 	                        <div class="col-md-4">
@@ -897,7 +995,7 @@
 	                        </div><!-- /.sec-title -->
 	                    </div><!-- /.col-md-6 -->
 	                    <div class="col-md-6">
-	                        <p class="why-choose-one__head__text  wow fadeInUp" data-wow-delay='700ms'>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteradution in some form by injected humour, some form </p><!-- /.why-choose-one__head__text -->
+	                        <p class="why-choose-one__head__text  wow fadeInUp" data-wow-delay='700ms'>From your first G1 lesson to your road test, our patient instructors focus on building the confidence and safe habits that last a lifetime behind the wheel.</p><!-- /.why-choose-one__head__text -->
 	                    </div><!-- /.col-md-6 -->
 	                </div><!-- /.row -->
 	                <div class="why-choose-one__inner">
@@ -907,7 +1005,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-Instructor"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'course_page' %}">Quality Service</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'course_page' %}">Patient 1-on-1 Coaching</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -915,7 +1013,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-Student"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}"> Experience Teacher</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Licensed, Vetted Instructors</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -923,7 +1021,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-trust-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">99% Pass Rate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">First-Try Pass Focus</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                        <div class="col-lg-3 col-md-6">
@@ -931,7 +1029,7 @@
 	                                <div class="why-choose-one__single__item__icon">
 	                                    <i class="icon-certificate-1"></i>
 	                                </div><!-- /.why-choose-one__single__item__icon -->
-	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">Insurance Certificate</a></h3><!-- /.why-choose-one__single__item__text -->
+	                                <h3 class="why-choose-one__single__item__text"><a href="{% url 'team_details_page' %}">MTO-Approved &amp; Insured</a></h3><!-- /.why-choose-one__single__item__text -->
 	                            </div><!-- /.why-choose-one__single__item -->
 	                        </div><!-- /.col-md-3 -->
 	                    </div><!-- /.row -->
@@ -1346,6 +1444,7 @@
 	                .then(function(result) {
 	                    if (result.ok && result.data && result.data.success) {
 	                        showHomeAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+	                        if (window.samsFireLead) window.samsFireLead('form', { lead_type: result.data.lead_type || 'contact' });
 	                        form.reset();
 	                        refreshHomeCaptcha();
 	                    } else {

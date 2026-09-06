@@ -29,9 +29,23 @@ def _load_env_file(path):
 
 _load_env_file(BASE_DIR / ".env")
 
-DEBUG = False
+from django.core.exceptions import ImproperlyConfigured
 
-SECRET_KEY = "django-insecure-6ioo9m4d=1%5!2u0v8a7n1ydqz3k2l1x1_9s4l5n3t7q6t8e0"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+
+# Secrets are read from the environment (.env on the server, never committed).
+# A throwaway key is tolerated only for local work with DEBUG on.
+SECRET_KEY = os.environ.get("SECRET_KEY") or ""
+if not SECRET_KEY:
+    if DEBUG:
+        from django.core.management.utils import get_random_secret_key
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise ImproperlyConfigured(
+            "SECRET_KEY is not set. Add it to the server's .env "
+            "(generate: python -c \"from django.core.management.utils import "
+            "get_random_secret_key; print(get_random_secret_key())\")."
+        )
 
 ALLOWED_HOSTS = ["*"]
 
@@ -74,6 +88,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "crm.context_processors.analytics_context",
             ],
         },
     },
@@ -85,21 +100,25 @@ if not DEBUG:
 
     DATABASES = {
         "default": {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'samsdriving_sams',        # your database name
-            'USER': 'samsdriving_id_rsa',    # your db user
-            'PASSWORD': 'Samsdrive123@',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("DB_NAME", "samsdriving_sams"),
+            "USER": os.environ.get("DB_USER", "samsdriving_id_rsa"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "3306"),
             "OPTIONS": {
                 "charset": "utf8mb4",
                 "init_command": "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             },
         }
     }
-    
+    if not DATABASES["default"]["PASSWORD"]:
+        raise ImproperlyConfigured(
+            "DB_PASSWORD is not set. Add DB_NAME / DB_USER / DB_PASSWORD to the server's .env."
+        )
+
 else:
-        DATABASES = {
+    DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
@@ -144,7 +163,7 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "mail.samsdriving.ca")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "info@samsdriving.ca")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Wajdaan2004!")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() == "true"
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").lower() == "true"
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
@@ -186,6 +205,29 @@ SQUARE_ACCESS_TOKEN = os.environ.get("SQUARE_ACCESS_TOKEN", "")
 SQUARE_LOCATION_ID = os.environ.get("SQUARE_LOCATION_ID", "")
 SQUARE_WEBHOOK_SIGNATURE_KEY = os.environ.get("SQUARE_WEBHOOK_SIGNATURE_KEY", "")
 SQUARE_VERSION = os.environ.get("SQUARE_VERSION", "2022-08-17")
+
+
+# --- Analytics & conversion tracking (see crm/analytics.py) ---
+# GA4 web stream. Client-side gtag.js always loads when the measurement id is
+# set. Server-side purchase reporting (GA4 Measurement Protocol) additionally
+# needs GA4_API_SECRET (GA4 Admin -> Data Streams -> stream -> Measurement
+# Protocol API secrets). Both degrade to no-op when unset.
+GA4_MEASUREMENT_ID = os.environ.get("GA4_MEASUREMENT_ID", "G-S0NPLVBWSS")
+GA4_API_SECRET = os.environ.get("GA4_API_SECRET", "")
+
+# Google Ads conversion tracking. GOOGLE_ADS_CONVERSION_ID looks like
+# "AW-123456789"; the labels come from each conversion action in Google Ads
+# (Goals -> Conversions -> <action> -> Tag setup -> "Use Google tag").
+GOOGLE_ADS_CONVERSION_ID = os.environ.get("GOOGLE_ADS_CONVERSION_ID", "")
+GOOGLE_ADS_PURCHASE_LABEL = os.environ.get("GOOGLE_ADS_PURCHASE_LABEL", "")
+GOOGLE_ADS_LEAD_LABEL = os.environ.get("GOOGLE_ADS_LEAD_LABEL", "")
+
+# When "1", server-side Measurement Protocol hits go to GA4's debug endpoint
+# and validation problems are logged instead of silently accepted.
+ANALYTICS_DEBUG = os.environ.get("ANALYTICS_DEBUG", "") == "1"
+
+# Reporting currency for purchase/lead values sent to GA4 and Google Ads.
+ANALYTICS_CURRENCY = os.environ.get("ANALYTICS_CURRENCY", "CAD")
 
 
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")

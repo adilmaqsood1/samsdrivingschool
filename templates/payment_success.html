@@ -60,4 +60,43 @@
         </div>
     </div>
 </section>
+
+{% if ga4_measurement_id or google_ads_conversion_id %}
+<script>
+  // Client-side purchase conversion. transaction_id matches the server-side
+  // event (invoice number) so GA4 de-duplicates. sessionStorage guard keeps
+  // a page refresh from re-counting the sale.
+  (function () {
+    var TXN = "{{ invoice.number|escapejs }}";
+    var KEY = "sams_purchase_" + TXN;
+    try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
+    if (typeof gtag !== "function") return;
+
+    var VALUE = parseFloat("{{ invoice.total_amount|stringformat:'.2f' }}") || 0;
+    var CURRENCY = "{{ analytics_currency }}";
+    {% with course=invoice.enrollment.session.course %}
+    var ITEM_ID = "{{ course.slug|default:course.pk|escapejs }}";
+    var ITEM_NAME = "{{ course.name|default:'Driving Course'|escapejs }}";
+    {% endwith %}
+
+    gtag("event", "purchase", {
+      transaction_id: TXN,
+      value: VALUE,
+      currency: CURRENCY,
+      items: [{ item_id: ITEM_ID, item_name: ITEM_NAME, item_category: "Driving Course", price: VALUE, quantity: 1 }]
+    });
+
+    {% if google_ads_conversion_id and google_ads_purchase_label %}
+    gtag("event", "conversion", {
+      send_to: "{{ google_ads_conversion_id }}/{{ google_ads_purchase_label }}",
+      value: VALUE,
+      currency: CURRENCY,
+      transaction_id: TXN
+    });
+    {% endif %}
+
+    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
+  })();
+</script>
+{% endif %}
 {% endblock %}

@@ -556,6 +556,13 @@ class Invoice(models.Model):
     square_payment_link_id = models.CharField(max_length=200, blank=True)
     square_order_id = models.CharField(max_length=200, blank=True)
     square_payment_id = models.CharField(max_length=200, blank=True)
+    # GA4 client id captured from the buyer's _ga cookie at checkout start,
+    # so the server-side purchase event (fired from the Square webhook) can
+    # be stitched to the browsing session that led to the sale.
+    ga_client_id = models.CharField(max_length=64, blank=True)
+    # Set once the server-side GA4 purchase event has been accepted, so
+    # webhook retries never double-report.
+    ga_purchase_reported = models.BooleanField(default=False)
 
     def __str__(self):
         return self.number
@@ -885,7 +892,7 @@ class HomeHeroSlide(models.Model):
     button_text = models.CharField(max_length=60, default="View Courses")
     button_url = models.CharField(max_length=300, blank=True)
     background_image = models.ImageField(upload_to="upload/hero/", blank=True)
-    background_asset = models.CharField(max_length=255, blank=True, default="assets/images/backgrounds/slider-1-1.png")
+    background_asset = models.CharField(max_length=255, blank=True, default="assets/images/sams/hero-car-street.jpg")
     layer_image = models.ImageField(upload_to="upload/hero_layers/", blank=True)
     layer_asset = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
