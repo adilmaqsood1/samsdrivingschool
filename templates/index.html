@@ -158,35 +158,45 @@
 
 	        {% block content %}
 	        <section class="main-slider-one">
-	            <style>
-	                /* Real Sams Driving School photo behind the hero (set per slide
-	                   via background_asset, with a photo fallback). A dark
-	                   left-to-right wash keeps the headline and button legible and
-	                   lets the cut-out instructor image on the right still read;
-	                   the wash goes near-solid on small screens where text is full
-	                   width. */
-	                .main-slider-one__item {
-	                    position: relative;
-	                    background-color: #0b1a2b;
-	                    background-size: cover;
-	                    background-position: center right;
-	                }
-	                .main-slider-one__item::before {
-	                    content: "";
-	                    position: absolute;
-	                    inset: 0;
-	                    z-index: 1;
-	                    background: linear-gradient(90deg, rgba(9,17,28,0.92) 0%, rgba(9,17,28,0.80) 40%, rgba(9,17,28,0.42) 100%);
-	                }
-	                .main-slider-one__item > .container { position: relative; z-index: 3; }
-	                .main-slider-one__title,
-	                .main-slider-one__title__anim { color: #ffffff; }
-	                @media (max-width: 991px) {
-	                    .main-slider-one__item::before {
-	                        background: linear-gradient(90deg, rgba(9,17,28,0.92) 0%, rgba(9,17,28,0.85) 100%);
-	                    }
-	                }
-	            </style>
+            <style>
+                /* Real Sams Driving School photos behind the hero (set per slide via
+                   background_asset). A dark left-to-right wash keeps the headline and
+                   CTA legible while the car / lesson still reads on the right; near
+                   solid on small screens where the text runs full width. */
+                .main-slider-one__item {
+                    position: relative;
+                    background-color: #0b1a2b;
+                    background-size: cover;
+                    background-position: center center;
+                }
+                .main-slider-one__item::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    z-index: 1;
+                    background: linear-gradient(90deg, rgba(8,15,26,0.90) 0%, rgba(8,15,26,0.72) 40%, rgba(8,15,26,0.34) 75%, rgba(8,15,26,0.28) 100%);
+                }
+                .main-slider-one__item > .container { position: relative; z-index: 3; }
+                .main-slider-one__title,
+                .main-slider-one__title__anim { color: #ffffff; }
+                /* Hero CTA: the theme paints the button via ::before (black by
+                   default), which disappears on a dark photo. Repaint it green
+                   and keep the label dark; hover flips to white. */
+                .main-slider-one__btn .drivschol-btn::before { background-color: #6fbe44; }
+                .main-slider-one__btn .drivschol-btn::after { background-color: #ffffff; }
+                .main-slider-one__btn .drivschol-btn,
+                .main-slider-one__btn .drivschol-btn span,
+                .main-slider-one__btn .drivschol-btn:hover,
+                .main-slider-one__btn .drivschol-btn:hover span { color: #0b1a2b; }
+                .main-slider-one__btn .drivschol-btn span { font-weight: 800; }
+                .main-slider-one__btn .drivschol-btn { box-shadow: 0 12px 34px rgba(111,190,68,0.34); }
+                @media (max-width: 991px) {
+                    .main-slider-one__item { background-position: center right; }
+                    .main-slider-one__item::before {
+                        background: linear-gradient(90deg, rgba(8,15,26,0.92) 0%, rgba(8,15,26,0.86) 100%);
+                    }
+                }
+            </style>
 	            <div class="main-slider-one__carousel drivschol-owl__carousel owl-carousel" data-owl-options='{
 			"loop": true,
 			"animateOut": "fadeOut",
@@ -203,7 +213,7 @@
 			}'>
 	                {% for slide in hero_slides %}
 	                <div class="item" data-dot="<button>{{ forloop.counter|stringformat:'02d' }}</button>">
-	                    <div class="main-slider-one__item" style="background-image: url('{{ slide.background_asset|default:'assets/images/gallery/1.jpeg' }}');">
+	                    <div class="main-slider-one__item" style="background-image: url('{{ slide.background_src }}');">
 	                        <div class="container">
 	                            <div class="main-slider-one__content">
 	                                <h2 class="main-slider-one__title">
@@ -221,9 +231,6 @@
 	                </div>
 	                {% endfor %}
 	            </div>
-	            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 75%; max-width: 820px; min-width: 220px; display: flex; align-items: flex-end; justify-content: flex-end; overflow: visible; z-index: 1; pointer-events: none; padding-right: clamp(0px, 2vw, 30px); padding-bottom: clamp(8px, 4vh, 60px);">
-	                <img src="https://res.cloudinary.com/dsmgydskc/image/upload/v1775839062/sams-removebg-preview_dodysv.png" alt="drivschol" style="height: auto; display: block; width: clamp(240px, 56vw, 760px); max-width: 100%; transform: translateX(clamp(-10px, -2vw, -30px));">
-	            </div>
 	            <a href="#services" class="main-slider-one__trigger"><span class="icon-video"></span></a>
 	        </section>
 
@@ -234,9 +241,9 @@
 	                        <div class="about-one__item">
 	                            <div class="about-one__item__left">
 	                                <div class="about-one__item__left__img  wow fadeInUp" data-wow-delay="500ms">
-	                                    <img src="assets/getto.png" alt>
+	                                    <img src="assets/images/sams/lesson-in-car.jpg" alt="A Sam's Driving School instructor guiding a student through a lesson" style="border-radius:16px;object-fit:cover;width:100%;aspect-ratio:4/5;">
 	                                    <div class="about-one__item__left__img__sub_img">
-	                                        <img src="assets/badge.png" alt>
+	                                        <img src="assets/badge.png" alt="MTO-approved driving instruction">
 	                                        <svg viewBox="0 0 208 169" fill="none" xmlns="http://www.w3.org/2000/svg">
 	                                            <path d="M1 169V1H208" stroke="#6fbe44" stroke-width="2" />
 	                                            <path d="M17 169V17H208" stroke="#6fbe44" stroke-width="2" />
