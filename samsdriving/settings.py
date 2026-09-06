@@ -148,6 +148,20 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Security hardening (production only — DEBUG keeps these permissive so the
+# dev server still works over plain http://127.0.0.1). Each setting degrades
+# gracefully: false / 0 in DEBUG, true / 60 when prod.
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0")) if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG and SECURE_HSTS_SECONDS > 0
+SECURE_HSTS_PRELOAD = not DEBUG and SECURE_HSTS_SECONDS > 0
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if not DEBUG else None
+SECURE_CONTENT_TYPE_NOSNIFF = True  # always on — no downside in DEBUG
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+X_FRAME_OPTIONS = "DENY"
+
 CKEDITOR_UPLOAD_PATH = "ckeditor/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
