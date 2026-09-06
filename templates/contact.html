@@ -322,6 +322,7 @@
                                     .then(function(result) {
                                         if (result.ok && result.data && result.data.success) {
                                             showAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+                                            if (window.samsFireLead) window.samsFireLead('form', { lead_type: result.data.lead_type || 'contact' });
                                             form.reset();
                                             refreshCaptcha();
                                         } else {
@@ -382,7 +383,7 @@
                         </div><!-- /.col-12 -->
                         <div class="col-md-6">
                             <div class="contact-location__subheading wow fadeInUp" data-wow-delay='300ms'>
-                                <p class="contact-location__subheading__text">There are many variations of passages of Lorem Ipsum avagtilable, but the majority have suffered alteration in some form, by injected hudfdfmour, or randomised words</p><!-- /.contact-location__subheading__text -->
+                                <p class="contact-location__subheading__text">We serve learner drivers across Milton, Burlington and the Greater Toronto Area. Reach out and we'll help you pick the class and schedule that fits you best.</p><!-- /.contact-location__subheading__text -->
                             </div><!-- / -->
                         </div><!-- /.col-12 -->
                     </div><!-- /.row -->
@@ -974,6 +975,7 @@
                 .then(function(result) {
                     if (result.ok && result.data && result.data.success) {
                         showAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+                        if (window.samsFireLead) window.samsFireLead('form', { lead_type: result.data.lead_type || 'contact' });
                         form.reset();
                         refreshCaptcha();
                     } else {

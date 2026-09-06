@@ -6,7 +6,7 @@ import uuid
 import logging
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 from urllib import request as urlrequest
 from urllib import error as urlerror
 from django.conf import settings
@@ -21,9 +21,12 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonRespons
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.utils.html import strip_tags
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+
+from . import analytics
 
 from .forms import (
     LeadForm,
@@ -59,6 +62,29 @@ from .models import (
 
 
 logger = logging.getLogger(__name__)
+
+
+def _redirect_with_params(url, **params):
+    """Append query params to ``url``, preserving any it already carries."""
+    parts = urlsplit(url or "/")
+    query = [(k, v) for k, v in parse_qsl(parts.query) if k not in params]
+    query.extend(params.items())
+    return HttpResponseRedirect(
+        urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+    )
+
+
+def _lead_redirect(request, fallback_name, lead_type):
+    """Bounce a form POST back to its page, tagged so gtag fires ``generate_lead``."""
+    referer = request.META.get("HTTP_REFERER") or ""
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        target = referer
+    else:
+        target = reverse(fallback_name)
+    return _redirect_with_params(target, lead_sent=lead_type)
+
 
 def _course_total_with_hst(course):
     def _parse_decimal(value):
@@ -404,7 +430,14 @@ def process_enrollment(request):
             "student_name": student_name
         })
     
-    # Redirect to Stripe Checkout
+    # Stash the buyer's GA4 client id so the server-side purchase event
+    # (fired later from the Square webhook) stitches to this session.
+    ga_client_id = analytics.client_id_from_request(request)
+    if ga_client_id and invoice.ga_client_id != ga_client_id:
+        invoice.ga_client_id = ga_client_id
+        invoice.save(update_fields=["ga_client_id"])
+
+    # Redirect to Square Checkout
     return HttpResponseRedirect(reverse("square_checkout_public", args=[invoice.id]))
 
 
@@ -654,10 +687,14 @@ def lead_capture(request):
         _queue_and_send_email(recipient_email=notification_email, subject=admin_subject, body=admin_html)
 
     if is_ajax:
-        return JsonResponse({"success": True, "message": "Thank you! Your message has been sent successfully."})
+        return JsonResponse({
+            "success": True,
+            "message": "Thank you! Your message has been sent successfully.",
+            "lead_type": "contact",
+        })
 
     messages.success(request, "Thank you! Your message has been sent successfully. We will get back to you shortly.")
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("contact_page"))
+    return _lead_redirect(request, "contact_page", "contact")
 
 
 def register(request):
@@ -747,7 +784,7 @@ def enroll_request(request):
             subject="New Enrollment Request",
             body=f"{data['name']} requested {data.get('package','')} {data.get('preferred_location','')}",
         )
-    return HttpResponseRedirect(reverse("course_details_page"))
+    return _lead_redirect(request, "course_details_default_page", "enroll_request")
 
 
 def lesson_request(request):
@@ -779,7 +816,7 @@ def lesson_request(request):
             subject="New Lesson Request",
             body=f"{data['name']} requested a lesson on {data.get('preferred_date','')} {data.get('preferred_time','')}",
         )
-    return HttpResponseRedirect(reverse("course_details_page"))
+    return _lead_redirect(request, "course_details_default_page", "lesson")
 
 
 def calendar_feed(request, token):
@@ -1036,6 +1073,13 @@ def _mark_invoice_paid_square(invoice_id, *, payment_id, order_id):
         ).exists()
         if not exists:
             _queue_and_send_email(recipient_email=admin_email, subject=admin_subject, body=admin_html)
+
+    # Server-side GA4 purchase event. Idempotent (guarded by
+    # invoice.ga_purchase_reported); no-op unless GA4_API_SECRET is set.
+    try:
+        analytics.report_purchase(invoice)
+    except Exception:  # noqa: BLE001 - analytics must never break the webhook
+        logger.warning("report_purchase failed for invoice %s", invoice.number, exc_info=True)
 
 
 @login_required

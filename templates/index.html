@@ -1,7 +1,7 @@
 	{% load static %}
 	<!DOCTYPE html>
 	<!-- language -->
-	<html lang="zxx">
+	<html lang="en">
 
 	<head>
 	    <!-- ========== Meta Tags ========== -->
@@ -9,8 +9,67 @@
 	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <base href="/">
-	    <meta name="author" content="layerdrops">
-	    <meta name="description" content="Sams Driving school is a modern school based in Calgary, Canada. We offer a range of driving classes, including basic, intermediate, and advanced classes.">
+
+	    {% if ga4_measurement_id or google_ads_conversion_id %}
+	    <!-- Google tag (gtag.js) — GA4 + Google Ads -->
+	    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_measurement_id|default:google_ads_conversion_id }}"></script>
+	    <script>
+	      window.dataLayer = window.dataLayer || [];
+	      function gtag(){dataLayer.push(arguments);}
+	      gtag('js', new Date());
+	      {% if ga4_measurement_id %}gtag('config', '{{ ga4_measurement_id }}');{% endif %}
+	      {% if google_ads_conversion_id %}gtag('config', '{{ google_ads_conversion_id }}');{% endif %}
+	      // Pass gclid through to the checkout redirect so Square-domain
+	      // hops don't lose Google Ads attribution.
+	      gtag('set', 'url_passthrough', true);
+	    </script>
+	    <script>
+	      // Site-wide lead tracking: contact-detail clicks + post-submit signals.
+	      (function () {
+	        var LEAD_EVENT = 'generate_lead';
+	        var ADS_ID = '{{ google_ads_conversion_id }}';
+	        var ADS_LEAD_LABEL = '{{ google_ads_lead_label }}';
+	        var CURRENCY = '{{ analytics_currency }}';
+
+	        function fireLead(method, extra) {
+	          if (typeof gtag !== 'function') return;
+	          var params = Object.assign({ method: method, currency: CURRENCY }, extra || {});
+	          gtag('event', LEAD_EVENT, params);
+	          if (ADS_ID && ADS_LEAD_LABEL) {
+	            gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LEAD_LABEL });
+	          }
+	        }
+	        window.samsFireLead = fireLead;
+
+	        // 1. tel:, mailto: and WhatsApp link clicks.
+	        document.addEventListener('click', function (ev) {
+	          var a = ev.target.closest && ev.target.closest('a[href]');
+	          if (!a) return;
+	          var href = (a.getAttribute('href') || '').toLowerCase();
+	          if (href.indexOf('tel:') === 0) return fireLead('phone');
+	          if (href.indexOf('mailto:') === 0) return fireLead('email');
+	          if (href.indexOf('wa.me') !== -1 || href.indexOf('whatsapp.com') !== -1 ||
+	              href.indexOf('api.whatsapp') !== -1) return fireLead('whatsapp');
+	        }, true);
+
+	        // 2. Form handlers redirect back with ?lead_sent=<type>. Fire once,
+	        //    then strip the param so a refresh doesn't re-count.
+	        try {
+	          var qs = new URLSearchParams(window.location.search);
+	          var sent = qs.get('lead_sent');
+	          if (sent) {
+	            fireLead('form', { lead_type: sent });
+	            qs.delete('lead_sent');
+	            var clean = window.location.pathname + (qs.toString() ? '?' + qs.toString() : '') + window.location.hash;
+	            window.history.replaceState({}, document.title, clean);
+	          }
+	        } catch (e) {}
+	      })();
+	    </script>
+	    {% endif %}
+
+	    <meta name="author" content="Sams Driving School">
+	    <meta name="description" content="Sams Driving School serves Milton, Burlington and the GTA with in-class and in-car driving lessons for beginner to advanced students.">
 
 	    <!-- ======== Page title ============ -->
 	    <title>{% block title %}Sams Driving School{% endblock %}</title>
@@ -99,6 +158,35 @@
 
 	        {% block content %}
 	        <section class="main-slider-one">
+	            <style>
+	                /* Real Sams Driving School photo behind the hero (set per slide
+	                   via background_asset, with a photo fallback). A dark
+	                   left-to-right wash keeps the headline and button legible and
+	                   lets the cut-out instructor image on the right still read;
+	                   the wash goes near-solid on small screens where text is full
+	                   width. */
+	                .main-slider-one__item {
+	                    position: relative;
+	                    background-color: #0b1a2b;
+	                    background-size: cover;
+	                    background-position: center right;
+	                }
+	                .main-slider-one__item::before {
+	                    content: "";
+	                    position: absolute;
+	                    inset: 0;
+	                    z-index: 1;
+	                    background: linear-gradient(90deg, rgba(9,17,28,0.92) 0%, rgba(9,17,28,0.80) 40%, rgba(9,17,28,0.42) 100%);
+	                }
+	                .main-slider-one__item > .container { position: relative; z-index: 3; }
+	                .main-slider-one__title,
+	                .main-slider-one__title__anim { color: #ffffff; }
+	                @media (max-width: 991px) {
+	                    .main-slider-one__item::before {
+	                        background: linear-gradient(90deg, rgba(9,17,28,0.92) 0%, rgba(9,17,28,0.85) 100%);
+	                    }
+	                }
+	            </style>
 	            <div class="main-slider-one__carousel drivschol-owl__carousel owl-carousel" data-owl-options='{
 			"loop": true,
 			"animateOut": "fadeOut",
@@ -115,7 +203,7 @@
 			}'>
 	                {% for slide in hero_slides %}
 	                <div class="item" data-dot="<button>{{ forloop.counter|stringformat:'02d' }}</button>">
-	                    <div class="main-slider-one__item">
+	                    <div class="main-slider-one__item" style="background-image: url('{{ slide.background_asset|default:'assets/images/gallery/1.jpeg' }}');">
 	                        <div class="container">
 	                            <div class="main-slider-one__content">
 	                                <h2 class="main-slider-one__title">
@@ -897,7 +985,7 @@
 	                        </div><!-- /.sec-title -->
 	                    </div><!-- /.col-md-6 -->
 	                    <div class="col-md-6">
-	                        <p class="why-choose-one__head__text  wow fadeInUp" data-wow-delay='700ms'>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteradution in some form by injected humour, some form </p><!-- /.why-choose-one__head__text -->
+	                        <p class="why-choose-one__head__text  wow fadeInUp" data-wow-delay='700ms'>From your first G1 lesson to your road test, our patient instructors focus on building the confidence and safe habits that last a lifetime behind the wheel.</p><!-- /.why-choose-one__head__text -->
 	                    </div><!-- /.col-md-6 -->
 	                </div><!-- /.row -->
 	                <div class="why-choose-one__inner">
@@ -1346,6 +1434,7 @@
 	                .then(function(result) {
 	                    if (result.ok && result.data && result.data.success) {
 	                        showHomeAlert('success', '<i class="fas fa-check-circle me-2"></i>' + result.data.message);
+	                        if (window.samsFireLead) window.samsFireLead('form', { lead_type: result.data.lead_type || 'contact' });
 	                        form.reset();
 	                        refreshHomeCaptcha();
 	                    } else {

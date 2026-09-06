@@ -140,6 +140,35 @@
             </div>
         </div>
     </section>
+
+    {% if ga4_measurement_id or google_ads_conversion_id %}
+    <script>
+      // Fire begin_checkout when the buyer proceeds to Square (pay-now only;
+      // "pay in office" is not a checkout).
+      (function () {
+        var form = document.querySelector('form[action$="/enroll/process/"], form[action*="process_enrollment"]');
+        if (!form) form = document.querySelector('.enrollment-form form');
+        if (!form) return;
+        form.addEventListener('submit', function () {
+          if (typeof gtag !== 'function') return;
+          var pm = form.querySelector('input[name="payment_method"]:checked');
+          if (pm && pm.value === 'pay_later') return;
+          var value = parseFloat("{{ course.fees_calc.total|default:course.price_display }}".replace(/[^0-9.]/g, '')) || 0;
+          gtag('event', 'begin_checkout', {
+            value: value,
+            currency: "{{ analytics_currency }}",
+            items: [{
+              item_id: "{{ course_slug|escapejs }}",
+              item_name: "{{ course.title|default:course.name|escapejs }}",
+              item_category: "Driving Course",
+              price: value,
+              quantity: 1
+            }]
+          });
+        });
+      })();
+    </script>
+    {% endif %}
     {% endblock %}
 </body>
 </html>
