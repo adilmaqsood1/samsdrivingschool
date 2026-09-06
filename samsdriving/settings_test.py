@@ -3,7 +3,14 @@
 Run with:  python manage.py test --settings=samsdriving.settings_test
 """
 
-from .settings import *  # noqa: F401,F403
+import os
+
+# Take the local-dev branches in settings.py (sqlite, no mandatory secret/DB
+# env) then pin the values this suite needs below.
+os.environ.setdefault("DJANGO_DEBUG", "true")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-not-used-in-production")
+
+from .settings import *  # noqa: E402,F401,F403
 
 DEBUG = False
 
