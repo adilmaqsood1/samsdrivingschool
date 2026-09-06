@@ -30,7 +30,7 @@ COPY = {
         "Learn to Drive", "with Milton &", "Burlington's Best", "See Our Programs", INSTRUCTOR,
     ),
     "to master": (
-        "G2 & G Road", "Test Packages", "Instructor's car on test day", "Book Your Package", RED_CAR,
+        "Nervous About", "Your Road Test?", "We'll get you ready", "Book a Lesson", RED_CAR,
     ),
 }
 

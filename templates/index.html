@@ -168,7 +168,9 @@
                     position: relative;
                     background-color: #0b1a2b;
                     background-size: cover;
-                    background-position: center center;
+                    /* Bias the crop toward the top so the car (and its roof sign)
+                       sits in frame rather than being clipped. */
+                    background-position: center 22%;
                 }
                 .main-slider-one__item::before {
                     content: "";
@@ -192,7 +194,7 @@
                 .main-slider-one__btn .drivschol-btn span { font-weight: 800; }
                 .main-slider-one__btn .drivschol-btn { box-shadow: 0 12px 34px rgba(111,190,68,0.34); }
                 @media (max-width: 991px) {
-                    .main-slider-one__item { background-position: center right; }
+                    .main-slider-one__item { background-position: center 20%; }
                     .main-slider-one__item::before {
                         background: linear-gradient(90deg, rgba(8,15,26,0.92) 0%, rgba(8,15,26,0.86) 100%);
                     }
