@@ -26,3 +26,19 @@ def service_image(title):
         if any(k in text for k in keywords):
             return path
     return _DEFAULT_SERVICE_IMAGE
+
+
+# Legacy AI-composite / placeholder images that carry baked-in text or the wrong
+# label; ignore them in favour of the clean b-roll. A real photo uploaded in the
+# admin still wins.
+_LEGACY_IMAGES = ("getto.png", "senior.png", "cousre.png", "course.png")
+
+
+@register.filter
+def service_card_image(course):
+    """Best image for a service card: the course's own photo when it is a real
+    upload, otherwise a b-roll photo chosen from the title."""
+    src = getattr(course, "image_src", "") or ""
+    if src and not any(name in src for name in _LEGACY_IMAGES):
+        return src
+    return service_image(getattr(course, "title", "") or getattr(course, "name", ""))

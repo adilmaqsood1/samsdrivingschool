@@ -358,7 +358,7 @@
 	                        <div class="service-card service-card-one  wow fadeInUp animated" data-wow-duration='1500ms' data-wow-delay='{% if forloop.counter0 == 0 %}000ms{% elif forloop.counter0 == 1 %}400ms{% else %}000ms{% endif %}'>
 
 	                            <div class="service-card__image">
-	                                <img src="{% if course.image_src %}{{ course.image_src }}{% else %}{{ course.title|service_image }}{% endif %}" alt="{{ course.title }}">
+	                                <img src="{{ course|service_card_image }}" alt="{{ course.title }}">
 	                            </div><!-- /.blog-card__image -->
 
 	                            <div class="service-card__content">
