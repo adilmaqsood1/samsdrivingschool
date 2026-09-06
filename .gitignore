@@ -30,3 +30,9 @@ venv.bak/
 
 # Static build output (collectstatic result) — never commit
 /staticfiles_build/
+
+# Local dev shim — never commit (real settings.py refuses to load without .env)
+/sams_dev_settings.py
+
+# Local scratch / planning notes — keep repo clean
+/.scratch/
