@@ -27,3 +27,6 @@ venv.bak/
 # IDE
 .vscode/
 .idea/
+
+# Static build output (collectstatic result) — never commit
+/staticfiles_build/
